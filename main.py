@@ -37,47 +37,71 @@ class Point:
 
 
 class Line:
-    def __init__(self, point1: Point, point2: Point):
+    def __init__(self, point1: Point, point2: Point, name=''):
         self.point1 = point1
         self.point2 = point2
         self.slope = self.calculate_slope(point1, point2)
         self.intercept = self.calculate_intercept(point1, point2, self.slope)
+        self.name=name
 
     @staticmethod
     def calculate_slope(point1: Point, point2: Point):
-        return float(point2.y-point1.y)/float(point2.x-point1.x)
+        try:
+            return float(point2.y-point1.y)/float(point2.x-point1.x)
+        except ZeroDivisionError:  # If the line is vertical, its slope is undefined or "infinite"
+            return math.inf
 
     def calculate_intercept(self, point1: Point, point2: Point, slope=None):
         if slope is None:
             slope = self.calculate_slope(point1, point2)
         else:
             slope = slope
-        return point1.x * slope
+        return point2.y - point1.x * slope
+
+    def __repr__(self):
+        return f'Line {self.name} through {self.point1} and {self.point2}, with equation: y={self.slope}x+{self.intercept}'
+
+    def __hash__(self):
+        return hash(repr(self))
 
 
 class Circle:
-    def __init__(self, center: Point, radius: float):
+    def __init__(self, center: Point, radius: float, name=''):
         self.center = center
         self.radius = radius
+        self.name = name
+
+    def __repr__(self):
+        return f'Circle {self.name} with center {self.center} and radius {self.radius}'
+
+    def __hash__(self):
+        return hash(repr(self))
 
 
 class Construction:
     def __init__(self):
-        pass
+        self.points = set()
+        self.lines = set()
+        self.circles = set()
 
     def find_intersections(self, object1, object2) -> {Point}:
+        intersections = None
         if type(object1) is Line:
             if type(object2) is Line:
-                return self.find_intersections_line_line(object1, object2)
+                intersections = self.find_intersections_line_line(object1, object2)
             elif type(object2) is Circle:
-                return self.find_intersections_line_circle(object1, object2)
+                intersections = self.find_intersections_line_circle(object1, object2)
         elif type(object2) is Circle:
             if type(object1) is Line:
-                return self.find_intersections_line_circle(object1, object2)
+                intersections = self.find_intersections_line_circle(object1, object2)
             elif type(object1) is Circle:
-                return self.find_intersections_circle_circle(object1, object2)
-        print('Cannot find intersection of unsupported objects')
-        return None
+                intersections = self.find_intersections_circle_circle(object1, object2)
+        if intersections is not None:
+            self.points += intersections
+            return intersections
+        else:
+            print(f'Cannot find intersection of unsupported objects: \n\t{object1}\n\t{object2}')
+            raise NotImplemented
 
     @staticmethod
     def find_intersections_line_line(line1: Line, line2: Line) -> {Point}:
@@ -99,12 +123,11 @@ class Construction:
 
     @staticmethod
     def find_intersections_line_circle(line, circle) -> {Point}:
-        """ In the Euclidean plane, two lines can intersect at most once (by Postulate 5/Playfair's Axiom)
-            Consequently, this method returns either the empty set (if the lines are parallel/coinciding) or a set
-            with one point (if they intersect).
+        """ In the Euclidean plane, a line can intersect a circle at most twice. Curiously, I am not aware of anywhere
+        that Euclid proves this. This is almost trivial to prove when dealing with real coordinates.
 
-            :param line1
-            :param line2
+            :param line: a line object representing the line in the euclidean space
+            :param circle: a circle in the euclidean space
 
             :returns {Point} a set of at most one point representing the intersection of the two lines
         """
@@ -160,5 +183,6 @@ class Construction:
                 x4 = x2 - height * (center2.y - center1.y) * (1 / distance_between_centers)
                 y4 = y2 + height * (center2.x - center1.x) * (1 / distance_between_centers)
                 return {Point(x3, y3), Point(x4, y4)}
+
 
 
