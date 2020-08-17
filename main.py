@@ -29,6 +29,12 @@ class Point:
     def __abs__(self):
         return math.sqrt(self * self)
 
+    def __repr__(self):
+        return f'Point {self.name}: ({self.x}, {self.y})'
+
+    def __hash__(self):
+        return hash(repr(self))
+
 
 class Line:
     def __init__(self, point1: Point, point2: Point):
@@ -149,6 +155,10 @@ class Construction:
                 height = math.sqrt(r1**2 - dis_to_area_center**2)
                 x2 = center_of_intersection_area.x
                 y2 = center_of_intersection_area.y
-                x3 = x2 + height * (center2.y-center1.y)/distance_between_centers
+                x3 = x2 + height * (center2.y-center1.y) * (1/distance_between_centers)
+                y3 = y2 - height * (center2.x - center1.x) * (1/distance_between_centers)
+                x4 = x2 - height * (center2.y - center1.y) * (1 / distance_between_centers)
+                y4 = y2 + height * (center2.x - center1.x) * (1 / distance_between_centers)
+                return {Point(x3, y3), Point(x4, y4)}
 
 
