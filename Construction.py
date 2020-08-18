@@ -4,13 +4,14 @@ from Circle import Circle
 import matplotlib.pyplot as plt
 import math
 import random
-
+from decimal import Decimal
 
 class Construction:
     def __init__(self):
         self.points: {Point} = set()
         self.lines: {Line} = set()
         self.circles: {Circle} = set()
+        self.steps = []
 
     def find_intersections(self, object1, object2) -> {Point}:
         intersections = None
@@ -25,7 +26,17 @@ class Construction:
             elif type(object2) is Circle:
                 intersections = self.find_intersections_circle_circle(object1, object2)
         if intersections is not None:
+            previous_number_of_points = len(self.points)
+            i = previous_number_of_points
+            for intersect in intersections:
+                i += 1
+                if not intersect.name:
+                    #intersect.name = chr(i + ord('a'))
+                    intersect.name = f'"{i}"'
+
             self.points.update(intersections)
+            if Point(-.5, Decimal.sqrt(Decimal(3))/2) in intersections:
+                print('STOP')
             return intersections
         else:
             print(f'Cannot find intersection of unsupported objects: \n\t{object1}\n\t{object2}')
@@ -77,8 +88,8 @@ class Construction:
             point_solution = line.point1 + line_basis_vector * t_solution
             return {point_solution}
         else:  # The discriminant is positive, so there are two real solutions and the line is secant
-            t_solution1 = (-b + math.sqrt(discriminant)) / (2 * a)
-            t_solution2 = (-b - math.sqrt(discriminant)) / (2 * a)
+            t_solution1 = (-b + Decimal.sqrt(discriminant)) / (2 * a)
+            t_solution2 = (-b - Decimal.sqrt(discriminant)) / (2 * a)
             p_solution1 = line.point1 + line_basis_vector * t_solution1
             p_solution2 = line.point1 + line_basis_vector * t_solution2
             return {p_solution1, p_solution2}
@@ -104,7 +115,7 @@ class Construction:
             if dis_to_area_center == r1:  # The two circles are tangent and thus intersect at exactly one point
                 return {center_of_intersection_area}
             else:  # Two circles intersect at two points
-                height = math.sqrt(r1 ** 2 - dis_to_area_center ** 2)
+                height = Decimal.sqrt(r1 ** 2 - dis_to_area_center ** 2)
                 x2 = center_of_intersection_area.x
                 y2 = center_of_intersection_area.y
                 x3 = x2 + height * (center2.y - center1.y) * (1 / distance_between_centers)
@@ -122,14 +133,10 @@ class Construction:
             plt_line = line.plt_draw()
             #plt_line.set_transform(ax.transAxes)
             ax.add_line(plt_line)
-        x = []
-        y = []
         for point in self.points:
-            x.append(point.x)
-            y.append(point.y)
             ax.add_artist(point.plt_draw())
-        #ax.plot(x, y)
-        plt.axis('scaled')
+            plt.annotate(point.name, xy=(point.x, point.y))
+        plt.axis('equal')
         plt.show()
 
     def update_intersections_with_object(self, object):
@@ -142,20 +149,45 @@ class Construction:
         self.points.update(intersections)
         return intersections
 
-    def add_circle(self, center: Point, point2: Point) -> Circle:
+    def add_circle(self, center: Point, point2: Point, counts_as_step=True) -> Circle:
         circle = Circle(center=center, point2=point2)
         self.circles.add(circle)
+        if counts_as_step:
+            self.steps.append(circle)
         self.update_intersections_with_object(circle)
+        return circle
 
-    def add_line(self, point1: Point, point2: Point) -> Line:
+    def add_line(self, point1: Point, point2: Point, counts_as_step=True) -> Line:
         line = Line(point1=point1, point2=point2)
         self.lines.add(line)
+        if counts_as_step:
+            self.steps.append(line)
         self.update_intersections_with_object(line)
+        return line
 
     def add_random_construction(self, number_of_times=1):
+        """
+
+        :param number_of_times:
+        :return: the last construction added to the diagram
+        """
+        construction = None
         for _ in range(number_of_times):
             action = random.choice([self.add_circle, self.add_line])
             point1 = random.choice(tuple(self.points))
-            point2 = random.choice(tuple(self.points))
-            action(point1, point2)
+            point2 = random.choice(tuple(self.points-{point1}))
+            construction = action(point1, point2)
+        return construction
 
+    def __len__(self):
+        return len(self.steps)
+
+    def __hash__(self):
+        return hash((tuple(self.points), tuple(self.steps)))
+
+    def __repr__(self):
+        return repr(self.points) + repr(self.steps)
+
+    def __str__(self):
+        return f'Construction of length {len(self)} and {len(self.points)} points:\n' + '\n'.join(map(repr, self.points)) + \
+               '\n\n' + '\n'.join(map(repr, self.steps))
