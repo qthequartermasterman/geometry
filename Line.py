@@ -25,7 +25,7 @@ class Line:
             slope = self.calculate_slope(point1, point2)
         else:
             slope = slope
-        return point2.y - point1.x * slope
+        return point1.y - point1.x * slope
 
     def __repr__(self):
         return f'Line {self.name} through {self.point1} and {self.point2}, with equation: y={self.slope}x+{self.intercept}'

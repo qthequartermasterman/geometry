@@ -35,7 +35,7 @@ class Construction:
                     intersect.name = f'"{i}"'
 
             self.points.update(intersections)
-            if Point(-.5, Decimal.sqrt(Decimal(3))/2) in intersections:
+            if Point(-.5, 0) in intersections:
                 print('STOP')
             return intersections
         else:

@@ -33,9 +33,10 @@ circ1 = const.add_circle(a, b)
 circ2 = const.add_circle(b, a)
 intersections = const.find_intersections(circ1, circ2)
 for intersect in intersections:
+    intersect.name += "intersection"
     print(intersect)
     const.add_line(a, intersect)
-    #const.add_line(b, intersect)
+    const.add_line(b, intersect)
 
 list_points = list(const.points)
 list_int = list(intersections)
