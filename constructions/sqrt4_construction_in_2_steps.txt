@@ -1,0 +1,9 @@
+Construction of length 2 and 4 points:
+Point "4": (-1.0000, 0.0000)
+Point A: (0.0000, 0.0000)
+Point B: (1.0000, 0.0000)
+Point C: (-4.0000, 0.0000)
+
+Line BA through Point B: (1.0000, 0.0000) and Point A: (0.0000, 0.0000), with equation: y=-0.00x+0.00
+Circle cArAB with center Point A: (0.0000, 0.0000) and radius 1.00Length 2 found between points: Point "4": (-1.0000, 0.0000) and Point B: (1.0000, 0.0000)
+

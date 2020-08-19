@@ -1,0 +1,10 @@
+Construction of length 2 and 5 points:
+Point "4": (-1.0000, 0.0000)
+Point A: (0.0000, 0.0000)
+Point B: (1.0000, 0.0000)
+Point C: (-9.0000, 0.0000)
+Point "5": (-3.0000, 0.0000)
+
+Circle cArAB with center Point A: (0.0000, 0.0000) and radius 1.00
+Circle c"4"r"4"B with center Point "4": (-1.0000, 0.0000) and radius 2.00Length 3 found between points: Point A: (0.0000, 0.0000) and Point "5": (-3.0000, 0.0000)
+

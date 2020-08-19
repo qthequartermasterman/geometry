@@ -2,6 +2,8 @@ from Point import Point
 from Line import Line
 from Circle import Circle
 from Construction import Construction
+import copy
+from decimal import Decimal
 
 
 const = Construction()
@@ -25,6 +27,7 @@ const.add_random_construction(number_of_times=10)
 '''
 
 """Euclid I.1"""
+'''
 a = Point(0, 0, 'A')
 b = Point(1, 0, 'B')
 const.points.update({a, b})
@@ -37,9 +40,44 @@ for intersect in intersections:
     print(intersect)
     const.add_line(a, intersect)
     const.add_line(b, intersect)
+'''
 
-list_points = list(const.points)
-list_int = list(intersections)
+"""Square root"""
+num_to_take_sqrt = 1
+with open('constructions/num_steps.csv', 'a+') as csv:
+    while num_to_take_sqrt < 10000:
+        # Initialize the construction
+        max_num_steps = 2
+        a = Point(0, 0, 'A')
+        b = Point(1, 0, 'B')
+        c = Point(-num_to_take_sqrt, 0, 'C')
+        const.points = {a, b, c}
+        ab = const.add_line(a, b, counts_as_step=False)
+        cb = const.add_line(c, b, counts_as_step=False)
 
-const.draw_construction()
-print(const)
+        while max_num_steps < 30:
+            i = 0
+            check = False
+            while i < 100000:
+                print(f'sqrt(n) {num_to_take_sqrt}\tsteps {max_num_steps}\tTrying {i}')
+                const_copy = copy.deepcopy(const)
+                const_copy.add_random_construction(number_of_times=max_num_steps)
+                check = const_copy.check_lengths(Decimal.sqrt(Decimal(num_to_take_sqrt)))
+                if check:
+                    print('FOUND ONE')
+                    filename = f'constructions/sqrt{num_to_take_sqrt}_construction_in_{max_num_steps}_steps.png'
+                    const_copy.draw_construction(filename)
+                    with open(f'sqrt{num_to_take_sqrt}_construction_in_{max_num_steps}_steps.txt', 'a+') as f:
+                        f.write(str(const_copy)+f'{check}\n\n')
+                    print(const_copy)
+                    break
+                i += 1
+            if check:
+                csv.write(f'n for sqrt, {num_to_take_sqrt}, num steps, {max_num_steps}\n')
+                break
+            max_num_steps += 1
+        num_to_take_sqrt += 1
+
+#const.add_random_construction(number_of_times=7)
+#const.draw_construction()
+#print(const)

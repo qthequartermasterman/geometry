@@ -1,0 +1,16 @@
+Construction of length 2 and 3 points:
+Point C: (-1.0000, 0.0000)
+Point A: (0.0000, 0.0000)
+Point B: (1.0000, 0.0000)
+
+Line BC through Point B: (1.0000, 0.0000) and Point C: (-1.0000, 0.0000), with equation: y=-0.00x+0.00
+Circle cArAC with center Point A: (0.0000, 0.0000) and radius 1.00Length 1 found between points: Point C: (-1.0000, 0.0000) and Point A: (0.0000, 0.0000)
+
+Construction of length 2 and 3 points:
+Point C: (-1.0000, 0.0000)
+Point A: (0.0000, 0.0000)
+Point B: (1.0000, 0.0000)
+
+Line CB through Point C: (-1.0000, 0.0000) and Point B: (1.0000, 0.0000), with equation: y=0.00x+0.00
+Circle cArAC with center Point A: (0.0000, 0.0000) and radius 1.00Length 1 found between points: Point C: (-1.0000, 0.0000) and Point A: (0.0000, 0.0000)
+

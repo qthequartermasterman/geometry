@@ -15,20 +15,25 @@ class Line:
 
     @staticmethod
     def calculate_slope(point1: Point, point2: Point):
-        try:
-            return Decimal(point2.y-point1.y)/Decimal(point2.x-point1.x)
-        except ZeroDivisionError:  # If the line is vertical, its slope is undefined or "infinite"
-            return math.inf
+        if point1.x.quantize(Decimal('.1')**8) != point2.x.quantize(Decimal('.1')**8):
+            try:
+                slope = Decimal(point2.y-point1.y)/Decimal(point2.x-point1.x)
+                return slope.quantize(Decimal(10)**-12)
+            except ZeroDivisionError:  # If the line is vertical, its slope is undefined or "infinite"
+                return Decimal('Infinity')
+        return Decimal('Infinity')
 
     def calculate_intercept(self, point1: Point, point2: Point, slope=None):
-        if slope is None:
+        if slope == Decimal('Infinity'):
+            return Decimal('Infinity')
+        elif slope is None:
             slope = self.calculate_slope(point1, point2)
         else:
             slope = slope
         return point1.y - point1.x * slope
 
     def __repr__(self):
-        return f'Line {self.name} through {self.point1} and {self.point2}, with equation: y={self.slope}x+{self.intercept}'
+        return f'Line {self.name} through {self.point1} and {self.point2}, with equation: y={self.slope:.2f}x+{self.intercept:.2f}'
 
     def __hash__(self):
         return hash(repr(self))

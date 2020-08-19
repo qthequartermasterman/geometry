@@ -41,7 +41,7 @@ class Point:
 
     def __hash__(self):
         #return hash(repr(self))
-        return hash((self.x.quantize(Decimal('1.0')**16), self.y.quantize(Decimal('1.0')**16)))
+        return hash((self.x.quantize(Decimal('10')**-16), self.y.quantize(Decimal('1.0')**16)))
 
     def plt_draw(self) -> plt.Circle:
         return plt.Circle((self.x, self.y), radius=0.05)

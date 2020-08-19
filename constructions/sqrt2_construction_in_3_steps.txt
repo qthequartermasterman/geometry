@@ -1,0 +1,15 @@
+Construction of length 3 and 9 points:
+Point "8": (-1.5000, -1.3229)
+Point A: (0.0000, 0.0000)
+Point "4": (-5.0000, 0.0000)
+Point "5": (2.0000, 0.0000)
+Point C: (-2.0000, 0.0000)
+Point B: (1.0000, 0.0000)
+Point "7": (-5.0000, 0.0000)
+Point "5": (0.2500, 1.9843)
+Point "6": (0.2500, -1.9843)
+
+Circle cCrCB with center Point C: (-2.0000, 0.0000) and radius 3.00
+Circle cArAC with center Point A: (0.0000, 0.0000) and radius 2.00
+Line "4""6" through Point "4": (-5.0000, 0.0000) and Point "6": (0.2500, -1.9843), with equation: y=-0.38x+-1.89Length 1.414213562373095048801688724 found between points: Point "8": (-1.5000, -1.3229) and Point C: (-2.0000, 0.0000)
+

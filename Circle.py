@@ -16,7 +16,7 @@ class Circle:
             self.name = name if name else f'c{center.name}r{radius}'
 
     def __repr__(self):
-        return f'Circle {self.name} with center {self.center} and radius {self.radius}'
+        return f'Circle {self.name} with center {self.center} and radius {self.radius:.2f}'
 
     def __hash__(self):
         return hash(repr(self))

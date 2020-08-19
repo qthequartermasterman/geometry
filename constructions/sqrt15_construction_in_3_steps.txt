@@ -1,0 +1,16 @@
+Construction of length 3 and 10 points:
+Point "7": (0.7500, -0.9682)
+Point "8": (0.5000, 0.8660)
+Point A: (0.0000, 0.0000)
+Point "6": (0.7500, 0.9682)
+Point C: (-15.0000, 0.0000)
+Point "5": (2.0000, 0.0000)
+Point "5": (-3.0000, 0.0000)
+Point "4": (-1.0000, 0.0000)
+Point B: (1.0000, 0.0000)
+Point "9": (0.5000, -0.8660)
+
+Circle cArAB with center Point A: (0.0000, 0.0000) and radius 1.00
+Circle c"4"r"4"B with center Point "4": (-1.0000, 0.0000) and radius 2.00
+Circle cBrBA with center Point B: (1.0000, 0.0000) and radius 1.00Length 3.872983346207416885179265400 found between points: Point "7": (0.7500, -0.9682) and Point "5": (-3.0000, 0.0000)
+

@@ -1,0 +1,19 @@
+Construction of length 4 and 12 points:
+Point "10": (-1.6583, 0.0000)
+Point "4": (-22.0000, 0.0000)
+Point A: (0.0000, 0.0000)
+Point "8": (-0.1250, 1.6536)
+Point "11": (1.6583, 0.0000)
+Point "8": (3.0000, 0.0000)
+Point "4": (-1.0000, 0.0000)
+Point "6": (-0.0455, -0.9990)
+Point C: (-11.0000, 0.0000)
+Point B: (1.0000, 0.0000)
+Point "5": (-0.0455, 0.9990)
+Point "9": (-0.1250, -1.6536)
+
+Circle cArAB with center Point A: (0.0000, 0.0000) and radius 1.00
+Circle cCrCA with center Point C: (-11.0000, 0.0000) and radius 11.00
+Circle cBrB"4" with center Point B: (1.0000, 0.0000) and radius 2.00
+Circle cArA"8" with center Point A: (0.0000, 0.0000) and radius 1.66Length 3.316624790355399849114932737 found between points: Point "10": (-1.6583, 0.0000) and Point "11": (1.6583, 0.0000)
+

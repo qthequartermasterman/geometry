@@ -1,0 +1,18 @@
+Construction of length 4 and 11 points:
+Point "8": (0.5000, -0.0000)
+Point "6": (0.5000, 0.8660)
+Point A: (0.0000, 0.0000)
+Point C: (-10.0000, 0.0000)
+Point "10": (0.5000, -1.9365)
+Point "5": (2.0000, 0.0000)
+Point "5": (3.0000, 0.0000)
+Point "4": (-1.0000, 0.0000)
+Point B: (1.0000, 0.0000)
+Point "9": (0.5000, 1.9365)
+Point "7": (0.5000, -0.8660)
+
+Circle cArAB with center Point A: (0.0000, 0.0000) and radius 1.00
+Circle cBrB"4" with center Point B: (1.0000, 0.0000) and radius 2.00
+Circle cBrBA with center Point B: (1.0000, 0.0000) and radius 1.00
+Line "7""6" through Point "7": (0.5000, -0.8660) and Point "6": (0.5000, 0.8660), with equation: y=Infinityx+InfinityLength 3.162277660168379331998893544 found between points: Point "10": (0.5000, -1.9365) and Point "5": (3.0000, 0.0000)
+

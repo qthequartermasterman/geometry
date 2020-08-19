@@ -1,0 +1,20 @@
+Construction of length 4 and 13 points:
+Point A: (0.0000, 0.0000)
+Point "12": (-0.5000, -1.3229)
+Point "6": (-0.5000, -0.8660)
+Point C: (-14.0000, 0.0000)
+Point "10": (-0.5000, 0.0000)
+Point "5": (3.0000, 0.0000)
+Point "4": (-1.0000, 0.0000)
+Point "5": (-2.0000, 0.0000)
+Point "9": (-0.7500, -0.9682)
+Point "11": (-0.5000, 1.3229)
+Point "7": (-0.5000, 0.8660)
+Point B: (1.0000, 0.0000)
+Point "8": (-0.7500, 0.9682)
+
+Circle cArAB with center Point A: (0.0000, 0.0000) and radius 1.00
+Circle cBrB"4" with center Point B: (1.0000, 0.0000) and radius 2.00
+Circle c"4"r"4"A with center Point "4": (-1.0000, 0.0000) and radius 1.00
+Line "6""7" through Point "6": (-0.5000, -0.8660) and Point "7": (-0.5000, 0.8660), with equation: y=Infinityx+InfinityLength 3.741657386773941385583748732 found between points: Point "12": (-0.5000, -1.3229) and Point "5": (3.0000, 0.0000)
+

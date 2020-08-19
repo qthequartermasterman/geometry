@@ -1,0 +1,12 @@
+Construction of length 2 and 7 points:
+Point "5": (0.5000, 0.8660)
+Point A: (0.0000, 0.0000)
+Point "3": (2.0000, 0.0000)
+Point C: (-3.0000, 0.0000)
+Point "5": (-1.0000, 0.0000)
+Point B: (1.0000, 0.0000)
+Point "6": (0.5000, -0.8660)
+
+Circle cBrBA with center Point B: (1.0000, 0.0000) and radius 1.00
+Circle cArAB with center Point A: (0.0000, 0.0000) and radius 1.00Length 1.732050807568877293527446342 found between points: Point "5": (0.5000, 0.8660) and Point "5": (-1.0000, 0.0000)
+

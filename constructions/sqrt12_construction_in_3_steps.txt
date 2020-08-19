@@ -1,0 +1,14 @@
+Construction of length 3 and 8 points:
+Point "7": (1.0000, -1.7321)
+Point "5": (4.0000, 0.0000)
+Point C: (-12.0000, 0.0000)
+Point A: (0.0000, 0.0000)
+Point "3": (2.0000, 0.0000)
+Point "4": (-2.0000, 0.0000)
+Point "6": (1.0000, 1.7321)
+Point B: (1.0000, 0.0000)
+
+Circle cBrBA with center Point B: (1.0000, 0.0000) and radius 1.00
+Circle cArA"3" with center Point A: (0.0000, 0.0000) and radius 2.00
+Circle c"3"r"3"A with center Point "3": (2.0000, 0.0000) and radius 2.00Length 3.464101615137754587054892683 found between points: Point "7": (1.0000, -1.7321) and Point "4": (-2.0000, 0.0000)
+

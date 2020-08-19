@@ -29,14 +29,11 @@ class Construction:
             previous_number_of_points = len(self.points)
             i = previous_number_of_points
             for intersect in intersections:
-                i += 1
                 if not intersect.name:
                     #intersect.name = chr(i + ord('a'))
                     intersect.name = f'"{i}"'
-
+                i += 1
             self.points.update(intersections)
-            if Point(-.5, 0) in intersections:
-                print('STOP')
             return intersections
         else:
             print(f'Cannot find intersection of unsupported objects: \n\t{object1}\n\t{object2}')
@@ -53,12 +50,37 @@ class Construction:
 
             :returns {Point} a set of at most one point representing the intersection of the two lines
         """
+        if line1.slope != line2.slope:
+            def line(p1, p2):
+                """Adapted from: https://stackoverflow.com/a/20679579"""
+                A = (p1.y - p2.y)
+                B = (p2.x - p1.x)
+                C = (p1.x * p2.y - p2.x * p1.y)
+                return A, B, -C
+
+            L1 = line(line1.point1, line1.point2)
+            L2 = line(line2.point1, line2.point2)
+
+            D = Decimal(L1[0] * L2[1] - L1[1] * L2[0]).quantize(Decimal(10)**-16)
+            Dx = L1[2] * L2[1] - L1[1] * L2[2]
+            Dy = L1[0] * L2[2] - L1[2] * L2[0]
+            if D != 0:
+                x = Dx / D
+                y = Dy / D
+                return {Point(x, y)}
+            else:
+                return {}
+        else:
+            return {}
+
+        '''
         if line1.slope != line2.slope:  # Different slopes guarantees intersection (by Postulate 5)
             x = (line2.intercept - line1.intercept) / (line1.slope - line2.slope)
             y = line1.slope * x + line1.intercept
             return {Point(x, y)}
         else:  # Parallel or coinciding -> no intersection
             return {}
+        '''
 
     @staticmethod
     def find_intersections_line_circle(line, circle) -> {Point}:
@@ -73,7 +95,7 @@ class Construction:
         # We can represent our line as all vectors p so that p = p1+t(p2-p1) where p1, p2 are our original points
         line_basis_vector = line.point2 - line.point1
         # Circle is all points p so that |p-c|=r where c is the center
-        # substiting the original line equation in for the circle equation, we get a quadratic equation
+        # substituting the original line equation in for the circle equation, we get a quadratic equation
         # at^2+bt+c=0 where:
         a = line_basis_vector * line_basis_vector  # Dot product
         b = line_basis_vector * (line.point1 - circle.center) * 2
@@ -115,7 +137,7 @@ class Construction:
             if dis_to_area_center == r1:  # The two circles are tangent and thus intersect at exactly one point
                 return {center_of_intersection_area}
             else:  # Two circles intersect at two points
-                height = Decimal.sqrt(r1 ** 2 - dis_to_area_center ** 2)
+                height = (r1 ** 2 - dis_to_area_center ** 2).quantize(Decimal('1.0')**16).sqrt()
                 x2 = center_of_intersection_area.x
                 y2 = center_of_intersection_area.y
                 x3 = x2 + height * (center2.y - center1.y) * (1 / distance_between_centers)
@@ -124,7 +146,7 @@ class Construction:
                 y4 = y2 + height * (center2.x - center1.x) * (1 / distance_between_centers)
                 return {Point(x3, y3), Point(x4, y4)}
 
-    def draw_construction(self):
+    def draw_construction(self, file_name=None):
         plt.axes()
         ax = plt.gca()
         for circ in self.circles:
@@ -137,6 +159,9 @@ class Construction:
             ax.add_artist(point.plt_draw())
             plt.annotate(point.name, xy=(point.x, point.y))
         plt.axis('equal')
+        #plt.axis('image')
+        if file_name:
+            plt.savefig(file_name)
         plt.show()
 
     def update_intersections_with_object(self, object):
@@ -148,6 +173,19 @@ class Construction:
             intersections.update(self.find_intersections(object, circle))
         self.points.update(intersections)
         return intersections
+
+    def check_lengths(self, length: Decimal):
+        """
+
+        :param length:
+        :return:
+        """
+        for point1 in self.points:
+            for point2 in self.points-{point1}:
+                if abs(point2-point1) == length:
+                    print(f'Length {length} found between points: {point1} and {point2}')
+                    return f'Length {length} found between points: {point1} and {point2}'
+        return False
 
     def add_circle(self, center: Point, point2: Point, counts_as_step=True) -> Circle:
         circle = Circle(center=center, point2=point2)
