@@ -146,23 +146,40 @@ class Construction:
                 y4 = y2 + height * (center2.x - center1.x) * (1 / distance_between_centers)
                 return {Point(x3, y3), Point(x4, y4)}
 
-    def draw_construction(self, file_name=None):
+    def make_matplotlib_diagram(self):
         plt.axes()
         ax = plt.gca()
         for circ in self.circles:
             ax.add_artist(circ.plt_draw())
         for line in self.lines:
             plt_line = line.plt_draw()
-            #plt_line.set_transform(ax.transAxes)
+            # plt_line.set_transform(ax.transAxes)
             ax.add_line(plt_line)
+        x = []
+        y = []
         for point in self.points:
+            x.append(point.x)
+            y.append(point.y)
+
             ax.add_artist(point.plt_draw())
             plt.annotate(point.name, xy=(point.x, point.y))
+        plt.plot(x, y, 'o', color='black')
         plt.axis('equal')
-        #plt.axis('image')
-        if file_name:
-            plt.savefig(file_name)
+        # plt.axis('image')
+        return plt
+
+    def draw_construction(self, filename=None):
+        plt = self.make_matplotlib_diagram()
         plt.show()
+        if filename:
+            self.save_construction(filename)
+
+    def save_construction(self, filename_stem, notes=''):
+        plt = self.make_matplotlib_diagram()
+        plt.savefig(filename_stem+'.png')
+        with open(f'{filename_stem}.txt', 'a+') as f:
+            f.write(str(self) + f'\n{notes}\n\n')
+
 
     def update_intersections_with_object(self, object):
         """TODO: Find a way to do this in less than O(n) time, where n is the number of shapes"""
@@ -186,6 +203,13 @@ class Construction:
                     print(f'Length {length} found between points: {point1} and {point2}')
                     return f'Length {length} found between points: {point1} and {point2}'
         return False
+
+    def get_present_lengths(self):
+        lengths_dict = {}
+        for point1 in self.points:
+            for point2 in self.points-{point1}:
+                lengths_dict[abs(point2-point1)] = (point1, point2)
+        return lengths_dict
 
     def add_circle(self, center: Point, point2: Point, counts_as_step=True) -> Circle:
         circle = Circle(center=center, point2=point2)

@@ -8,12 +8,14 @@ class Point:
         self.x = Decimal(x)
         self.y = Decimal(y)
         self.name = name
+        self.threshold = Decimal('1.0')**8
 
     def __eq__(self, other):
         #return self.x == other.x and self.y == other.y
         #return math.isclose(self.x, other.x) and math.isclose(self.y, other.y)
-        return self.x.quantize(Decimal('1.0')**16) == other.x.quantize(Decimal('1.0')**16) and \
-               self.y.quantize(Decimal('1.0')**16) == other.y.quantize(Decimal('1.0')**16)
+        threshold = self.threshold
+        return self.x.quantize(threshold) == other.x.quantize(threshold) and \
+               self.y.quantize(threshold) == other.y.quantize(threshold)
 
     def __sub__(self, other):
         return Point(self.x-other.x, self.y-other.y)
@@ -41,7 +43,8 @@ class Point:
 
     def __hash__(self):
         #return hash(repr(self))
-        return hash((self.x.quantize(Decimal('10')**-16), self.y.quantize(Decimal('1.0')**16)))
+        threshold = self.threshold
+        return hash((self.x.quantize(threshold), self.y.quantize(threshold)))
 
     def plt_draw(self) -> plt.Circle:
-        return plt.Circle((self.x, self.y), radius=0.05)
+        return plt.Circle((self.x, self.y), radius=0.02)
