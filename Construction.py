@@ -137,7 +137,7 @@ class Construction:
             if dis_to_area_center == r1:  # The two circles are tangent and thus intersect at exactly one point
                 return {center_of_intersection_area}
             else:  # Two circles intersect at two points
-                height = (r1 ** 2 - dis_to_area_center ** 2).quantize(Decimal('1.0')**16).sqrt()
+                height = (r1 ** 2 - dis_to_area_center ** 2).quantize(Decimal('1.0')**8).sqrt()
                 x2 = center_of_intersection_area.x
                 y2 = center_of_intersection_area.y
                 x3 = x2 + height * (center2.y - center1.y) * (1 / distance_between_centers)
@@ -181,7 +181,6 @@ class Construction:
         with open(f'{filename_stem}.txt', 'a+') as f:
             f.write(str(self) + f'\n{notes}\n\n')
         plt.close()
-
 
     def update_intersections_with_object(self, object):
         """TODO: Find a way to do this in less than O(n) time, where n is the number of shapes"""

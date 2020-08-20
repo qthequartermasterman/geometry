@@ -150,6 +150,8 @@ constructions_dict = {}
 
 
 def construct(num_sqrt) -> (int, Construction):
+    maximum_depth = 10
+
     const = Construction()
     a = Point(0, 0, 'A')
     b = Point(1, 0, 'B')
@@ -158,7 +160,7 @@ def construct(num_sqrt) -> (int, Construction):
     ab = const.add_line(a, b, counts_as_step=False)
     cb = const.add_line(c, b, counts_as_step=False)
 
-    for num_steps in range(1, 10):
+    for num_steps in range(maximum_depth):
         for i in range(num_random_constructions(num_steps)):
             print(f'sqrt(n) {num_sqrt}\tSteps: {num_steps}\tConstruction: {i}')
             const_copy = copy.deepcopy(const)
