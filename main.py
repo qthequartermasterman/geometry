@@ -8,8 +8,10 @@ import math
 
 
 def max_num_constructions(n):
-    buffer = 1
-    if n == 1:
+    buffer = .5
+    if n == 0:
+        return 1
+    elif n == 1:
         return 2 * buffer
     elif n == 2:
         return 24 * buffer
@@ -152,7 +154,7 @@ for num_to_take_sqrt in range(1, 100):
             check = const_copy.check_lengths(Decimal.sqrt(Decimal(num_to_take_sqrt)))
             if check:
                 print('FOUND ONE')
-                filename = f'constructions_faster/sqrt{num_to_take_sqrt}_construction_in_{num_steps}_steps'
+                filename = f'constructions_given_two_segments/sqrt{num_to_take_sqrt}_construction_in_{num_steps}_steps'
                 const_copy.save_construction(filename, notes=check)
                 constructions_dict[num_to_take_sqrt] = (num_steps, const_copy)
                 print(const_copy)

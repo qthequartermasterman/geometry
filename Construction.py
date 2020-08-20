@@ -173,12 +173,14 @@ class Construction:
         plt.show()
         if filename:
             self.save_construction(filename)
+        plt.close()
 
     def save_construction(self, filename_stem, notes=''):
         plt = self.make_matplotlib_diagram()
         plt.savefig(filename_stem+'.png')
         with open(f'{filename_stem}.txt', 'a+') as f:
             f.write(str(self) + f'\n{notes}\n\n')
+        plt.close()
 
 
     def update_intersections_with_object(self, object):
