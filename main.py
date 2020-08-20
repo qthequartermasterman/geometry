@@ -5,22 +5,37 @@ from Construction import Construction
 import copy
 from decimal import Decimal
 import math
+from multiprocessing import Pool, cpu_count
 
 
-def max_num_constructions(n):
-    buffer = .5
+def num_random_constructions(n):
+    """
+    Gives the number of random constructions we feel necessary to capture most of the space in our Monte Carlo Tree
+    Search. We start with the theoretical maximum number of constructions up to 4 steps (2, 24, 1344, 244608), which
+    were found manually by assuming that a new circle is generated each step and it intersects twice with every other
+    circle and line in the diagram. This obviously over-counts the number of constructions, but forms a decent estimate.
+
+    We also multiply it by some buffer, since we choose our random constructions with replacement, so we're bound to get
+    duplicates occasionally.
+
+    :param n: number of steps in constructions
+    :return: An estimate of the maximum number of constructions of length n
+    """
+    buffer = .5  # Chosen to be less than one only for speed purposes.
+    num_constructions: int  # Estimated maximum number of constructions
     if n == 0:
         return 1
     elif n == 1:
-        return 2 * buffer
+        num_constructions = 2
     elif n == 2:
-        return 24 * buffer
+        num_constructions = 24
     elif n == 3:
-        return 1344 * buffer
+        num_constructions = 1344
     elif n == 4:
-        return 244608 * buffer
+        num_constructions = 244608
     else:
-        return 250000 * buffer
+        num_constructions = 250000
+    return math.ceil(num_constructions * buffer)  # Round up to the nearest integer
 
 '''
 a = Point(0, 0, 'A')
@@ -113,7 +128,7 @@ const.points = {a, b}
 ab = const.add_line(a, b, counts_as_step=False)
 
 for num_steps in range(1, 5):
-    for i in range(max_num_constructions(num_steps)):
+    for i in range(num_random_constructions(num_steps)):
         print(f'Steps: {num_steps}\tConstruction: {i}')
         const_copy = copy.deepcopy(const)
         const_copy.add_random_construction(number_of_times=num_steps)
@@ -133,36 +148,49 @@ with open('num_steps.csv', 'w+') as csv:
 """Square root given a segment of length n"""
 constructions_dict = {}
 
-for num_to_take_sqrt in range(1, 100):
+
+def construct(num_sqrt) -> (int, Construction):
     const = Construction()
     a = Point(0, 0, 'A')
     b = Point(1, 0, 'B')
-    c = Point(-num_to_take_sqrt, 0, 'C')
+    c = Point(-num_sqrt, 0, 'C')
     const.points = {a, b, c}
     ab = const.add_line(a, b, counts_as_step=False)
     cb = const.add_line(c, b, counts_as_step=False)
 
-    check = None
-
     for num_steps in range(1, 10):
-        for i in range(max_num_constructions(num_steps)):
-            print(f'sqrt(n) {num_to_take_sqrt}\tSteps: {num_steps}\tConstruction: {i}')
+        for i in range(num_random_constructions(num_steps)):
+            print(f'sqrt(n) {num_sqrt}\tSteps: {num_steps}\tConstruction: {i}')
             const_copy = copy.deepcopy(const)
             const_copy.add_random_construction(number_of_times=num_steps)
-            lengths_in_construction = const_copy.get_present_lengths()
 
-            check = const_copy.check_lengths(Decimal.sqrt(Decimal(num_to_take_sqrt)))
+            check = const_copy.check_lengths(Decimal.sqrt(Decimal(num_sqrt)))
             if check:
                 print('FOUND ONE')
-                filename = f'constructions_given_two_segments/sqrt{num_to_take_sqrt}_construction_in_{num_steps}_steps'
+                filename = f'constructions_given_two_segments/sqrt{num_sqrt}_construction_in_{num_steps}_steps'
                 const_copy.save_construction(filename, notes=check)
-                constructions_dict[num_to_take_sqrt] = (num_steps, const_copy)
+                #constructions_dict[num_to_take_sqrt] = (num_steps, const_copy)
                 print(const_copy)
-                break
-        if check:
-            break
+                return num_steps, const_copy
+    return None, None
+'''
+for num_to_take_sqrt in range(1, 100):
+    constructions_dict[num_to_take_sqrt] = construct(num_to_take_sqrt)
+'''
 
-sorted_constructions_dict = dict(sorted(constructions_dict.items()))
-with open('num_steps.csv', 'w+') as csv:
-    for n, tup in sorted_constructions_dict.items():
-        csv.write(f'n for sqrt, {n}, num steps, {tup[0]}\n')
+
+def construct_tuple(num_sqrt):
+    return num_sqrt, construct(num_sqrt)
+
+
+if __name__ == '__main__':
+    num_processes = cpu_count() * 2
+    total_numbers_to_sqrt = 100
+    with Pool(num_processes) as pool:
+        m = pool.map(construct_tuple, range(1, total_numbers_to_sqrt))
+        constructions_dict = dict(m)
+
+    sorted_constructions_dict = dict(sorted(constructions_dict.items()))
+    with open('num_steps.csv', 'w+') as csv:
+        for n, tup in sorted_constructions_dict.items():
+            csv.write(f'n for sqrt, {n}, num steps, {tup[0]}\n')
