@@ -104,3 +104,9 @@ class TestRadical(TestCase):
                     self.assertEqual(exp_radical, Radical(1, 1))
                 else:
                     self.assertEqual(exp_radical.index, radical.index/exponent)
+
+    def test_simplify(self):
+        # Find squares/cubes/etc... inside of the radical-> move to coefficient
+        # If the index is an improper fraction, divide it out and move the extras to the coefficient
+
+        pass
