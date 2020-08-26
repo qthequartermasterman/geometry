@@ -83,16 +83,6 @@ class TestRadical(TestCase):
             rads = self.radical_dict.values()
             for r in rads:
                 new_radical: Radical = r * radical
-                '''
-                if r.index == radical.index:
-                    self.assertEqual(new_radical.coefficient, radical.coefficient * r.coefficient)
-                    self.assertEqual(new_radical.radicand, radical.radicand * r.radicand)
-                    self.assertEqual(new_radical.index, radical.index)
-                else:
-                    self.assertEqual(new_radical.coefficient, radical.coefficient * r)
-                    self.assertEqual(new_radical.radicand, radical.radicand)
-                    self.assertEqual(new_radical.index, radical.index)
-                '''
                 # We will just multiply the floats and check if they're the same
                 self.assertAlmostEqual(float(new_radical), float(r) * float(radical))
 
@@ -101,12 +91,35 @@ class TestRadical(TestCase):
             for exponent in [0, 1, 2, 3, -2, -3]:
                 exp_radical = radical**exponent
                 if exponent == 0:
-                    self.assertEqual(exp_radical, Radical(1, 1))
+                    self.assertEqual(exp_radical, radical.coefficient, f'Exponent is {exponent}')
                 else:
                     self.assertEqual(exp_radical.index, radical.index/exponent)
 
     def test_simplify(self):
         # Find squares/cubes/etc... inside of the radical-> move to coefficient
-        # If the index is an improper fraction, divide it out and move the extras to the coefficient
+        # If the index is an fraction, divide it out and move the extras to the coefficient
+        def F(x):
+            return Fraction(x)
 
-        pass
+        original_radical_dict = {(2, 8, 1): (2, 2, 2),
+                                 (2, 48, 1): (2, 3, 4),
+                                 (2, 72, 1): (2, 2, 6),
+                                 (3, 96, 1): (3, 12, 2),
+                                 (2, 81, 1): (2, 1, 9),
+                                 (2, 256, 1): (2, 1, 16),
+                                 (2, 36, 1): (2, 1, 6),
+                                 (2, 48, 2): (2, 3, 8),
+                                 (2, F('49/36'), 1): (2, F(1), F('7/6')),
+                                 (2, F('49/36'), 2): (2, F(1), F('14/6')),
+                                 (2, F('52/36'), 1): (2, F('13/1'), F('1/3')),
+                                 (F('2/3'), 7, 1): (2, 7, 7),}
+        for original, correct_tuple in original_radical_dict.items():
+            simplified = Radical(*original).simplify()
+            self.assertEqual(simplified.get_tuple(), correct_tuple)
+
+    def test_eradicate_radicals(self):
+        # Get rid of redundant radicals
+        self.assertIsInstance(Radical(2, 2, 3).eradicate_radicals(), Radical)
+        self.assertIsInstance(Radical(2, 2, Fraction(2)).eradicate_radicals(), Radical)
+        self.assertNotIsInstance(Radical(2, 1, 3).eradicate_radicals(), Radical)
+        self.assertNotIsInstance(Radical(2, Fraction(1), 3).eradicate_radicals(), Radical)
