@@ -123,3 +123,7 @@ class TestRadical(TestCase):
         self.assertIsInstance(Radical(2, 2, Fraction(2)).eradicate_radicals(), Radical)
         self.assertNotIsInstance(Radical(2, 1, 3).eradicate_radicals(), Radical)
         self.assertNotIsInstance(Radical(2, Fraction(1), 3).eradicate_radicals(), Radical)
+
+        # Get rid of radicals if coefficient or radicand is 0
+        self.assertNotIsInstance(Radical(2, 0, 3).eradicate_radicals(), Radical)
+        self.assertNotIsInstance(Radical(2, Fraction(1), 0).eradicate_radicals(), Radical)

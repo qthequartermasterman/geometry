@@ -28,9 +28,12 @@ class Radical(Real):
             return self_simp.eradicate_radicals() + other
 
         else:  # self is a radical
-            if isinstance(other, Radical) and self_simp.index == other.index and self_simp.radicand == other.radicand:
-                new_rad = Radical(self_simp.index, self_simp.radicand, self_simp.coefficient + other.coefficient)
-                return new_rad.simplify().eradicate_radicals()
+            if isinstance(other, Radical):
+                if self_simp.index == other.index and self_simp.radicand == other.radicand:
+                    new_rad = Radical(self_simp.index, self_simp.radicand, self_simp.coefficient + other.coefficient)
+                    return new_rad.simplify().eradicate_radicals()
+                else:
+                    return Binomial(self, other)
             elif isinstance(other, (int, Fraction)):
                 return Binomial(other, self)  # Put the radical second
             else:
@@ -44,7 +47,8 @@ class Radical(Real):
         return math.ceil(float(self))
 
     def __divmod__(self, other):
-        pass
+        # This is a slow implementation. But it works fine.
+        return self.__floordiv__(other), self.__mod__(other)
 
     def __eq__(self, other):
         # Simplifying both radicals to test for equality is expensive... But it's definitely correct.
@@ -90,7 +94,7 @@ class Radical(Real):
         return float(self) < float(other)
 
     def __mod__(self, other):
-        return NotImplemented
+        return self - self.__floordiv__(other)
 
     def __mul__(self, other):
         if isinstance(other, Radical):
@@ -137,13 +141,44 @@ class Radical(Real):
         return other + -self
 
     def __rtruediv__(self, other):
-        pass
+        if isinstance(other, Radical):
+            if other.index == self.index:
+                coefficient = Fraction(other.coefficient) / self.coefficient
+                radicand = other.radicand / self.radicand
+                return Radical(self.index, radicand, coefficient)
+            else:
+                # TODO: Use lcm as new index instead of product
+                common_index = self.index * other.index
+                new_radicand = other.radicand ** (common_index / other.index) / self.radicand ** (common_index / self.index)
+                new_coefficient = Fraction(other.coefficient) / self.coefficient
+                return Radical(common_index, new_radicand, new_coefficient)
+        elif isinstance(other, (int, Fraction)):
+            coefficient = Fraction(other) / self.coefficient
+            return Radical(self.index, self.radicand, coefficient)
+        else:
+            return NotImplemented
 
     def __sub__(self, other):
         return self + (-other)
 
     def __truediv__(self, other):
-        return NotImplemented
+        if isinstance(other, Radical):
+            if other.index == self.index:
+                coefficient = Fraction(self.coefficient)/other.coefficient
+                radicand = self.radicand/other.radicand
+                return Radical(self.index, radicand, coefficient)
+            else:
+                # TODO: Use lcm as new index instead of product
+                common_index = self.index * other.index
+                new_radicand = self.radicand ** (common_index / self.index) / other.radicand ** (
+                            common_index / other.index)
+                new_coefficient = Fraction(self.coefficient) / other.coefficient
+                return Radical(common_index, new_radicand, new_coefficient)
+        elif isinstance(other, (int, Fraction)):
+            coefficient = Fraction(self.coefficient) / other
+            return Radical(self.index, self.radicand, coefficient)
+        else:
+            return NotImplemented
 
     def __trunc__(self):
         return float(self).__trunc__()
@@ -217,8 +252,14 @@ class Radical(Real):
         """Eradicates radicals whose radicand is 1"""
         if self.radicand == 1:
             return self.coefficient
+        elif self.radicand == 0 or self.coefficient == 0:
+            return 0
         else:
             return self
 
     def get_tuple(self):
         return self.index, self.radicand, self.coefficient
+
+
+def sqrt(radicand, coefficient=1):
+    return Radical(2, radicand, coefficient)
