@@ -1,14 +1,17 @@
 import math
 import matplotlib.pyplot as plt
 from decimal import Decimal
+from Object import Object
 
 
-class Point:
+class Point(Object):
     def __init__(self, x: float, y: float, name: str = ''):
+        super().__init__()
         self.x = Decimal(x)
         self.y = Decimal(y)
         self.name = name
         self.threshold = Decimal('1.0')**8
+
 
     def __eq__(self, other):
         #return self.x == other.x and self.y == other.y
