@@ -69,6 +69,11 @@ class Binomial(Real):
         return f'{self.left} + {self.right}'
 
     def simplify(self):
+        for term in (self.left, self.right):
+            if isinstance(term, Binomial):
+                term.simplify()
+            if isinstance(term, RadicalNumbers.Radical):
+                term.simplify().eradicate_radicals()
         return self.left + self.right
         '''
         left = self.left
@@ -113,7 +118,7 @@ class Binomial(Real):
 
         if fraction_part:
             if radicals_nested_binomials:
-                return Binomial(fraction_part, radicals_nested_binomials)
+                return Binomial(fraction_part, radicals_nested_binomials.simplify())
             else:
                 return fraction_part
         else:
@@ -168,7 +173,9 @@ class Binomial(Real):
 
         for number in [self.left, self.right]:
             if isinstance(number, RadicalNumbers.Radical):
-                radicals.append(number)
+                simp = number.simplify().eradicate_radicals()
+                if isinstance(simp, RadicalNumbers.Radical):
+                    radicals.append(number)
             elif isinstance(number, Binomial):
                 radicals += number.get_radicals()
             elif isinstance(number, (int, Fraction)):
@@ -185,7 +192,9 @@ class Binomial(Real):
             if isinstance(number, (int, Fraction)):
                 rolling_fraction += number
             elif isinstance(number, RadicalNumbers.Radical):
-                pass
+                simp = number.simplify().eradicate_radicals()
+                if isinstance(simp, (int, Fraction)):
+                    rolling_fraction += simp
             elif isinstance(number, Binomial):
                 rolling_fraction += number.get_fractions_integer()
             else:
@@ -204,7 +213,7 @@ class Binomial(Real):
 
         radicals_dict = {}
         for radical in radicals:
-            simplified_radical = radical.simplify()
+            simplified_radical = radical.simplify().eradicate_radicals()
             index_radicand = (simplified_radical.index, simplified_radical.radicand)
             if index_radicand in radicals_dict.keys():
                 radicals_dict[index_radicand] += simplified_radical

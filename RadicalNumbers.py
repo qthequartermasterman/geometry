@@ -108,6 +108,8 @@ class Radical(Real):
                 new_radicand = self.radicand**(common_index/self.index) * other.radicand**(common_index/other.index)
                 new_coefficient = self.coefficient * other.coefficient
                 return Radical(common_index, new_radicand, new_coefficient)
+        elif isinstance(other, Binomial):
+            return Binomial(other.left*self.simplify().eradicate_radicals(), other.right*self.simplify().eradicate_radicals())
         else:
             new_coefficient = self.coefficient * other
             return Radical(self.index, self.radicand, new_coefficient)
