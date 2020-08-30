@@ -2,10 +2,10 @@ from Point import Point
 from Line import Line
 from Circle import Circle
 import matplotlib.pyplot as plt
-import math
 import random
 from decimal import Decimal
 import networkx as nx
+
 
 class Construction:
     def __init__(self):

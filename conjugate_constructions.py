@@ -1,21 +1,7 @@
-import networkx as nx
-from Point import Point
-from Construction import Construction
 from Object import Object
+from EuclidConstructions import EuclidI1
 
-const = Construction()
-
-a = Point(0, 0, 'A')
-b = Point(1, 0, 'B')
-const.points.update({a, b})
-circ1 = const.add_circle(a, b)
-circ2 = const.add_circle(b, a)
-intersections = const.points - {a, b}
-for intersect in intersections:
-    ac = const.add_line(a, intersect)
-    bc = const.add_line(b, intersect)
-    break  # Only do it for one intersection point
-ab = const.add_line(a, b, counts_as_step=False)
+const = EuclidI1()
 const.draw_construction()
 print(const)
 
