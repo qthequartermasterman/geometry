@@ -1,10 +1,12 @@
-from Point import Point
-from Line import Line
-from Circle import Circle
-import matplotlib.pyplot as plt
 import random
 from decimal import Decimal
+
+import matplotlib.pyplot as plt
 import networkx as nx
+
+from Circle import Circle
+from Line import Line
+from Point import Point
 
 
 class Construction:
@@ -32,7 +34,6 @@ class Construction:
             for intersect in intersections:
                 intersect.dependencies.update({object1, object2})
                 if not intersect.name:
-                    #intersect.name = chr(i + ord('a'))
                     intersect.name = f'"{i}"'
                 i += 1
             self.points.update(intersections)
@@ -47,28 +48,28 @@ class Construction:
             Consequently, this method returns either the empty set (if the lines are parallel/coinciding) or a set
             with one point (if they intersect).
 
-            :param line1
-            :param line2
+            :param line1 is the first Line object
+            :param line2 is the second Line object
 
             :returns {Point} a set of at most one point representing the intersection of the two lines
         """
         if line1.slope != line2.slope:
             def line(p1, p2):
                 """Adapted from: https://stackoverflow.com/a/20679579"""
-                A = (p1.y - p2.y)
-                B = (p2.x - p1.x)
-                C = (p1.x * p2.y - p2.x * p1.y)
-                return A, B, -C
+                a = (p1.y - p2.y)
+                b = (p2.x - p1.x)
+                c = (p1.x * p2.y - p2.x * p1.y)
+                return a, b, -c
 
-            L1 = line(line1.point1, line1.point2)
-            L2 = line(line2.point1, line2.point2)
+            l1 = line(line1.point1, line1.point2)
+            l2 = line(line2.point1, line2.point2)
 
-            D = Decimal(L1[0] * L2[1] - L1[1] * L2[0]).quantize(Decimal(10)**-16)
-            Dx = L1[2] * L2[1] - L1[1] * L2[2]
-            Dy = L1[0] * L2[2] - L1[2] * L2[0]
-            if D != 0:
-                x = Dx / D
-                y = Dy / D
+            d = Decimal(l1[0] * l2[1] - l1[1] * l2[0]).quantize(Decimal(10) ** -16)
+            dx = l1[2] * l2[1] - l1[1] * l2[2]
+            dy = l1[0] * l2[2] - l1[2] * l2[0]
+            if d != 0:
+                x = dx / d
+                y = dy / d
                 return {Point(x, y)}
             else:
                 return {}
@@ -93,7 +94,7 @@ class Construction:
         a = line_basis_vector * line_basis_vector  # Dot product
         b = line_basis_vector * (line.point1 - circle.center) * 2
         c = line.point1 * line.point1 + circle.center * circle.center - (
-                    line.point1 * circle.center) * 2 - circle.radius ** 2
+                line.point1 * circle.center) * 2 - circle.radius ** 2
 
         discriminant = b ** 2 - 4 * a * c
         if discriminant < 0:  # There are no real solutions, so the line and circle do not intersect on the plane
@@ -121,7 +122,8 @@ class Construction:
             return {}
         elif distance_between_centers < abs(r1 - r2):  # One circle contained in other
             return {}
-        elif distance_between_centers == 0:  # Circles have same center and are either coincident or the other is contained within the one
+        elif distance_between_centers == 0:
+            # Circles that have same center are either coincident or one is contained within the other
             return {}
         else:
             dis_to_area_center = (r1 ** 2 - r2 ** 2 + distance_between_centers ** 2) / (2 * distance_between_centers)
@@ -130,7 +132,7 @@ class Construction:
             if dis_to_area_center == r1:  # The two circles are tangent and thus intersect at exactly one point
                 return {center_of_intersection_area}
             else:  # Two circles intersect at two points
-                height = (r1 ** 2 - dis_to_area_center ** 2).quantize(Decimal('1.0')**8).sqrt()
+                height = (r1 ** 2 - dis_to_area_center ** 2).quantize(Decimal('1.0') ** 8).sqrt()
                 x2 = center_of_intersection_area.x
                 y2 = center_of_intersection_area.y
                 x3 = x2 + height * (center2.y - center1.y) * (1 / distance_between_centers)
@@ -162,25 +164,25 @@ class Construction:
         return plt
 
     def draw_construction(self, filename=None):
-        plt = self.make_matplotlib_diagram()
-        plt.show()
+        plot = self.make_matplotlib_diagram()
+        plot.show()
         if filename:
             self.save_construction(filename)
-        plt.close()
+        plot.close()
 
     def save_construction(self, filename_stem, notes=''):
-        plt = self.make_matplotlib_diagram()
-        plt.savefig(filename_stem+'.png')
+        plot = self.make_matplotlib_diagram()
+        plot.savefig(filename_stem + '.png')
         with open(f'{filename_stem}.txt', 'a+') as f:
             f.write(str(self) + f'\n{notes}\n\n')
-        plt.close()
+        plot.close()
 
     def update_intersections_with_object(self, object):
         """TODO: Find a way to do this in less than O(n) time, where n is the number of shapes"""
         intersections: {Point} = set()
-        for line in self.lines-{object}:
+        for line in self.lines - {object}:
             intersections.update(self.find_intersections(object, line))
-        for circle in self.circles-{object}:
+        for circle in self.circles - {object}:
             intersections.update(self.find_intersections(object, circle))
         self.points.update(intersections)
         return intersections
@@ -192,8 +194,8 @@ class Construction:
         :return:
         """
         for point1 in self.points:
-            for point2 in self.points-{point1}:
-                if abs(point2-point1) == length:
+            for point2 in self.points - {point1}:
+                if abs(point2 - point1) == length:
                     print(f'Length {length} found between points: {point1} and {point2}')
                     return f'Length {length} found between points: {point1} and {point2}'
         return False
@@ -201,8 +203,8 @@ class Construction:
     def get_present_lengths(self):
         lengths_dict = {}
         for point1 in self.points:
-            for point2 in self.points-{point1}:
-                lengths_dict[abs(point2-point1)] = (point1, point2)
+            for point2 in self.points - {point1}:
+                lengths_dict[abs(point2 - point1)] = (point1, point2)
         return lengths_dict
 
     def add_circle(self, center: Point, point2: Point, counts_as_step=True) -> Circle:
@@ -231,7 +233,7 @@ class Construction:
         for _ in range(number_of_times):
             action = random.choice([self.add_circle, self.add_line])
             point1 = random.choice(tuple(self.points))
-            point2 = random.choice(tuple(self.points-{point1}))
+            point2 = random.choice(tuple(self.points - {point1}))
             construction = action(point1, point2)
         return construction
 
