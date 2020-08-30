@@ -1,4 +1,4 @@
-"""This file contains various self.uctions found in Euclid's Elements"""
+"""This file contains various constructions found in Euclid's Elements"""
 
 from Construction import Construction
 from Point import Point
@@ -25,3 +25,10 @@ class EuclidI1(Construction):
             self.ac = self.add_line(a, intersect)
             self.bc = self.add_line(b, intersect)
             break  # Only do it for one intersection point
+
+
+class RandomConstruction(Construction):
+    """Generates a random construction of given length. Not included in Euclid, but sometimes useful, nonetheless."""
+    def __init__(self, length):
+        super(RandomConstruction, self).__init__()
+        self.add_random_construction(length)
