@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import math
 import random
 from decimal import Decimal
+import networkx as nx
 
 class Construction:
     def __init__(self):
@@ -29,6 +30,7 @@ class Construction:
             previous_number_of_points = len(self.points)
             i = previous_number_of_points
             for intersect in intersections:
+                intersect.dependencies.update({object1, object2})
                 if not intersect.name:
                     #intersect.name = chr(i + ord('a'))
                     intersect.name = f'"{i}"'
@@ -252,5 +254,19 @@ class Construction:
         return repr(self.points) + repr(self.steps)
 
     def __str__(self):
-        return f'Construction of length {len(self)} and {len(self.points)} points:\n' + '\n'.join(map(repr, self.points)) + \
-               '\n\n' + '\n'.join(map(repr, self.steps))
+        return f'Construction of length {len(self)} and {len(self.points)} points:\n' + \
+               '\n'.join(map(repr, self.points)) + '\n\n' + '\n'.join(map(repr, self.steps))
+
+    def get_conjugate_constructions(self):
+        directed_graph = nx.DiGraph()
+        construction_objects = self.steps
+        object_labels = dict(map(lambda x, y: (x, y), construction_objects, range(1, len(construction_objects) + 1)))
+
+        directed_graph.add_nodes_from(object_labels.values())
+        for shape in construction_objects:
+            for dependency in shape.dependencies:
+                directed_graph.add_edge(object_labels[dependency], object_labels[shape])
+
+        sorts = nx.algorithms.dag.all_topological_sorts(directed_graph)
+        slist = list(sorts)
+        return object_labels, slist

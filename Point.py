@@ -17,8 +17,10 @@ class Point(Object):
         #return self.x == other.x and self.y == other.y
         #return math.isclose(self.x, other.x) and math.isclose(self.y, other.y)
         threshold = self.threshold
-        return self.x.quantize(threshold) == other.x.quantize(threshold) and \
-               self.y.quantize(threshold) == other.y.quantize(threshold)
+        if isinstance(other, Point):
+            return self.x.quantize(threshold) == other.x.quantize(threshold) and self.y.quantize(threshold) == other.y.quantize(threshold)
+        else:
+            return False
 
     def __sub__(self, other):
         return Point(self.x-other.x, self.y-other.y)

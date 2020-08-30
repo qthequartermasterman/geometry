@@ -10,7 +10,7 @@ class Line(Object):
         super().__init__()
         self.point1 = point1
         self.point2 = point2
-        self.dependencies.update({point1, point2})
+        self.dependencies.update(point1.dependencies | point2.dependencies)
         self.slope = self.calculate_slope(point1, point2)
         self.intercept = self.calculate_intercept(point1, point2, self.slope)
         #self.name = name if name else u'\u0305'.join(f'{point1.name}{point2.name} ')
