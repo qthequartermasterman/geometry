@@ -21,6 +21,11 @@ class Construction:
         self.steps = []
         self.name = name
 
+        # Member variables for our automated construction hunting
+        self.interesting_points : {Point} = set()
+        self.interesting_lines: {Line} = set()
+        self.interesting_circles: {Circle} = set()
+
     def find_intersections(self, object1, object2) -> {Point}:
         intersections = None
         if type(object1) is Line:
@@ -212,19 +217,23 @@ class Construction:
                 lengths_dict[abs(point2 - point1)] = (point1, point2)
         return lengths_dict
 
-    def add_circle(self, center: Point, point2: Point, counts_as_step=True) -> Circle:
+    def add_circle(self, center: Point, point2: Point, counts_as_step=True, interesting=False) -> Circle:
         circle = Circle(center=center, point2=point2)
         self.circles.add(circle)
         if counts_as_step:
             self.steps.append(circle)
+        if interesting:
+            self.interesting_circles.add(circle)
         self.update_intersections_with_object(circle)
         return circle
 
-    def add_line(self, point1: Point, point2: Point, counts_as_step=True) -> Line:
+    def add_line(self, point1: Point, point2: Point, counts_as_step=True, interesting=False) -> Line:
         line = Line(point1=point1, point2=point2)
         self.lines.add(line)
         if counts_as_step:
             self.steps.append(line)
+        if interesting:
+            self.interesting_lines.add(line)
         self.update_intersections_with_object(line)
         return line
 
@@ -288,30 +297,54 @@ class Construction:
             return Construction._point_to_image_space(left_point, boundary_radius, resolution),\
                    Construction._point_to_image_space(right_point, boundary_radius, resolution)
 
-    def numpy(self, boundary_radius: int, resolution: int):
+    def numpy(self, boundary_radius: int, resolution: int, interesting=False):
         """
         Generate a numpy array that encodes the diagram of this construction.
         :param boundary_radius: int representing how far from the origin we should generate in both x and y directions
         :param resolution: int representing how many pixels we can use in both the x and y directions
+        :param interesting: bool specifying if we only include interesting features in the numpy representation
         :return:
         """
-        points_array = np.zeros((resolution, resolution), dtype=np.uint16)  # Encodes all the intersection points
-        lines_array = np.zeros_like(points_array)  # Encodes all the lines
-        circles_array = np.zeros_like(points_array)  # Encodes all the circle
+
+        # Indicate interesting if specified, otherwise we will look at all the features
+        if interesting:
+            point_set = self.interesting_points
+            line_set = self.interesting_lines
+            circle_set = self.interesting_circles
+        else:
+            point_set = self.points
+            line_set = self.lines
+            circle_set = self.circles
 
         # 1st layer is a grid representing the space. Pixels containing an intersection point has value 1, otherwise 0
-        for point in self.points:
+        points_array = self._numpy_points(boundary_radius, resolution, point_set)
+        # 2nd layer is a grid representing the space. Each pixel has a value equal to number of lines passing through
+        lines_array = self._numpy_lines(boundary_radius, resolution, line_set)
+        # 3rd layer is a grid representing the space. Each pixel has a value equal to number of circles passing through
+        circles_array = self._numpy_circles(boundary_radius, resolution, circle_set)
+
+        # Return the layers stacked together
+        return np.stack([points_array, lines_array, circles_array])
+
+    def _numpy_points(self, boundary_radius: int, resolution: int, point_set: {Point}):
+        points_array = np.zeros((resolution, resolution), dtype=np.uint16)  # Encodes all the intersection points
+
+        # 1st layer is a grid representing the space. Pixels containing an intersection point has value 1, otherwise 0
+        for point in point_set:
             point_np = self._point_to_image_space(point, boundary_radius, resolution)
             # Check each coordinate. If it's off the screen (i.e. the coordinate is bigger than the resolution), omit
             if point_np[0] >= resolution or point_np[1] >= resolution:
                 break
             # Mark the point on the array
             points_array[point_np[0]][point_np[1]] = 1
+        return points_array
 
+    def _numpy_lines(self, boundary_radius: int, resolution: int, line_set: {Line}):
+        lines_array = np.zeros((resolution, resolution), dtype=np.uint16)  # Encodes all the line pixels
         # 2nd layer is a grid representing the space. Each pixel has a value equal to number of lines passing through
-        for line in self.lines:
-            #point1 = self._point_to_image_space(line.point1, boundary_radius, resolution)
-            #point2 = self._point_to_image_space(line.point2, boundary_radius, resolution)
+        for line in line_set:
+            # point1 = self._point_to_image_space(line.point1, boundary_radius, resolution)
+            # point2 = self._point_to_image_space(line.point2, boundary_radius, resolution)
             point1, point2 = self._boundary_endpoints_image_space_from_line(line, boundary_radius, resolution)
             rr, cc = draw.line_nd(point1, point2)
             # Make sure to sort out any points outside of the resolution from rr and cc, so we don't get indexing errors
@@ -322,16 +355,16 @@ class Construction:
             rr, cc = rr[cc >= 0], cc[cc >= 0]
             # Add one to the array, so we know that we can see all the lines at those points.
             lines_array[rr, cc] += 1
+        return lines_array
 
-        # 3rd layer is a grid representing the space. Each pixel has a value equal to number of circles passing through
-        for circle in self.circles:
+    def _numpy_circles(self, boundary_radius: int, resolution: int, circle_set: {Circle}):
+        circles_array = np.zeros((resolution, resolution), dtype=np.uint16)  # Encode all circles' pixels
+        for circle in circle_set:
             center = self._point_to_image_space(circle.center, boundary_radius, resolution)
             radius = round(circle.radius*resolution/(2*boundary_radius))  # Convert radius to pixel space by scaling
             rr, cc = draw.circle_perimeter(center[0], center[1], radius, shape=circles_array.shape)
             circles_array[rr, cc] += 1
-
-        # Return the layers stacked together
-        return np.stack([points_array, lines_array, circles_array])
+        return circles_array
 
     def __len__(self):
         return len(self.steps)

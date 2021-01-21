@@ -14,6 +14,7 @@ class EuclidI1(Construction):
         self.b = b
         self.c: Point
         self.points.update({a, b})
+        self.interesting_points({a, b})  # Mark these as interesting
 
         # The construction is to erect a triangle on the given segment, so this doesn't count as a step.
         self.ab = self.add_line(a, b, counts_as_step=False)
@@ -24,8 +25,8 @@ class EuclidI1(Construction):
         intersections = self.points - {a, b}
         for intersect in intersections:
             self.c = intersect
-            self.ac = self.add_line(a, intersect)
-            self.bc = self.add_line(b, intersect)
+            self.ac = self.add_line(a, intersect, interesting=True)
+            self.bc = self.add_line(b, intersect, interesting=True)
             break  # Only do it for one intersection point
 
 
