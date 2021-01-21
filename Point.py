@@ -2,6 +2,7 @@ import math
 import matplotlib.pyplot as plt
 from decimal import Decimal
 from Object import Object
+import numpy as np
 
 
 class Point(Object):
@@ -53,3 +54,6 @@ class Point(Object):
 
     def plt_draw(self) -> plt.Circle:
         return plt.Circle((self.x, self.y), radius=0.02)
+
+    def numpy(self) -> np.array:
+        return np.array([self.x, self.y], dtype=np.float)

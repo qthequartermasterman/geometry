@@ -3,10 +3,14 @@ from decimal import Decimal
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from skimage import draw
+import numpy as np
 
 from Circle import Circle
 from Line import Line
 from Point import Point
+
+from typing import Union
 
 
 class Construction:
@@ -242,6 +246,92 @@ class Construction:
                 construction_is_new = construction not in prebuilt_steps
 
         return construction
+
+    @staticmethod
+    def _point_to_image_space(point: Union[Point, np.array], boundary_radius: int, resolution: int) -> np.array:
+        origin = np.array([resolution/2, resolution/2])
+        if type(point) is Point:
+            point = point.numpy()
+        return (point*resolution/(2*boundary_radius) + origin).round().astype(np.uint16)
+
+    @staticmethod
+    def _boundary_endpoints_image_space_from_line(line: Line, boundary_radius: int, resolution: int) -> (np.array, np.array):
+        point1 = line.point1.numpy()
+        point2 = line.point2.numpy()
+        # Without loss of generality, assume point1 has the smaller y coordinate
+        if point1[1] > point2[1]:
+            point1, point2 = point2, point1
+        # Get the direction vector between the two points
+        direction_vector = point2-point1
+        # If the slope > 1 (i.e. the y grows faster than x), we check intersections on the tops. Otherwise the sides
+        if direction_vector[0] < direction_vector[1]:
+            dist_to_top = boundary_radius - point1[1]  # Difference from top boundary to the y of p1
+            # Scale the direction vector by the distance to top / y of direction_vector
+            top_point = point1 + direction_vector * dist_to_top / direction_vector[1]
+            #top_point = point1+direction_vector*resolution/(2*boundary_radius)
+            # Repeat for bottom
+            dist_to_bottom = boundary_radius + point1[1]
+            bottom_point = point1 - direction_vector * dist_to_bottom/direction_vector[1]
+
+            # Return the tuple of points
+            return Construction._point_to_image_space(top_point, boundary_radius, resolution), \
+                   Construction._point_to_image_space(bottom_point, boundary_radius, resolution)
+        else:  # Find where it intersects with the sides
+            dist_to_right = boundary_radius - point1[0]  # Difference from top boundary to the y of p1
+            # Scale the direction vector by the distance to top / y of direction_vector
+            right_point = point1 + direction_vector * dist_to_right / direction_vector[0]
+            # Repeat for bottom
+            dist_to_left = boundary_radius + point1[0]
+            left_point = point1 - direction_vector * dist_to_left / direction_vector[0]
+
+            # Return the tuple of points
+            return Construction._point_to_image_space(left_point, boundary_radius, resolution),\
+                   Construction._point_to_image_space(right_point, boundary_radius, resolution)
+
+    def numpy(self, boundary_radius: int, resolution: int):
+        """
+        Generate a numpy array that encodes the diagram of this construction.
+        :param boundary_radius: int representing how far from the origin we should generate in both x and y directions
+        :param resolution: int representing how many pixels we can use in both the x and y directions
+        :return:
+        """
+        points_array = np.zeros((resolution, resolution), dtype=np.uint16)  # Encodes all the intersection points
+        lines_array = np.zeros_like(points_array)  # Encodes all the lines
+        circles_array = np.zeros_like(points_array)  # Encodes all the circle
+
+        # 1st layer is a grid representing the space. Pixels containing an intersection point has value 1, otherwise 0
+        for point in self.points:
+            point_np = self._point_to_image_space(point, boundary_radius, resolution)
+            # Check each coordinate. If it's off the screen (i.e. the coordinate is bigger than the resolution), omit
+            if point_np[0] >= resolution or point_np[1] >= resolution:
+                break
+            # Mark the point on the array
+            points_array[point_np[0]][point_np[1]] = 1
+
+        # 2nd layer is a grid representing the space. Each pixel has a value equal to number of lines passing through
+        for line in self.lines:
+            #point1 = self._point_to_image_space(line.point1, boundary_radius, resolution)
+            #point2 = self._point_to_image_space(line.point2, boundary_radius, resolution)
+            point1, point2 = self._boundary_endpoints_image_space_from_line(line, boundary_radius, resolution)
+            rr, cc = draw.line_nd(point1, point2)
+            # Make sure to sort out any points outside of the resolution from rr and cc, so we don't get indexing errors
+            # This can happen, since round may round up points on the edge to the pixel just outside the range
+            rr, cc = rr[rr < resolution], cc[rr < resolution]
+            rr, cc = rr[cc < resolution], cc[cc < resolution]
+            rr, cc = rr[rr >= 0], cc[rr >= 0]
+            rr, cc = rr[cc >= 0], cc[cc >= 0]
+            # Add one to the array, so we know that we can see all the lines at those points.
+            lines_array[rr, cc] += 1
+
+        # 3rd layer is a grid representing the space. Each pixel has a value equal to number of circles passing through
+        for circle in self.circles:
+            center = self._point_to_image_space(circle.center, boundary_radius, resolution)
+            radius = round(circle.radius*resolution/(2*boundary_radius))  # Convert radius to pixel space by scaling
+            rr, cc = draw.circle_perimeter(center[0], center[1], radius, shape=circles_array.shape)
+            circles_array[rr, cc] += 1
+
+        # Return the layers stacked together
+        return np.stack([points_array, lines_array, circles_array])
 
     def __len__(self):
         return len(self.steps)
