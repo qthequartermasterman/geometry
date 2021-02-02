@@ -236,6 +236,12 @@ class Construction:
         self.update_intersections_with_object(line)
         return line
 
+    def add_point(self, point: Point, interesting=False):
+        self.points.add(point)
+        if interesting:
+            self.interesting_points.add(point)
+        return point
+
     def add_random_construction(self, number_of_times=1):
         """
 
@@ -263,6 +269,65 @@ class Construction:
         return (point * resolution / (2 * boundary_radius) + origin).round().astype(np.uint16)
 
     @staticmethod
+    def _image_to_point_space(pixel_coordinates: np.array, boundary_radius: int, resolution: int) -> np.array:
+        pix_origin = np.array([resolution/2, resolution/2])
+        return (pixel_coordinates - pix_origin) * (2 * boundary_radius) / resolution
+
+    def get_nearest_point(self, pixel_coordinates: np.array, boundary_radius: int, resolution: int) -> Point:
+        point_space = self._image_to_point_space(pixel_coordinates, boundary_radius, resolution)
+        closest_point: Point = None
+        closest_distance: float = float('inf')
+        for point in self.points:
+            distance = np.linalg.norm(point.numpy() - point_space)
+            if distance < closest_distance:
+                closest_point = point
+                closest_distance = distance
+
+        return closest_point
+
+    def _interpret_action(self, action, boundary_radius, resolution: int) -> (bool, Point, Point):
+        """
+
+        :param action: A number or gym discrete action
+        :param resolution: int representing how many pixels are in the image space lengthwise
+        :return:
+        """
+        action = int(action)  # In case the action is stored as something other than an int
+        # We define the last bit to be whether or not the action is drawing a line.
+        # True = line, False = circle
+        is_line = bool(action % 2)
+        action = action >> 1
+
+        # Now, we get the next few coordinates by using divmod with a dividend of resolution
+        action, point1x = divmod(action, resolution)
+        action, point1y = divmod(action, resolution)
+        action, point2x = divmod(action, resolution)
+        action, point2y = divmod(action, resolution)
+
+        point1 = self.get_nearest_point(np.array([point1x, point1y]), boundary_radius, resolution)
+        point2 = self.get_nearest_point(np.array([point2x, point2y]), boundary_radius, resolution)
+
+        return is_line, point1, point2
+
+    def perform_action(self, action, boundary_radius: int, resolution: int):
+        """
+        Interpret the integer id of the action and perform it in the construction
+        :param action: A number or gym discrete action
+        :param boundary_radius: 
+        :param resolution: int representing how many pixels are in the image space lengthwise
+        :return:
+        """
+
+        is_line, point1, point2 = self._interpret_action(action, boundary_radius, resolution)
+        if is_line:
+            self.add_line(point1, point2)
+        else:
+            self.add_circle(point1, point2)
+
+
+
+
+    @staticmethod
     def _boundary_endpoints_image_space_from_line(line: Line, boundary_radius: int, resolution: int) -> (
     np.array, np.array):
         point1 = line.point1.numpy()
@@ -273,7 +338,7 @@ class Construction:
         # Get the direction vector between the two points
         direction_vector = point2 - point1
         # If the slope > 1 (i.e. the y grows faster than x), we check intersections on the tops. Otherwise the sides
-        if direction_vector[0] < direction_vector[1]:
+        if abs(direction_vector[0]) < abs(direction_vector[1]):
             dist_to_top = boundary_radius - point1[1]  # Difference from top boundary to the y of p1
             # Scale the direction vector by the distance to top / y of direction_vector
             top_point = point1 + direction_vector * dist_to_top / direction_vector[1]
@@ -423,3 +488,12 @@ class Construction:
         sorts = nx.algorithms.dag.all_topological_sorts(directed_graph)
         sorts_list = list(sorts)
         return object_labels, sorts_list
+
+    def plain_text(self, boundary_radius: int, resolution: int, interesting=False):
+        numpy = self.numpy(boundary_radius, resolution, interesting)
+        numpy = numpy.sum(axis=0)  # Condense everything to one matrix.
+        for row in numpy:
+            line_string = ''  # Store each line
+            for column in row:
+                line_string += '*' if column > 0 else ' '
+            print(line_string)
