@@ -13,7 +13,6 @@ class Point(Object):
         self.name = name
         self.threshold = Decimal('1.0')**8
 
-
     def __eq__(self, other):
         #return self.x == other.x and self.y == other.y
         #return math.isclose(self.x, other.x) and math.isclose(self.y, other.y)
@@ -57,3 +56,6 @@ class Point(Object):
 
     def numpy(self) -> np.array:
         return np.array([self.x, self.y], dtype=np.float)
+
+    def normalize(self):
+        return abs(self)*self

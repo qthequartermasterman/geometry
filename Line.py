@@ -38,10 +38,26 @@ class Line(Object):
     def __repr__(self):
         return f'Line {self.name} through {self.point1} and {self.point2}, with equation: y={self.slope:.2f}x+{self.intercept:.2f}'
 
-    def __hash__(self):
-        return hash(repr(self))
+    def __eq__(self, other):
+        if type(other) is type(self):
+            if self.slope != Decimal('Infinity'):  # Line is not vertical
+                return self.slope == other.slope and self.intercept == other.intercept
+            else:  # Line is vertical
+                if self.point1.x == other.point1.x:
+                    return True
+        else:  # Not the same time. Equality is not supported.
+            return False
 
-    def __abs__(self):
+    def __hash__(self):
+        # These three pieces of information uniquely define a line
+        # There is a 1-1 correspondence between lines and (slope, intercept) pairs EXCEPT for vertical lines
+        # there is a 1-1 correspondence between vertical lines and the x-coordinate of any point on them
+        if self.slope != Decimal('Infinity'):
+            return hash((self.slope, self.intercept))
+        else:
+            return hash((self.slope, self.intercept, self.point1.x))
+
+    def __abs__(self) -> float:
         """This returns the length of the line segment between the two defining points"""
         return abs(self.point2-self.point1)
 
