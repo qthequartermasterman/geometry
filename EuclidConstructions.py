@@ -38,5 +38,6 @@ class RandomConstruction(Construction):
         b = Point(1, 0, 'B')
         self.a = a
         self.b = b
-        self.points.update({a, b})
+        self.add_point(a, True)
+        self.add_point(b, True)
         self.add_random_construction(length)

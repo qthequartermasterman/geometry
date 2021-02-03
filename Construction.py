@@ -25,7 +25,7 @@ class Construction:
         self.interesting_lines: {Line} = set()
         self.interesting_circles: {Circle} = set()
 
-    def find_intersections(self, object1, object2) -> {Point}:
+    def find_intersections(self, object1, object2, interesting=True) -> {Point}:
         intersections = None
         if type(object1) is Line:
             if type(object2) is Line:
@@ -46,6 +46,8 @@ class Construction:
                     intersect.name = f'"{i}"'
                 i += 1
             self.points.update(intersections)
+            if interesting:
+                self.interesting_points.update(intersections)
             return intersections
         else:
             print(f'Cannot find intersection of unsupported objects: \n\t{object1}\n\t{object2}')
@@ -242,10 +244,10 @@ class Construction:
             self.interesting_points.add(point)
         return point
 
-    def add_random_construction(self, number_of_times=1):
+    def add_random_construction(self, number_of_times=1, interesting=True):
         """
-
-        :param number_of_times:
+        :param interesting: bool representing whether new intersection points should be considered "intesting"
+        :param number_of_times: number of random steps to add
         :return: the last construction added to the diagram
         """
         construction = None
@@ -256,7 +258,7 @@ class Construction:
                 action = random.choice([self.add_circle, self.add_line])
                 point1 = random.choice(tuple(self.points))
                 point2 = random.choice(tuple(self.points - {point1}))
-                construction = action(point1, point2)
+                construction = action(point1, point2, interesting)
                 construction_is_new = construction not in prebuilt_steps
 
         return construction
@@ -273,19 +275,21 @@ class Construction:
         pix_origin = np.array([resolution/2, resolution/2])
         return (pixel_coordinates - pix_origin) * (2 * boundary_radius) / resolution
 
-    def get_nearest_point(self, pixel_coordinates: np.array, boundary_radius: int, resolution: int) -> Point:
+    def get_nearest_point(self, pixel_coordinates: np.array, boundary_radius: int, resolution: int, not_points: [Point] = None) -> Point:
         point_space = self._image_to_point_space(pixel_coordinates, boundary_radius, resolution)
         closest_point: Point = None
         closest_distance: float = float('inf')
+        resolution_distance = 2 * boundary_radius/resolution
         for point in self.points:
-            distance = np.linalg.norm(point.numpy() - point_space)
-            if distance < closest_distance:
-                closest_point = point
-                closest_distance = distance
+            if not_points is None or point not in not_points:
+                distance = np.linalg.norm(point.numpy() - point_space)
+                if distance < closest_distance :
+                    closest_point = point
+                    closest_distance = distance
 
         return closest_point
 
-    def _interpret_action(self, action, boundary_radius, resolution: int) -> (bool, Point, Point):
+    def _interpret_action(self, action, boundary_radius: int, resolution: int) -> (bool, Point, Point):
         """
 
         :param action: A number or gym discrete action
@@ -299,13 +303,14 @@ class Construction:
         action = action >> 1
 
         # Now, we get the next few coordinates by using divmod with a dividend of resolution
-        action, point1x = divmod(action, resolution)
         action, point1y = divmod(action, resolution)
-        action, point2x = divmod(action, resolution)
+        action, point1x = divmod(action, resolution)
         action, point2y = divmod(action, resolution)
+        action, point2x = divmod(action, resolution)
+        # print(f'({point1x}, {point1y}), ({point2x}, {point2y})')
 
         point1 = self.get_nearest_point(np.array([point1x, point1y]), boundary_radius, resolution)
-        point2 = self.get_nearest_point(np.array([point2x, point2y]), boundary_radius, resolution)
+        point2 = self.get_nearest_point(np.array([point2x, point2y]), boundary_radius, resolution, not_points=[point1])
 
         return is_line, point1, point2
 

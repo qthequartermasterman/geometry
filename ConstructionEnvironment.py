@@ -1,6 +1,10 @@
+from typing import Union
+
 from gym import Env, spaces
 from Construction import Construction
 from Point import Point
+from Line import Line
+from Circle import Circle
 from EuclidConstructions import RandomConstruction
 import numpy as np
 
@@ -96,11 +100,21 @@ class ConstructionEnvironment(Env):
         return np.count_nonzero(difference_matrix), current_observation, desired_observation
 
     @staticmethod
-    def _points_to_action_number(point1: np.array, point2: np.array, is_line: bool, resolution: int):
-        if type(point1) == Point:
-            point1 = point1.numpy()
-        if type(point2) == Point:
-            point2 = point2.numpy()
+    def _point_to_image_space(point: Union[Point, np.array], boundary_radius: int, resolution: int) -> np.array:
+        origin = np.array([resolution / 2, resolution / 2])
+        if type(point) is Point:
+            point = point.numpy()
+        return (point * resolution / (2 * boundary_radius) + origin).round().astype(np.uint16)
+
+    @staticmethod
+    def _points_to_action_number(point1: np.array, point2: np.array, is_line: bool, boundary_radius: int, resolution: int):
+        # If either of the points do not exist, return 0 action
+        if point1 is None or point2 is None:
+            return 0
+        # Otherwise, convert to image (pixel) space coordinates
+        point1 = ConstructionEnvironment._point_to_image_space(point1, boundary_radius, resolution)
+        point2 = ConstructionEnvironment._point_to_image_space(point2, boundary_radius, resolution)
+
 
         # Start with action=0. We will encode the actions as an integer.
         action = 0
@@ -132,7 +146,16 @@ class ConstructionEnvironment(Env):
         for point1 in self.construction.points:
             for point2 in self.construction.points:
                 if point1 is not point2:
-                    legal_moves.add(self._points_to_action_number(point1, point2, True, self.resolution))
-                    legal_moves.add(self._points_to_action_number(point1, point2, True, self.resolution))
+                    # TODO: This may slow down training if the network thinks line(A,B) != line(B,A), but legal
+                    #  actions thinks they are the same
+                    if Line(point1, point2) not in self.construction.lines:
+                        legal_moves.add(self._points_to_action_number(point1, point2, True,
+                                                                      self.boundary_radius, self.resolution))
+                    if Circle(center=point1, point2=point2) not in self.construction.circles:
+                        legal_moves.add(self._points_to_action_number(point1, point2, False,
+                                                                      self.boundary_radius, self.resolution))
+                    if Circle(center=point2, point2=point1) not in self.construction.circles:
+                        legal_moves.add(self._points_to_action_number(point2, point1, False,
+                                                                      self.boundary_radius, self.resolution))
 
         return list(legal_moves)
