@@ -159,3 +159,21 @@ class ConstructionEnvironment(Env):
                                                                       self.boundary_radius, self.resolution))
 
         return list(legal_moves)
+
+    def action_to_string(self, action_number):
+        """
+        Convert an action number to a string representing the action.
+        Args:
+            action_number: an integer from the action space.
+        Returns:
+            String representing the action.
+        """
+        is_line, point1, point2 = self.construction._interpret_action(action_number, self.boundary_radius,
+
+                                                                      self.resolution)
+        if is_line:
+            # If a line, then we simply return the point names with overbars
+            return f'{point1.name}\u0305{point2.name}\u0305'
+        else:
+            # If a circle, then we return in the format "c A r AB"
+            return f'\u25ef{point1.name}r{point1.name}\u0305{point2.name}\u0305'
