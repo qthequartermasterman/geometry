@@ -246,7 +246,7 @@ class Construction:
 
     def add_random_construction(self, number_of_times=1, interesting=True):
         """
-        :param interesting: bool representing whether new intersection points should be considered "intesting"
+        :param interesting: bool representing whether new intersection points should be considered "interesting"
         :param number_of_times: number of random steps to add
         :return: the last construction added to the diagram
         """
@@ -397,7 +397,7 @@ class Construction:
         return np.stack([points_array, lines_array, circles_array])
 
     def _numpy_points(self, boundary_radius: int, resolution: int, point_set: {Point}) -> np.array:
-        points_array = np.zeros((resolution, resolution), dtype=np.uint16)  # Encodes all the intersection points
+        points_array = np.zeros((resolution, resolution), dtype=np.int16)  # Encodes all the intersection points
 
         # 1st layer is a grid representing the space. Pixels containing an intersection point has value 1, otherwise 0
         for point in point_set:
@@ -406,11 +406,11 @@ class Construction:
             if point_np[0] >= resolution or point_np[1] >= resolution:
                 break
             # Mark the point on the array
-            points_array[point_np[0]][point_np[1]] = 1
+            points_array[point_np[0]][point_np[1]] += 1
         return points_array
 
     def _numpy_lines(self, boundary_radius: int, resolution: int, line_set: {Line}) -> np.array:
-        lines_array = np.zeros((resolution, resolution), dtype=np.uint16)  # Encodes all the line pixels
+        lines_array = np.zeros((resolution, resolution), dtype=np.int16)  # Encodes all the line pixels
         # 2nd layer is a grid representing the space. Each pixel has a value equal to number of lines passing through
         for line in line_set:
             # point1 = self._point_to_image_space(line.point1, boundary_radius, resolution)
@@ -428,7 +428,7 @@ class Construction:
         return lines_array
 
     def _numpy_circles(self, boundary_radius: int, resolution: int, circle_set: {Circle}) -> np.array:
-        circles_array = np.zeros((resolution, resolution), dtype=np.uint16)  # Encode all circles' pixels
+        circles_array = np.zeros((resolution, resolution), dtype=np.int16)  # Encode all circles' pixels
         for circle in circle_set:
             center = self._point_to_image_space(circle.center, boundary_radius, resolution)
             radius = round(

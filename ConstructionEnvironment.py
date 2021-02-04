@@ -96,7 +96,7 @@ class ConstructionEnvironment(Env):
         # Then get rid of any negatives (meaning there were extra points).
         # If there are any 1's left, then we haven't found that pixel.
         difference_matrix = desired_observation[0] - current_observation[0]
-        difference_matrix[difference_matrix > 0] = 0
+        difference_matrix[difference_matrix < 0] = 0
         return np.count_nonzero(difference_matrix), current_observation, desired_observation
 
     @staticmethod
