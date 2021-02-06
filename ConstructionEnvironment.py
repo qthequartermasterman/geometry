@@ -76,6 +76,11 @@ class ConstructionEnvironment(Env):
         # For now, we will initialize it as a random construction (a subclass)
         self.desired_construction: Construction = RandomConstruction(length=self.length)
 
+        # Make sure we show the agent both the current board and the desired points
+        _, current_observation, desired_observation = self._current_missing_points()
+        observation = np.concatenate((current_observation, desired_observation))
+        return observation
+
     def render(self, mode='human'):
         self.construction.plain_text(self.boundary_radius, self.resolution)
         self.desired_construction.plain_text(self.boundary_radius, self.resolution)
