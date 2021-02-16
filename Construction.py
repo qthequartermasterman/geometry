@@ -314,6 +314,22 @@ class Construction:
 
         return is_line, point1, point2
 
+    def _interpret_action_continuous(self, action: np.array, boundary_radius:int) -> (bool, Point, Point):
+        """
+
+        :param action: np.array with shape (5,) where the first two floats are the coordinates
+            of the first point, and last two are the last point.
+        :param boundary_radius: how far away from the origin is "1 unit"
+        :return: bool representing whether the move is drawing a line or circle,
+        :return: Point representing the first point
+        :return: Point representing the second point
+        """
+        is_line = True if action[-1]>0 else False  # If the last coordinate is positive, line, otherwise circle
+        point1 = self.get_nearest_point(action[0:2], boundary_radius, 2)
+        point2 = self.get_nearest_point(action[2:4], boundary_radius, 2, not_points=[point1])
+
+        return is_line, point1, point2
+
     def perform_action(self, action, boundary_radius: int, resolution: int):
         """
         Interpret the integer id of the action and perform it in the construction
@@ -324,6 +340,21 @@ class Construction:
         """
 
         is_line, point1, point2 = self._interpret_action(action, boundary_radius, resolution)
+        if is_line:
+            self.add_line(point1, point2)
+        else:
+            self.add_circle(point1, point2)
+
+    def perform_action_continuous(self, action: np.array, boundary_radius: int) -> None:
+        """
+        Interpret the action and perform it in the construction
+        :param action: np.array with shape (5,) where the first two floats are the coordinates
+            of the first point, and last two are the last point.
+        :param boundary_radius: how far away from the origin is "1 unit"
+        :return:
+        """
+
+        is_line, point1, point2 = self._interpret_action_continuous(action, boundary_radius)
         if is_line:
             self.add_line(point1, point2)
         else:
