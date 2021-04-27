@@ -1,6 +1,7 @@
 import random
 from decimal import Decimal
 from typing import Union
+import itertools
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -24,6 +25,8 @@ class Construction:
         self.interesting_points: {Point} = set()
         self.interesting_lines: {Line} = set()
         self.interesting_circles: {Circle} = set()
+
+        self.actions = set()
 
     def find_intersections(self, object1, object2, interesting=True) -> {Point}:
         intersections = None
@@ -225,7 +228,9 @@ class Construction:
             self.steps.append(circle)
         if interesting:
             self.interesting_circles.add(circle)
-        self.update_intersections_with_object(circle)
+        new_points = self.update_intersections_with_object(circle)
+        self.actions.discard(circle)
+        self.actions = self.get_valid_actions(new_points)
         return circle
 
     def add_line(self, point1: Point, point2: Point, counts_as_step=True, interesting=False) -> Line:
@@ -235,13 +240,16 @@ class Construction:
             self.steps.append(line)
         if interesting:
             self.interesting_lines.add(line)
-        self.update_intersections_with_object(line)
+        new_points = self.update_intersections_with_object(line)
+        self.actions.discard(line)
+        self.actions = self.get_valid_actions(new_points)
         return line
 
     def add_point(self, point: Point, interesting=False):
         self.points.add(point)
         if interesting:
             self.interesting_points.add(point)
+        self.actions = self.get_valid_actions({point})
         return point
 
     def add_random_construction(self, number_of_times=1, interesting=True):
@@ -273,7 +281,7 @@ class Construction:
     @staticmethod
     def _image_to_point_space(pixel_coordinates: np.array, boundary_radius: int, resolution: int) -> np.array:
         pix_origin = np.array([resolution/2, resolution/2])
-        return (pixel_coordinates - pix_origin) * (2 * boundary_radius) / resolution
+        return np.array((pixel_coordinates - pix_origin) * (2 * boundary_radius) / resolution)
 
     def get_nearest_point(self, pixel_coordinates: np.array, boundary_radius: int, resolution: int, not_points: [Point] = None) -> Point:
         point_space = self._image_to_point_space(pixel_coordinates, boundary_radius, resolution)
@@ -324,6 +332,8 @@ class Construction:
         :return: Point representing the first point
         :return: Point representing the second point
         """
+        # print('Action shape', action.shape)
+        # print('Action', action)
         is_line = True if action[-1]>0 else False  # If the last coordinate is positive, line, otherwise circle
         point1 = self.get_nearest_point(action[0:2], boundary_radius, 2)
         point2 = self.get_nearest_point(action[2:4], boundary_radius, 2, not_points=[point1])
@@ -360,8 +370,32 @@ class Construction:
         else:
             self.add_circle(point1, point2)
 
-
-
+    def get_valid_actions(self, focus_points: {Point} = None, force_calculate=False) -> [Union[Line, Circle]]:
+        """
+        :return: Returns a list of circles and lines corresponding to valid moves from the current construction
+        """
+        legal_moves: {int} = set()  # List of integers showing legal moves
+        combinations: {Point} = set() # The combinations of points we must iterate over.
+        if focus_points is None:
+            if force_calculate is True:
+                combinations = itertools.combinations(self.points, 2)
+            else:
+                return self.actions
+        else:
+            combinations = itertools.product(focus_points, self.points)
+        for point1, point2 in combinations:
+            if point1 is not point2:
+                line = Line(point1, point2)
+                circle1 = Circle(center=point1, point2=point2)
+                circle2 = Circle(point2, point2=point1)
+                if line not in self.lines:
+                    legal_moves.add(line)
+                if circle1 not in self.circles:
+                    legal_moves.add(circle1)
+                if circle2 not in self.circles:
+                    legal_moves.add(circle2)
+        self.actions.update(legal_moves)
+        return self.actions
 
     @staticmethod
     def _boundary_endpoints_image_space_from_line(line: Line, boundary_radius: int, resolution: int) -> (
@@ -533,3 +567,17 @@ class Construction:
             for column in row:
                 line_string += '*' if column > 0 else ' '
             print(line_string)
+
+    def execute_move(self, move_number):
+        """
+
+        :param move_number: index of the correct action in self.actions
+        :return:
+        """
+        move = self.actions[move_number]
+        if type(move) == type(Line):
+            self.add_line(move.point1, move.point2, interesting=True)
+        elif type(move) == type(Circle):
+            self.add_circle(move.point1, point2=move.point2, interesting=True)
+        else:
+            raise NotImplementedError

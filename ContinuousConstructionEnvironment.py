@@ -12,10 +12,10 @@ import numpy as np
 class ConstructionEnvironment(Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, boundary_radius: int = None, resolution: int = None):
+    def __init__(self, boundary_radius: int = None, resolution: int = None, length=4):
         super(ConstructionEnvironment, self).__init__()
         # Define Action space
-        self.resolution = resolution if resolution is not None else 32
+        self.resolution = resolution if resolution is not None else 8
         self.boundary_radius = boundary_radius if boundary_radius is not None else 2
         self.action_space = spaces.Box(low=-1,
                                        high=1,
@@ -23,7 +23,7 @@ class ConstructionEnvironment(Env):
         # Define observation space
         self.observation_space = spaces.Box(low=0,
                                             high=255,
-                                            shape=(self.resolution, self.resolution, 6), dtype=np.uint32)
+                                            shape=(self.resolution, self.resolution, 6))
 
         # Construction specific things
         # self.construction is the construction that we will be adding to.
@@ -34,7 +34,7 @@ class ConstructionEnvironment(Env):
 
         # Just to emphasize, this construction could be any construction instance.
         # For now, we will initialize it as a random construction (a subclass)
-        self.length = 4
+        self.length = length
         self.desired_construction: Construction = RandomConstruction(length=self.length)
 
     def step(self, action):
@@ -63,7 +63,7 @@ class ConstructionEnvironment(Env):
             done = True
         reward += .5 * (old_missing - new_missing)  # Half point for every new point found
 
-        return observation, reward, done
+        return observation, reward, done, {}
 
     def reset(self):
         # Reset the construction
@@ -137,6 +137,7 @@ class ConstructionEnvironment(Env):
         Returns:
             An array of integers, subset of the action space.
         """
+        '''
         legal_moves: {int} = set()  # List of integers showing legal moves
         for point1 in self.construction.points:
             for point2 in self.construction.points:
@@ -151,6 +152,8 @@ class ConstructionEnvironment(Env):
                         legal_moves.add(tuple(self._points_to_action_continuous(point2, point1, False, self.boundary_radius)))
 
         return list(legal_moves)
+        '''
+        return list(self.construction.get_valid_actions())
 
     def action_to_string(self, action_number):
         """
