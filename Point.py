@@ -15,11 +15,7 @@ class Point(Object):
         #self.threshold = Decimal('1.0')**8
 
     def __eq__(self, other):
-        #return self.x == other.x and self.y == other.y
-        #return math.isclose(self.x, other.x) and math.isclose(self.y, other.y)
-        #threshold = self.threshold
         if isinstance(other, Point):
-            #return self.x.quantize(threshold) == other.x.quantize(threshold) and self.y.quantize(threshold) == other.y.quantize(threshold)
             return self.x.equals(other.x) and self.y.equals(other.y)
         else:
             return False
@@ -31,7 +27,7 @@ class Point(Object):
         return Point(self.x + other.x, self.y + other.y)
 
     def __mul__(self, other):
-        if type(other) in (float, int, Decimal):  # Take the scalar Product
+        if type(other) in (float, int, sympy.core.expr.Expr):  # Take the scalar Product
             return Point(other*self.x, other*self.y)
         elif type(other) is Point:  # Take the dot product
             return self.x*other.x + self.y*other.y
@@ -43,15 +39,12 @@ class Point(Object):
         return self.__mul__(other)
 
     def __abs__(self):
-        return Decimal.sqrt(self * self)
+        return sympy.sqrt(self * self)
 
     def __repr__(self):
-        #return f'Point {self.name}: ({self.x:.4f}, {self.y:.4f})'
         return f'Point {self.name}: ({self.x}, {self.y})'
 
     def __hash__(self):
-        #return hash(repr(self))
-        #threshold = self.threshold
         return hash((self.x, self.y))
 
     def plt_draw(self) -> plt.Circle:
