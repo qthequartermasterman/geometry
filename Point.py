@@ -1,9 +1,7 @@
-import math
 import matplotlib.pyplot as plt
-# from decimal import Decimal
-from Object import Object
 import numpy as np
 import sympy
+from Object import Object
 
 
 class Point(Object):
@@ -12,7 +10,6 @@ class Point(Object):
         self.x = sympy.core.sympify(x)
         self.y = sympy.core.sympify(y)
         self.name = name
-        #self.threshold = Decimal('1.0')**8
 
     def __eq__(self, other):
         if isinstance(other, Point):
@@ -27,13 +24,19 @@ class Point(Object):
         return Point(self.x + other.x, self.y + other.y)
 
     def __mul__(self, other):
-        if type(other) in (float, int, sympy.core.expr.Expr):  # Take the scalar Product
+        """if type(other) in (float, int, sympy.core.expr.Expr, sympy.core.numbers.Number):  # Take the scalar Product
             return Point(other*self.x, other*self.y)
         elif type(other) is Point:  # Take the dot product
             return self.x*other.x + self.y*other.y
         else:
+            print(type(other))
             print(f'invalid multiplication of {self} and {other}')
             raise NotImplemented
+        """
+        if isinstance(other, Point):  # Take the dot product
+            return self.x*other.x + self.y*other.y
+        else:  # If the other object is not a point, then take a scalar product
+            return Point(other * self.x, other * self.y)
 
     def __rmul__(self, other):
         return self.__mul__(other)
@@ -48,12 +51,10 @@ class Point(Object):
         return hash((self.x, self.y))
 
     def plt_draw(self) -> plt.Circle:
-        return plt.Circle((self.x, self.y), radius=0.02)
+        return plt.Circle((self.x.evalf(), self.y.evalf()), radius=0.02)
 
     def numpy(self) -> np.array:
-        return np.array([self.x, self.y], dtype=np.float)
+        return np.array([self.x, self.y], dtype=np.float32)
 
     def normalize(self):
         return abs(self)*self
-
-p = Point(2,3)

@@ -41,7 +41,7 @@ class Line(Object):
         return f'Line {self.name} through {self.point1} and {self.point2}, with equation: y={self.slope:.2f}x+{self.intercept:.2f}'
 
     def __eq__(self, other):
-        if type(other) is type(self):
+        if isinstance(other, Line):
             if self.slope != sympy.core.numbers.Infinity():  # Line is not vertical
                 return self.slope == other.slope and self.intercept == other.intercept
             else:  # Line is vertical
@@ -64,4 +64,5 @@ class Line(Object):
         return abs(self.point2 - self.point1)
 
     def plt_draw(self) -> plt.Line2D:
-        return plt.Line2D((self.point1.x, self.point2.x), (self.point1.y, self.point2.y))
+        return plt.Line2D((self.point1.x.evalf(), self.point2.x.evalf()),
+                          (self.point1.y.evalf(), self.point2.y.evalf()))

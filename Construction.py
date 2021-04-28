@@ -1,5 +1,4 @@
 import random
-from decimal import Decimal
 from typing import Union
 import itertools
 
@@ -7,6 +6,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from skimage import draw
+import sympy
 
 from Circle import Circle
 from Line import Line
@@ -78,7 +78,8 @@ class Construction:
             l1 = line(line1.point1, line1.point2)
             l2 = line(line2.point1, line2.point2)
 
-            d = Decimal(l1[0] * l2[1] - l1[1] * l2[0]).quantize(Decimal(10) ** -16)
+            # d = Decimal(l1[0] * l2[1] - l1[1] * l2[0]).quantize(Decimal(10) ** -16)
+            d = sympy.core.sympify(l1[0] * l2[1] - l1[1] * l2[0])
             dx = l1[2] * l2[1] - l1[1] * l2[2]
             dy = l1[0] * l2[2] - l1[2] * l2[0]
             if d != 0:
@@ -118,8 +119,8 @@ class Construction:
             point_solution = line.point1 + line_basis_vector * t_solution
             return {point_solution}
         else:  # The discriminant is positive, so there are two real solutions and the line is secant
-            t_solution1 = (-b + Decimal.sqrt(discriminant)) / (2 * a)
-            t_solution2 = (-b - Decimal.sqrt(discriminant)) / (2 * a)
+            t_solution1 = (-b + sympy.sqrt(discriminant)) / (2 * a)
+            t_solution2 = (-b - sympy.sqrt(discriminant)) / (2 * a)
             p_solution1 = line.point1 + line_basis_vector * t_solution1
             p_solution2 = line.point1 + line_basis_vector * t_solution2
             return {p_solution1, p_solution2}
@@ -146,7 +147,8 @@ class Construction:
             if dis_to_area_center == r1:  # The two circles are tangent and thus intersect at exactly one point
                 return {center_of_intersection_area}
             else:  # Two circles intersect at two points
-                height = (r1 ** 2 - dis_to_area_center ** 2).quantize(Decimal('1.0') ** 8).sqrt()
+                # height = (r1 ** 2 - dis_to_area_center ** 2).quantize(Decimal('1.0') ** 8).sqrt()
+                height = sympy.sqrt(r1 ** 2 - dis_to_area_center ** 2)
                 x2 = center_of_intersection_area.x
                 y2 = center_of_intersection_area.y
                 x3 = x2 + height * (center2.y - center1.y) * (1 / distance_between_centers)
@@ -158,8 +160,8 @@ class Construction:
     def make_matplotlib_diagram(self):
         plt.axes()
         ax = plt.gca()
-        for circ in self.circles:
-            ax.add_artist(circ.plt_draw())
+        for circle in self.circles:
+            ax.add_artist(circle.plt_draw())
         for line in self.lines:
             plt_line = line.plt_draw()
             # plt_line.set_transform(ax.transAxes)
@@ -201,7 +203,7 @@ class Construction:
         self.points.update(intersections)
         return intersections
 
-    def check_lengths(self, length: Decimal):
+    def check_lengths(self, length: sympy.core.expr.Expr):
         """
 
         :param length:
@@ -280,18 +282,18 @@ class Construction:
 
     @staticmethod
     def _image_to_point_space(pixel_coordinates: np.array, boundary_radius: int, resolution: int) -> np.array:
-        pix_origin = np.array([resolution/2, resolution/2])
+        pix_origin = np.array([resolution / 2, resolution / 2])
         return np.array((pixel_coordinates - pix_origin) * (2 * boundary_radius) / resolution)
 
-    def get_nearest_point(self, pixel_coordinates: np.array, boundary_radius: int, resolution: int, not_points: [Point] = None) -> Point:
+    def get_nearest_point(self, pixel_coordinates: np.array, boundary_radius: int,
+                          resolution: int, not_points: [Point] = None) -> Point:
         point_space = self._image_to_point_space(pixel_coordinates, boundary_radius, resolution)
         closest_point: Point = None
         closest_distance: float = float('inf')
-        resolution_distance = 2 * boundary_radius/resolution
         for point in self.points:
             if not_points is None or point not in not_points:
                 distance = np.linalg.norm(point.numpy() - point_space)
-                if distance < closest_distance :
+                if distance < closest_distance:
                     closest_point = point
                     closest_distance = distance
 
@@ -322,7 +324,7 @@ class Construction:
 
         return is_line, point1, point2
 
-    def _interpret_action_continuous(self, action: np.array, boundary_radius:int) -> (bool, Point, Point):
+    def _interpret_action_continuous(self, action: np.array, boundary_radius: int) -> (bool, Point, Point):
         """
 
         :param action: np.array with shape (5,) where the first two floats are the coordinates
@@ -334,7 +336,7 @@ class Construction:
         """
         # print('Action shape', action.shape)
         # print('Action', action)
-        is_line = True if action[-1]>0 else False  # If the last coordinate is positive, line, otherwise circle
+        is_line = True if action[-1] > 0 else False  # If the last coordinate is positive, line, otherwise circle
         point1 = self.get_nearest_point(action[0:2], boundary_radius, 2)
         point2 = self.get_nearest_point(action[2:4], boundary_radius, 2, not_points=[point1])
 
@@ -375,7 +377,6 @@ class Construction:
         :return: Returns a list of circles and lines corresponding to valid moves from the current construction
         """
         legal_moves: {int} = set()  # List of integers showing legal moves
-        combinations: {Point} = set() # The combinations of points we must iterate over.
         if focus_points is None:
             if force_calculate is True:
                 combinations = itertools.combinations(self.points, 2)
@@ -399,7 +400,7 @@ class Construction:
 
     @staticmethod
     def _boundary_endpoints_image_space_from_line(line: Line, boundary_radius: int, resolution: int) -> (
-    np.array, np.array):
+            np.array, np.array):
         point1 = line.point1.numpy()
         point2 = line.point2.numpy()
         # Without loss of generality, assume point1 has the smaller y coordinate
@@ -418,8 +419,8 @@ class Construction:
             bottom_point = point1 - direction_vector * dist_to_bottom / direction_vector[1]
 
             # Return the tuple of points
-            return Construction._point_to_image_space(top_point, boundary_radius, resolution), \
-                   Construction._point_to_image_space(bottom_point, boundary_radius, resolution)
+            return (Construction._point_to_image_space(top_point, boundary_radius, resolution),
+                    Construction._point_to_image_space(bottom_point, boundary_radius, resolution))
         else:  # Find where it intersects with the sides
             dist_to_right = boundary_radius - point1[0]  # Difference from top boundary to the y of p1
             # Scale the direction vector by the distance to top / y of direction_vector
@@ -429,8 +430,8 @@ class Construction:
             left_point = point1 - direction_vector * dist_to_left / direction_vector[0]
 
             # Return the tuple of points
-            return Construction._point_to_image_space(left_point, boundary_radius, resolution), \
-                   Construction._point_to_image_space(right_point, boundary_radius, resolution)
+            return (Construction._point_to_image_space(left_point, boundary_radius, resolution),
+                    Construction._point_to_image_space(right_point, boundary_radius, resolution))
 
     def numpy(self, boundary_radius: int, resolution: int, interesting=False) -> np.array:
         """
@@ -520,10 +521,10 @@ class Construction:
 
         :param zero_index: Specifies whether or not the graph elements have labels that start at zero or one.
         :return: object_labels is a dictionary {Object: int} where the keys are objects in the construction and the
-        values are assigned indices. Note: If zero_index is not specified, these indices start at 1, not 0, since that
-        is the tradition in group theory.
-        :return: nx.DiGraph represented directed acyclic graph generated by the lines and circles in a construction. There
-        is a directed edge from an object to all other objects that directly depend on it in their construction.
+        values are assigned indices. Note: If zero_index is not specified, these indices start at 1, not 0,
+        since that is the tradition in group theory.
+        :return: nx.DiGraph represented directed acyclic graph generated by the lines and circles in a construction.
+        There is a directed edge from an object to all other objects that directly depend on it in their construction.
         """
         directed_graph = nx.DiGraph()
         construction_objects = self.steps

@@ -20,10 +20,11 @@ class Circle(Object):
             self.name = name if name else f'c{center.name}r{radius}'
 
     def __repr__(self):
-        return f'Circle {self.name} with center {self.center} and radius {self.radius:.2f}'
+        return f'Circle {self.name} with center {self.center} and radius {self.radius}'
 
     def __hash__(self):
         return hash(repr(self))
 
     def plt_draw(self) -> plt.Circle:
-        return plt.Circle((self.center.x, self.center.y), radius=self.radius, fill=False)
+        return plt.Circle((self.center.x.evalf(), self.center.y.evalf()),
+                          radius=self.radius.evalf(), fill=False)
