@@ -1,0 +1,83 @@
+from unittest import TestCase
+from Point import Point
+import numpy as np
+from sympy.core.sympify import sympify
+
+
+class TestPoint(TestCase):
+    def setUp(self) -> None:
+        self.point1_int = Point(2, 3)
+        self.point1_sympy_int = Point('2', '3')
+        self.point1_sympy_expr = Point('sqrt(2)**2', 'sqrt(3)**2')
+        self.point1_name = Point(2, 3, 'Name')
+        self.point1_list = [2, 3]
+        self.point1_tuple = (2, 3)
+        self.point1_np = np.array([2, 3])
+
+    def test_repr(self):
+        rep = repr(self.point1_int)
+        self.assertIn(self.point1_int.name, rep)
+        self.assertIn(repr(self.point1_int.x), rep)
+        self.assertIn(repr(self.point1_int.y), rep)
+
+    def test_equals(self):
+        # We only need to test each against the first, because equality is transitive
+        # Points with different names but equivalent coordinates are still equivalent.
+        for other in (self.point1_int, self.point1_sympy_int, self.point1_sympy_expr, self.point1_name):
+            self.assertEqual(self.point1_int, other)
+
+        # Make sure that a non-point does not return equal
+        for other in (self.point1_list, self.point1_tuple, self.point1_np):
+            self.assertNotEqual(self.point1_int, other)
+
+    def test_hash(self):
+        # Hash should just be the hash of the tuple (x,y) for each point. Name should not affect hash.
+        # Points with different names but equivalent coordinates are still equivalent.
+        for other in (self.point1_sympy_int, self.point1_sympy_expr, self.point1_name):
+            self.assertEqual(hash(self.point1_int), hash(other))
+
+    def test_add(self):
+        self.assertEqual(self.point1_int + self.point1_int, Point(4, 6))
+        self.assertEqual(Point(0, 0) + Point(0, 0), Point(0, 0))
+        self.assertEqual(Point('sqrt(2)', 0) + Point(0, 'sqrt(2)'), Point('sqrt(2)', 'sqrt(2)'))
+        self.assertEqual(Point('sqrt(2)', 3) + Point('sqrt(3)', -2), Point('sqrt(2) + sqrt(3)', 1))
+        self.assertEqual(Point('cos(3)', -9) + Point('1', -1), Point('cos(3)+1', -10))
+
+    def test_subtract(self):
+        self.assertEqual(self.point1_int - self.point1_int, Point(0, 0))
+        self.assertEqual(Point(0, 0) - Point(0, 0), Point(0, 0))
+        self.assertEqual(Point('sqrt(2)', 0) - Point(0, 'sqrt(2)'), Point('sqrt(2)', '-sqrt(2)'))
+        self.assertEqual(Point('sqrt(2)', 3) - Point('sqrt(3)', -2), Point('sqrt(2) - sqrt(3)', 5))
+        self.assertEqual(Point('cos(3)', -9) - Point('1', -1), Point('cos(3)-1', -8))
+
+    def test_multiply(self):
+        self.assertEqual(Point(0, 0) * Point(1, 1), 0)
+        self.assertEqual(Point(1, 1) * Point(2, 2), 4)
+        self.assertEqual(Point(-3, -5) * Point(7, -11), -21 + 55)
+
+        self.assertEqual(6 * Point(2, 3), Point(12, 18))
+        self.assertEqual(Point(2, 3) * 6, Point(12, 18))
+
+    def test_abs(self):
+        point_magnitude = {(0, 0): 0,
+                           (1, 1): 'sqrt(2)',
+                           (2, 3): 'sqrt(13)',
+                           (-3, -1): 'sqrt(10)',
+                           ('sqrt(3)', 'sqrt(2)'): 'sqrt(5)'}
+
+        for point, magnitude in point_magnitude.items():
+            self.assertEqual(abs(Point(*point)), sympify(magnitude))
+
+    def test_plt_draw(self):
+        self.fail()
+
+    def test_numpy(self):
+        array1 = Point(2, 3).numpy()
+        array2 = Point('sqrt(2)', 'sqrt(3)').numpy()
+        self.assertEqual(array1[0], 2)
+        self.assertEqual(array1[1], 3)
+        self.assertAlmostEqual(array2[0], 1.4142135623730951)
+        self.assertAlmostEqual(array2[1], 1.7320508075688772)
+
+    def test_normalize(self):
+        self.assertEqual(abs(Point(2, 3).normalize()), 1)

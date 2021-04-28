@@ -7,8 +7,8 @@ from Object import Object
 class Point(Object):
     def __init__(self, x: sympy.core.expr.Expr, y: sympy.core.expr.Expr, name: str = ''):
         super().__init__()
-        self.x = sympy.core.sympify(x)
-        self.y = sympy.core.sympify(y)
+        self.x = sympy.core.sympify(x).simplify()
+        self.y = sympy.core.sympify(y).simplify()
         self.name = name
 
     def __eq__(self, other):
@@ -24,15 +24,6 @@ class Point(Object):
         return Point(self.x + other.x, self.y + other.y)
 
     def __mul__(self, other):
-        """if type(other) in (float, int, sympy.core.expr.Expr, sympy.core.numbers.Number):  # Take the scalar Product
-            return Point(other*self.x, other*self.y)
-        elif type(other) is Point:  # Take the dot product
-            return self.x*other.x + self.y*other.y
-        else:
-            print(type(other))
-            print(f'invalid multiplication of {self} and {other}')
-            raise NotImplemented
-        """
         if isinstance(other, Point):  # Take the dot product
             return self.x*other.x + self.y*other.y
         else:  # If the other object is not a point, then take a scalar product
@@ -57,4 +48,4 @@ class Point(Object):
         return np.array([self.x, self.y], dtype=np.float32)
 
     def normalize(self):
-        return abs(self)*self
+        return (1/abs(self))*self
