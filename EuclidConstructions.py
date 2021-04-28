@@ -14,7 +14,7 @@ class EuclidI1(Construction):
         self.b = b
         self.c: Point
         self.points.update({a, b})
-        self.interesting_points({a, b})  # Mark these as interesting
+        self.interesting_points.update({a, b})  # Mark these as interesting
 
         # The construction is to erect a triangle on the given segment, so this doesn't count as a step.
         self.ab = self.add_line(a, b, counts_as_step=False)
