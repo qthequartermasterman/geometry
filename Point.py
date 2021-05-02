@@ -7,8 +7,10 @@ from Object import Object
 class Point(Object):
     def __init__(self, x: sympy.core.expr.Expr, y: sympy.core.expr.Expr, name: str = ''):
         super().__init__()
-        self.x = sympy.core.sympify(x).simplify()
-        self.y = sympy.core.sympify(y).simplify()
+        # self.x = sympy.core.sympify(x).simplify()
+        # self.y = sympy.core.sympify(y).simplify()
+        self.x = sympy.core.sympify(x)
+        self.y = sympy.core.sympify(y)
         self.name = name
 
     def __eq__(self, other):
