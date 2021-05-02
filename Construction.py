@@ -200,7 +200,7 @@ class Construction:
             f.write(str(self) + f'\n{notes}\n\n')
         plot.close()
 
-    def update_intersections_with_object(self, object):
+    def update_intersections_with_object(self, object: object) -> {Point}:
         """TODO: Find a way to do this in less than O(n) time, where n is the number of shapes"""
         intersections: {Point} = set()
         # for line in self.lines - {object}:
