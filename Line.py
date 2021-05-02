@@ -38,7 +38,7 @@ class Line(Object):
         return point1.y - point1.x * slope
 
     def __repr__(self):
-        return f'Line {self.name} through {self.point1} and {self.point2}, with equation: y={self.slope:.2f}x+{self.intercept:.2f}'
+        return f'Line {self.name} through {self.point1} and {self.point2}, with equation: y={self.slope}x+{self.intercept}'
 
     def __eq__(self, other):
         if isinstance(other, Line):
