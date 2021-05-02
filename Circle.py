@@ -11,7 +11,7 @@ class Circle(Object):
         self.dependencies.update(center.dependencies)
         if point2 is not None:
             self.point2 = point2
-            self.radius = abs(center-point2)
+            self.radius = abs(center - point2)
             self.name = name if name else f'c{center.name}r{center.name}{point2.name}'
             self.dependencies.update(point2.dependencies)
         else:
@@ -23,7 +23,10 @@ class Circle(Object):
         return f'Circle {self.name} with center {self.center} and radius {self.radius}'
 
     def __hash__(self):
-        return hash(repr(self))
+        return hash((self.center, self.radius))
+
+    def __eq__(self, other):
+        return isinstance(other, Circle) and self.center == other.center and self.radius.equals(other.radius)
 
     def plt_draw(self) -> plt.Circle:
         return plt.Circle((self.center.x.evalf(), self.center.y.evalf()),
