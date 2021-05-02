@@ -19,6 +19,7 @@ class Construction:
         self.lines: {Line} = set()
         self.circles: {Circle} = set()
         self.steps = []
+        self.steps_set: {Line, Circle} = set()
         self.name = name
 
         # Member variables for our automated construction hunting
@@ -157,6 +158,12 @@ class Construction:
                 y4 = y2 + height * (center2.x - center1.x) * (1 / distance_between_centers)
                 return {Point(x3, y3), Point(x4, y4)}
 
+    def find_point(self, point: Point):
+        for internal_point in self.points:
+            if internal_point == point:
+                return internal_point
+        return None
+
     def make_matplotlib_diagram(self):
         plt.axes()
         ax = plt.gca()
@@ -196,6 +203,7 @@ class Construction:
     def update_intersections_with_object(self, object):
         """TODO: Find a way to do this in less than O(n) time, where n is the number of shapes"""
         intersections: {Point} = set()
+        # for line in self.lines - {object}:
         for line in self.lines - {object}:
             intersections.update(self.find_intersections(object, line))
         for circle in self.circles - {object}:
@@ -228,6 +236,7 @@ class Construction:
         self.circles.add(circle)
         if counts_as_step:
             self.steps.append(circle)
+            self.steps_set.add(circle)
         if interesting:
             self.interesting_circles.add(circle)
         new_points = self.update_intersections_with_object(circle)
@@ -240,6 +249,7 @@ class Construction:
         self.lines.add(line)
         if counts_as_step:
             self.steps.append(line)
+            self.steps_set.add(line)
         if interesting:
             self.interesting_lines.add(line)
         new_points = self.update_intersections_with_object(line)
@@ -385,7 +395,7 @@ class Construction:
         else:
             combinations = itertools.product(focus_points, self.points)
         for point1, point2 in combinations:
-            if point1 is not point2:
+            if point1 != point2:
                 line = Line(point1, point2)
                 circle1 = Circle(center=point1, point2=point2)
                 circle2 = Circle(point2, point2=point1)
@@ -507,7 +517,12 @@ class Construction:
         return len(self.steps)
 
     def __hash__(self):
-        return hash((tuple(self.points), tuple(self.steps)))
+        # Turn the steps into a set first, so that permuting the steps doesn't change the equality.
+        return hash((tuple(self.points), tuple(self.steps_set)))
+
+    def __eq__(self, other):
+        # If the other is a construction, and points and steps match (not necessarily in same order), then equal
+        return isinstance(other, Construction) and self.points == other.points and self.steps_set == other.steps_set
 
     def __repr__(self):
         return repr(self.points) + repr(self.steps)
