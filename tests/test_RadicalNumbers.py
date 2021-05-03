@@ -1,5 +1,5 @@
 from unittest import TestCase
-from RadicalNumbers import Radical
+from geometry.core.RadicalNumbers import Radical
 import math
 from fractions import Fraction
 

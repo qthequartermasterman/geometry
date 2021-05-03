@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy
-from Object import Object
+from .Object import Object
 
 
 class Point(Object):

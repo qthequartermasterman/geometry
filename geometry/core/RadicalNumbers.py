@@ -1,7 +1,7 @@
 from numbers import Real
 import math
 from fractions import Fraction
-from Binomial import Binomial
+from geometry.core.Binomial import Binomial
 
 
 class Radical(Real):

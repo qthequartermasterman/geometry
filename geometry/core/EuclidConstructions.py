@@ -1,7 +1,7 @@
 """This file contains various constructions found in Euclid's Elements"""
 
-from Construction import Construction
-from Point import Point
+from .Point import Point
+from .Construction import Construction
 
 
 class EuclidI1(Construction):
