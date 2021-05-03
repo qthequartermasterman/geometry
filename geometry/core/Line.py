@@ -1,8 +1,7 @@
-from Point import Point
 import matplotlib.pyplot as plt
 import sympy
-from Object import Object
-
+from .Object import Object
+from .Point import Point
 
 class Line(Object):
     def __init__(self, point1: Point, point2: Point, name=''):

@@ -1,10 +1,9 @@
-from Object import Object
-from EuclidConstructions import EuclidI1, RandomConstruction
+from geometry.core.Object import Object
+from geometry.core.EuclidConstructions import RandomConstruction
+
 from sympy.combinatorics import Permutation
 from sympy.combinatorics.perm_groups import PermutationGroup
 import networkx as nx
-import numpy as np
-from Point import Point
 import matplotlib.pyplot as plt
 
 

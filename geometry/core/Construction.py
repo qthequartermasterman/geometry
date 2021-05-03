@@ -8,9 +8,9 @@ import numpy as np
 from skimage import draw
 import sympy
 
-from Circle import Circle
-from Line import Line
-from Point import Point
+from .Circle import Circle
+from .Line import Line
+from .Point import Point
 
 
 class Construction:

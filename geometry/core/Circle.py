@@ -1,6 +1,7 @@
-from Point import Point
+from .Object import Object
+from .Point import Point
+
 import matplotlib.pyplot as plt
-from Object import Object
 import sympy
 
 

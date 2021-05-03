@@ -1,7 +1,5 @@
-from Point import Point
-from Line import Line
-from Circle import Circle
-from Construction import Construction
+from geometry import Point
+from geometry.core.Construction import Construction
 import copy
 from decimal import Decimal
 import math

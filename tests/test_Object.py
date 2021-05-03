@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Object import Object
+from geometry.core.Object import Object
 
 class TestObject(TestCase):
     def test_set_dependencies_general(self):

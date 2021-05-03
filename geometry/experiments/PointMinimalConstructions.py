@@ -1,16 +1,14 @@
-from Construction import Construction
-from Point import Point
-from Circle import Circle
-from Line import Line
-from Object import Object
-import copy
-from main import num_random_constructions
-import random
-import time
+from geometry.core.Construction import Construction
+from geometry.core.Point import Point
+from geometry.core import Circle
+from geometry.core import Line
+from geometry.core import Object
 
+import copy
+import time
 import pickle
 
-from multiprocessing import Process, Queue, Array, cpu_count
+from multiprocessing import Process, Queue, cpu_count
 from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
 from queue import Empty
@@ -24,6 +22,9 @@ construction_job_queue = Queue()  # Job queue. Holds the constructions to analyz
 # Keys are the visited constructions (which are added to queue),
 # values are dummy, since multiprocessing managers only work with dicts
 visited_dict: {Construction: int} = {}
+
+# Directory to store all results
+results_dir = '../../results/'
 
 
 # Helper functions for our multiprocessing servers. These are not lambdas, since those are not pickle-able.
@@ -359,12 +360,12 @@ if __name__ == '__main__':
     generated_construction_list = list(visited_dict.keys())
     print(f'Generated {len(generated_construction_list)} different constructions')
     # Save the generated list to disc.
-    filehandler = open('visited_constructions.pkl', 'wb')
+    filehandler = open(results_dir+'visited_constructions.pkl', 'wb')
     pickle.dump(generated_construction_list, filehandler)
 
     # Save the job queue (for future analysis)
     try:
-        filehandler2 = open('queue.pkl', 'wb')
+        filehandler2 = open(results_dir+'queue.pkl', 'wb')
         pickle.dump(construction_job_queue._getvalue(), filehandler2)
     except:
         pass

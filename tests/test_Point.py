@@ -1,5 +1,5 @@
 from unittest import TestCase
-from Point import Point
+from geometry import Point
 import numpy as np
 from sympy.core.sympify import sympify
 
