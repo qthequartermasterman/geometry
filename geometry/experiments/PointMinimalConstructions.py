@@ -1,8 +1,9 @@
+import geometry.core
+from geometry.core.Circle import Circle
 from geometry.core.Construction import Construction
 from geometry.core.Point import Point
-from geometry.core import Circle
-from geometry.core import Line
-from geometry.core import Object
+from geometry.core.Line import Line
+from geometry.core.Object import Object
 
 import copy
 import time
@@ -277,9 +278,10 @@ def make_client_manager(ip, port, authkey):
     return client_manager
 
 
-def run_client():
+def run_client() -> [Process]:
     # Initialize and start the manager
-    client_manager = make_client_manager('192.168.254.19', 12349, b'1234')
+    # client_manager = make_client_manager('192.168.254.19', 12349, b'1234')
+    client_manager = make_client_manager('localhost', 12349, b'1234')
 
     # Get our shared data structures
     job_queue = client_manager.get_queue()
@@ -294,6 +296,7 @@ def run_client():
                                                  num_unique_constructions_dict,
                                                  point_minimal_construction_dict,
                                                  max_depth)
+    return processes
 
 
 if __name__ == '__main__':
@@ -308,6 +311,8 @@ if __name__ == '__main__':
     # Define Construction
     base_construction = BaseConstruction()
     construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
+
+    run_client()
 
     # Set up the loop that will wait and print progress until completed
     start_time = time.time()
