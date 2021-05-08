@@ -162,7 +162,7 @@ def construct(num_sqrt) -> (int, Construction):
         for i in range(num_random_constructions(num_steps)):
             print(f'sqrt(n) {num_sqrt}\tSteps: {num_steps}\tConstruction: {i}')
             const_copy = copy.deepcopy(const)
-            const_copy.add_random_construction(number_of_times=num_steps)
+            const_copy.add_random_construction(number_of_steps=num_steps)
 
             check = const_copy.check_lengths(Decimal.sqrt(Decimal(num_sqrt)))
             if check:
