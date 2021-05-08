@@ -21,14 +21,28 @@ class Circle(Object):
             self.name = name if name else f'c{center.name}r{radius}'
 
     def __repr__(self):
+        """String repr of the circle"""
         return f'Circle {self.name} with center {self.center} and radius {self.radius}'
 
     def __hash__(self):
+        """Circles are equivalent if their centers are equal and their radii are equal"""
         return hash((self.center, self.radius))
 
     def __eq__(self, other):
+        """Circles are equivalent if their centers are equal and their radii are equal"""
         return isinstance(other, Circle) and self.center == other.center and self.radius.equals(other.radius)
 
+    def __contains__(self, item) -> bool:
+        """
+        A point is in the circle if it satisfies the equation
+        :param item:
+        :return: bool. True if point is on the circle
+        """
+        return isinstance(item, Point) and abs(item-self.center) == self.radius
+
     def plt_draw(self) -> plt.Circle:
+        """
+        :return: plt.Circle representing a matplotlib pyplot circle representing our circle.
+        """
         return plt.Circle((self.center.x.evalf(), self.center.y.evalf()),
                           radius=self.radius.evalf(), fill=False)
