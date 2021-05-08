@@ -106,6 +106,18 @@ class Line(Object):
         """
         return abs(self.point2 - self.point1)
 
+    def __contains__(self, item) -> bool:
+        """
+        Determines if the other point is included in the line.
+        :param item: the other point
+        :return: bool. True if point is on line.
+        """
+        if isinstance(item, Point):
+            # If the item is a generating point or if it satisfies the equation, then it is indeed in the line.
+            return (item in (self.point1, self.point2)) or (item.x * self.slope + self.intercept == item.y)
+        else:
+            return False
+
     def plt_draw(self) -> plt.Line2D:
         """
 
