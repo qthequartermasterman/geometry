@@ -298,8 +298,7 @@ def run_client() -> [Process]:
                                                  max_depth)
     return processes
 
-
-if __name__ == '__main__':
+def run_bfs_in_parallel():
     manager = make_server_manager(12349, b'1234')
     # Reference the shared queues and dicts.
     construction_job_queue = manager.get_queue()
@@ -365,12 +364,12 @@ if __name__ == '__main__':
     generated_construction_list = list(visited_dict.keys())
     print(f'Generated {len(generated_construction_list)} different constructions')
     # Save the generated list to disc.
-    filehandler = open(results_dir+'visited_constructions.pkl', 'wb')
+    filehandler = open(results_dir + 'visited_constructions.pkl', 'wb')
     pickle.dump(generated_construction_list, filehandler)
 
     # Save the job queue (for future analysis)
     try:
-        filehandler2 = open(results_dir+'queue.pkl', 'wb')
+        filehandler2 = open(results_dir + 'queue.pkl', 'wb')
         pickle.dump(construction_job_queue._getvalue(), filehandler2)
     except:
         pass
@@ -385,3 +384,13 @@ if __name__ == '__main__':
 
     time.sleep(2)
     manager.shutdown()
+
+
+def run_bfs_in_series(queue, visited_dict, unique_constructions, point_minimal, maximum_depth):
+    base_construction = BaseConstruction()
+    construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
+    construct_bfs_parallel(queue, visited_dict, unique_constructions, point_minimal, maximum_depth)
+
+
+if __name__ == '__main__':
+    run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal, maximum_depth)
