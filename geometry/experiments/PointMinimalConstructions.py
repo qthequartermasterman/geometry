@@ -9,10 +9,11 @@ import copy
 import time
 import pickle
 
-from multiprocessing import Process, Queue, cpu_count
+#from multiprocessing import Process, Queue, cpu_count
+from multiprocessing import Process, cpu_count
 from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
-from queue import Empty
+from queue import Empty, Queue
 
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point

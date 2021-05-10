@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from skimage import draw
-import sympy
+#import sympy
+from symengine import Expr, sqrt, sympify
 
 from .Object import Object
 from .Circle import Circle
@@ -14,6 +15,7 @@ from .Line import Line
 from .Point import Point
 
 from methodtools import lru_cache
+
 
 class Construction:
     """
@@ -122,7 +124,8 @@ class Construction:
             l1 = line(line1.point1, line1.point2)
             l2 = line(line2.point1, line2.point2)
 
-            d = sympy.core.sympify(l1[0] * l2[1] - l1[1] * l2[0])
+            # d = sympy.core.sympify(l1[0] * l2[1] - l1[1] * l2[0])
+            d = sympify(l1[0] * l2[1] - l1[1] * l2[0])
             dx = l1[2] * l2[1] - l1[1] * l2[2]
             dy = l1[0] * l2[2] - l1[2] * l2[0]
             if d != 0:
@@ -163,8 +166,8 @@ class Construction:
             point_solution = line.point1 + line_basis_vector * t_solution
             return {point_solution}
         else:  # The discriminant is positive, so there are two real solutions and the line is secant
-            t_solution1 = (-b + sympy.sqrt(discriminant)) / (2 * a)
-            t_solution2 = (-b - sympy.sqrt(discriminant)) / (2 * a)
+            t_solution1 = (-b + sqrt(discriminant)) / (2 * a)
+            t_solution2 = (-b - sqrt(discriminant)) / (2 * a)
             p_solution1 = line.point1 + line_basis_vector * t_solution1
             p_solution2 = line.point1 + line_basis_vector * t_solution2
             return {p_solution1, p_solution2}
@@ -218,7 +221,7 @@ class Construction:
                 return {center_of_intersection_area}
             else:
                 # Two circles intersect at two points
-                height = sympy.sqrt(r1 ** 2 - dis_to_area_center ** 2)
+                height = sqrt(r1 ** 2 - dis_to_area_center ** 2)
                 x2 = center_of_intersection_area.x
                 y2 = center_of_intersection_area.y
                 x3 = x2 + height * (center2.y - center1.y) * (1 / distance_between_centers)
@@ -316,7 +319,7 @@ class Construction:
         # Return our result
         return intersections
 
-    def check_lengths(self, length: sympy.core.expr.Expr) -> str:
+    def check_lengths(self, length: Expr) -> str:
         """
         Check every length in a construction and compare against the given length
 
@@ -332,7 +335,7 @@ class Construction:
                     return f'Length {length} found between points: {point1} and {point2}'
         return ''
 
-    def get_present_lengths(self) -> {sympy.core.expr.Expr: (Point, Point)}:
+    def get_present_lengths(self) -> {Expr: (Point, Point)}:
         """
         Get a dictionary with keys all of the present length and values the pair of points that make that length.
         :return: dictionary with keys all of the present length and values the pair of points that make that length.

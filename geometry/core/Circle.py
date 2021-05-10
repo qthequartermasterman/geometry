@@ -3,10 +3,11 @@ from .Point import Point
 
 import matplotlib.pyplot as plt
 import sympy
+from symengine import Expr, sqrt, sympify
 
 
 class Circle(Object):
-    def __init__(self, center: Point, radius: sympy.core.expr.Expr = None, point2: Point = None, name=''):
+    def __init__(self, center: Point, radius: Expr = None, point2: Point = None, name=''):
         super().__init__()
         self.center = center
         self.dependencies.update(center.dependencies)
@@ -17,7 +18,7 @@ class Circle(Object):
             self.dependencies.update(point2.dependencies)
         else:
             self.point2 = None
-            self.radius = sympy.core.sympify(radius)
+            self.radius = sympify(radius)
             self.name = name if name else f'c{center.name}r{radius}'
 
     def __repr__(self):
@@ -30,7 +31,7 @@ class Circle(Object):
 
     def __eq__(self, other):
         """Circles are equivalent if their centers are equal and their radii are equal"""
-        return isinstance(other, Circle) and self.center == other.center and self.radius.equals(other.radius)
+        return isinstance(other, Circle) and self.center == other.center and self.radius == other.radius
 
     def __contains__(self, item) -> bool:
         """
@@ -46,3 +47,22 @@ class Circle(Object):
         """
         return plt.Circle((self.center.x.evalf(), self.center.y.evalf()),
                           radius=self.radius.evalf(), fill=False)
+
+    def __getstate__(self):
+        """
+
+        :return:
+        """
+        state = self.__dict__.copy()
+        # Change the unpickleable entries to sympy objects (which are pickleable)
+        state['radius'] = sympy.core.sympify(state['radius'])
+        return state
+
+    def __setstate__(self, state):
+        """
+
+        :param state:
+        :return:
+        """
+        self.__dict__.update(state)
+        self.radius = sympify(self.radius)
