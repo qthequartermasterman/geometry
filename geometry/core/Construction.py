@@ -73,15 +73,15 @@ class Construction:
 
     def find_intersections(self, object1, object2, interesting=True) -> {Point}:
         intersections = None
-        if type(object1) is Line:
-            if type(object2) is Line:
+        if isinstance(object1, Line):
+            if isinstance(object2, Line):
                 intersections = self.find_intersections_line_line(object1, object2)
-            elif type(object2) is Circle:
+            elif isinstance(object2, Circle):
                 intersections = self.find_intersections_line_circle(object1, object2)
-        elif type(object1) is Circle:
-            if type(object2) is Line:
+        elif isinstance(object1, Circle):
+            if isinstance(object2, Line):
                 intersections = self.find_intersections_line_circle(object2, object1)
-            elif type(object2) is Circle:
+            elif isinstance(object2, Circle):
                 intersections = self.find_intersections_circle_circle(object1, object2)
         if intersections is not None:
             previous_number_of_points = len(self.points)
