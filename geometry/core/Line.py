@@ -3,6 +3,8 @@ import sympy
 from .Object import Object
 from .Point import Point
 
+from methodtools import lru_cache
+
 
 class Line(Object):
     def __init__(self, point1: Point, point2: Point, name=''):
@@ -21,6 +23,7 @@ class Line(Object):
         # self.name = name if name else u'\u0305'.join(f'{point1.name}{point2.name} ')
         self.name = name if name else f'{point1.name}{point2.name}'
 
+    @lru_cache()
     @staticmethod
     def calculate_slope(point1: Point, point2: Point) -> sympy.core.expr.Expr:
         """
@@ -40,7 +43,10 @@ class Line(Object):
                 return sympy.core.numbers.Infinity()
         return sympy.core.numbers.Infinity()
 
-    def calculate_intercept(self, point1: Point, point2: Point, slope: sympy.core.expr.Expr = None):
+    @lru_cache()
+    #def calculate_intercept(self, point1: Point, point2: Point, slope: sympy.core.expr.Expr = None):
+    @staticmethod
+    def calculate_intercept(point1: Point, point2: Point, slope: sympy.core.expr.Expr = None):
         """
         Calculate the y-intercept of a line. This is the $b$ in $y=mx+b$.
         :param point1: Point representing the first defining point.
@@ -53,7 +59,8 @@ class Line(Object):
             return sympy.core.numbers.Infinity()
         elif slope is None:
             # slope is unknown.
-            slope = self.calculate_slope(point1, point2)
+            #slope = self.calculate_slope(point1, point2)
+            pass
         else:
             slope = slope
         return point1.y - point1.x * slope  # Solve for y-intercept.

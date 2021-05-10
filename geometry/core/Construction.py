@@ -13,6 +13,7 @@ from .Circle import Circle
 from .Line import Line
 from .Point import Point
 
+from methodtools import lru_cache
 
 class Construction:
     """
@@ -97,6 +98,7 @@ class Construction:
         else:
             raise NotImplementedError(f'Cannot find intersection of unsupported objects: \n\t{object1}\n\t{object2}')
 
+    @lru_cache()
     @staticmethod
     def find_intersections_line_line(line1: Line, line2: Line) -> {Point}:
         """
@@ -132,6 +134,7 @@ class Construction:
         else:
             return {}
 
+    @lru_cache()
     @staticmethod
     def find_intersections_line_circle(line, circle) -> {Point}:
         """
@@ -166,6 +169,7 @@ class Construction:
             p_solution2 = line.point1 + line_basis_vector * t_solution2
             return {p_solution1, p_solution2}
 
+    @lru_cache()
     @staticmethod
     def find_intersections_circle_circle(circle1: Circle, circle2: Circle) -> {Point}:
         """
@@ -381,6 +385,42 @@ class Construction:
         self.actions.discard(line)
         self.actions = self.get_valid_actions(new_points)
         return line
+
+    def add_step_premade(self, step: Object, counts_as_step=True, interesting=False) -> Union[Circle, Line]:
+        """
+
+        :param step:
+        :param counts_as_step:
+        :param interesting:
+        :return:
+        """
+        # Check the type of this step, so we can add it to the correct set
+        # Then add it to the correct set (and interesting set if interesting)
+        if isinstance(step, Line):
+            if step in self.lines:
+                # If it already exists, then we can skip adding it.
+                return step
+            self.lines.add(step)
+            if interesting:
+                self.interesting_lines.add(step)
+        elif isinstance(step, Circle):
+            if step in self.circles:
+                # If it already exists, then we can skip adding it.
+                return step
+            self.circles.add(step)
+            if interesting:
+                self.interesting_circles.add(step)
+        else:
+            raise TypeError(f'Cannot add step {step} of type {type(step)} to a construction.')
+        # If the step should count as a step, add it to those sets.
+        if counts_as_step:
+            self.steps.append(step)
+            self.steps_set.add(step)
+        # Get new points and actions
+        new_points = self.update_intersections_with_object(step)
+        self.actions.discard(step)
+        self.actions = self.get_valid_actions(new_points)
+        return step
 
     def add_point(self, point: Point, interesting=False) -> Point:
         """

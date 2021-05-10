@@ -195,6 +195,7 @@ def construct_bfs_parallel(queue: Queue, visited_dict: {}, unique_constructions:
 
         for action in queue_construction.actions:
             new_construction = copy.deepcopy(queue_construction)
+            """
             if isinstance(action, Circle):
                 action_function = new_construction.add_circle
                 point1 = new_construction.find_point(action.center)
@@ -205,9 +206,12 @@ def construct_bfs_parallel(queue: Queue, visited_dict: {}, unique_constructions:
                 point2 = new_construction.find_point(action.point2)
             else:
                 raise TypeError(f'Invalid action type {action}')
+            
             if point1 is None or point2 is None:
                 raise TypeError(f'Point does not exist {point1} {point2}\n{action.point2}\n{new_construction.points}')
             new_object = action_function(point1, point2, interesting)
+            """
+            new_object = new_construction.add_step_premade(action, interesting=interesting)
             print(f'\033[36mChecking {new_object}\033[0m')
             if new_construction not in visited_dict.keys():
                 print(f'\t\033[36mAdding {new_object} to discovery queue\033[0m')
