@@ -751,7 +751,7 @@ class Construction:
         :return: a unique hash that represents the the construction.
         """
         # Turn the steps into a set first, so that permuting the steps doesn't change the equality.
-        return hash((tuple(self.points), tuple(self.steps_set)))
+        return hash(tuple(sorted(self.steps_set)))
 
     def __eq__(self, other) -> bool:
         """
@@ -759,7 +759,7 @@ class Construction:
         :return: true if the two constructions have the same points and steps.
         """
         # If the other is a construction, and points and steps match (not necessarily in same order), then equal
-        return isinstance(other, Construction) and self.points == other.points and self.steps_set == other.steps_set
+        return isinstance(other, Construction) and self.steps_set == other.steps_set
 
     def __repr__(self) -> str:
         """

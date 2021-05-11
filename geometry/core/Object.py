@@ -9,3 +9,7 @@ class Object:
 
     def set_dependencies(self, dependencies: set):
         self.dependencies = dependencies
+
+    def __lt__(self, other):
+        return hash(self) < hash(other)
+
