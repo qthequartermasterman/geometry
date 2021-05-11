@@ -416,4 +416,12 @@ def run_bfs_in_series(queue, visited_dict, unique_constructions, point_minimal, 
 
 
 if __name__ == '__main__':
+    """import timeit
+
+    t = timeit.Timer(
+        lambda: run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal,
+                                  maximum_depth))
+    print(t.timeit(5))
+    """
+
     run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal, maximum_depth)
