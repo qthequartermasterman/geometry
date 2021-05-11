@@ -1,21 +1,22 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy
+from symengine import Expr, sqrt, sympify
 from .Object import Object
 
 
 class Point(Object):
-    def __init__(self, x: sympy.core.expr.Expr, y: sympy.core.expr.Expr, name: str = ''):
+    def __init__(self, x: Expr, y: Expr, name: str = ''):
         super().__init__()
         # self.x = sympy.core.sympify(x).simplify()
         # self.y = sympy.core.sympify(y).simplify()
-        self.x = sympy.core.sympify(x)
-        self.y = sympy.core.sympify(y)
+        self.x = sympify(x)
+        self.y = sympify(y)
         self.name = name
 
     def __eq__(self, other):
         if isinstance(other, Point):
-            return self.x.equals(other.x) and self.y.equals(other.y)
+            return self.x == other.x and self.y == other.y
         else:
             return False
 
@@ -35,7 +36,7 @@ class Point(Object):
         return self.__mul__(other)
 
     def __abs__(self):
-        return sympy.sqrt(self * self)
+        return sqrt(self * self)
 
     def __repr__(self):
         return f'Point {self.name}: ({self.x}, {self.y})'
@@ -51,3 +52,24 @@ class Point(Object):
 
     def normalize(self):
         return (1/abs(self))*self
+
+    def __getstate__(self):
+        """
+
+        :return:
+        """
+        state = self.__dict__.copy()
+        # Change the unpickleable entries to sympy objects (which are pickleable)
+        state['x'] = sympy.core.sympify(state['x'])
+        state['y'] = sympy.core.sympify(state['y'])
+        return state
+
+    def __setstate__(self, state):
+        """
+
+        :param state:
+        :return:
+        """
+        self.__dict__.update(state)
+        self.x = sympify(self.x)
+        self.y = sympify(self.y)

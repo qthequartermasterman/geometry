@@ -9,14 +9,15 @@ import copy
 import time
 import pickle
 
-from multiprocessing import Process, Queue, cpu_count
+#from multiprocessing import Process, Queue, cpu_count
+from multiprocessing import Process, cpu_count
 from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
-from queue import Empty
+from queue import Empty, Queue
 
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
-maximum_depth = 4  # How many steps deep can our search tree go?
+maximum_depth = 3 # How many steps deep can our search tree go?
 unique_constructions: {int, int} = {}  # Number of unique constructions of length.
 construction_job_queue = Queue()  # Job queue. Holds the constructions to analyze next
 
@@ -178,7 +179,8 @@ def construct_bfs(construction: Construction, max_depth: int, interesting=True):
 
 def construct_bfs_parallel(queue: Queue, visited_dict: {}, unique_constructions: {}, point_minimal, maximum_depth,
                            interesting=True):
-    while queue:
+    while queue.qsize():
+        print(queue.qsize())
         queue_construction, new_object = queue.get()
         print('\033[34m Dequeued:', len(queue_construction), new_object)
 
@@ -394,7 +396,32 @@ def run_bfs_in_series(queue, visited_dict, unique_constructions, point_minimal, 
     base_construction = BaseConstruction()
     construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
     construct_bfs_parallel(queue, visited_dict, unique_constructions, point_minimal, maximum_depth)
+    # Perform our final report
+    # Minimal Construction Length for each point
+    print('\033[32mMinimal Construction Length for each point:')
+    for point, length in point_minimal.items():
+        print('\t\033[32m', length, point)
+    point_minimal = dict(point_minimal)
+
+    # Number of unique constructions of each length (categorized)
+    print('\033[33mFinal Number of Unique Constructions of each length')
+    for num_steps, num_constructions in unique_constructions.items():
+        print('Steps:', num_steps, 'Num Unique Constructions: ', num_constructions)
+    unique_constructions = dict(unique_constructions)
+
+    # Total number of unique constructions generated (not necessarily categorized by length)
+    print('\033[34mFinal Unique Constructions')
+    generated_construction_list = list(visited_dict.keys())
+    print(f'Generated {len(generated_construction_list)} different constructions')
 
 
 if __name__ == '__main__':
+    """import timeit
+
+    t = timeit.Timer(
+        lambda: run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal,
+                                  maximum_depth))
+    print(t.timeit(5))
+    """
+
     run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal, maximum_depth)
