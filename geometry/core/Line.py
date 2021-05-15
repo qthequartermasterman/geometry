@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
-import sympy
+from sympy import sqrtdenest
 
 from symengine import Expr, sqrt, sympify
-from symengine.lib.symengine_wrapper import Infinity
+from symengine import oo as Infinity
 from .Object import Object
 from .Point import Point
+from .utils import symengine_equality
 
 from methodtools import lru_cache
 import pickle
@@ -41,11 +42,11 @@ class Line(Object):
         if not point1.x == point2.x:
             try:
                 slope = (point2.y - point1.y) / (point2.x - point1.x)
-                return slope
+                return sqrtdenest(slope)
             except ZeroDivisionError:
                 # If the line is vertical, its slope is undefined or "infinite"
-                return Infinity()
-        return Infinity()
+                return Infinity
+        return Infinity
 
     @lru_cache()
     #def calculate_intercept(self, point1: Point, point2: Point, slope: sympy.core.expr.Expr = None):
@@ -58,22 +59,23 @@ class Line(Object):
         :param slope: optional sympy expression representing the slope of the line
         :return: sympy expression representing the slope between two points.
         """
-        if slope == Infinity():
+        if slope == Infinity:
             # Line is vertical
-            return Infinity()
+            return Infinity
         elif slope is None:
             # slope is unknown.
             #slope = self.calculate_slope(point1, point2)
             pass
         else:
             slope = slope
-        return point1.y - point1.x * slope  # Solve for y-intercept.
+        return sqrtdenest(point1.y - point1.x * slope)  # Solve for y-intercept.
 
     def __repr__(self) -> str:
         """
         :return: a string that contains all the information describing the line.
         """
         return f'Line {self.name} through {self.point1} and {self.point2}: y={self.slope}x+{self.intercept}'
+
 
     def __eq__(self, other) -> bool:
         """
@@ -88,11 +90,12 @@ class Line(Object):
         :return: bool. True if equal, else false.
         """
         if isinstance(other, Line):
-            if self.slope != Infinity():  # Line is not vertical
-                return self.slope == other.slope and self.intercept == other.intercept
+            if self.slope != Infinity:  # Line is not vertical
+                #return self.slope == other.slope and self.intercept == other.intercept
+                return symengine_equality(self.slope, other.slope) and \
+                       symengine_equality(self.intercept, other.intercept)
             else:  # Line is vertical
-                if self.point1.x == other.point1.x:
-                    return True
+                return self.point1.x == other.point1.x
         else:  # Not the same type. Equality is not supported.
             return False
 
@@ -105,7 +108,7 @@ class Line(Object):
         :return: hash encoding all the data necessary to uniquely describe a line.
         """
 
-        if self.slope != Infinity():
+        if self.slope != Infinity:
             return hash((self.slope, self.intercept))
         else:
             return hash((self.slope, self.intercept, self.point1.x))
@@ -125,7 +128,8 @@ class Line(Object):
         """
         if isinstance(item, Point):
             # If the item is a generating point or if it satisfies the equation, then it is indeed in the line.
-            return (item in (self.point1, self.point2)) or (item.x * self.slope + self.intercept == item.y)
+            return (item in (self.point1, self.point2)) or \
+                   symengine_equality(item.x * self.slope + self.intercept, item.y)
         else:
             return False
 
@@ -137,7 +141,6 @@ class Line(Object):
         return plt.Line2D((self.point1.x.evalf(), self.point2.x.evalf()),
                           (self.point1.y.evalf(), self.point2.y.evalf()))
 
-
     def __getstate__(self):
         """
 
@@ -147,8 +150,10 @@ class Line(Object):
         # Change the unpickleable entries to sympy objects (which are pickleable)
         state['point1'] = pickle.dumps(state['point1'])
         state['point2'] = pickle.dumps(state['point2'])
-        state['slope'] = sympy.core.sympify(state['slope'])
-        state['intercept'] = sympy.core.sympify(state['intercept'])
+        #state['slope'] = sympy.core.sympify(state['slope'])
+        #state['intercept'] = sympy.core.sympify(state['intercept'])
+        state['slope'] = repr(state['slope'])
+        state['intercept'] = repr(state['intercept'])
         return state
 
     def __setstate__(self, state):

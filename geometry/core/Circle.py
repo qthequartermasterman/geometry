@@ -1,8 +1,9 @@
 from .Object import Object
 from .Point import Point
+from .utils import symengine_equality
 
 import matplotlib.pyplot as plt
-import sympy
+from sympy import sqrtdenest
 from symengine import Expr, sqrt, sympify
 
 
@@ -13,12 +14,12 @@ class Circle(Object):
         self.dependencies.update(center.dependencies)
         if point2 is not None:
             self.point2 = point2
-            self.radius = abs(center - point2)
+            self.radius = sqrtdenest(abs(center - point2))
             self.name = name if name else f'c{center.name}r{center.name}{point2.name}'
             self.dependencies.update(point2.dependencies)
         else:
             self.point2 = None
-            self.radius = sympify(radius)
+            self.radius = sqrtdenest(sympify(radius))
             self.name = name if name else f'c{center.name}r{radius}'
 
     def __repr__(self):
@@ -39,7 +40,7 @@ class Circle(Object):
         :param item:
         :return: bool. True if point is on the circle
         """
-        return isinstance(item, Point) and abs(item-self.center) == self.radius
+        return isinstance(item, Point) and symengine_equality(abs(item-self.center), self.radius)
 
     def plt_draw(self) -> plt.Circle:
         """
@@ -55,7 +56,8 @@ class Circle(Object):
         """
         state = self.__dict__.copy()
         # Change the unpickleable entries to sympy objects (which are pickleable)
-        state['radius'] = sympy.core.sympify(state['radius'])
+        #state['radius'] = sympy.core.sympify(state['radius'])
+        state['radius'] = repr(state['radius'])
         return state
 
     def __setstate__(self, state):
@@ -65,4 +67,4 @@ class Circle(Object):
         :return:
         """
         self.__dict__.update(state)
-        self.radius = sympify(self.radius)
+        self.radius = sqrtdenest(sympify(self.radius))

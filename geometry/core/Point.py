@@ -2,7 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sympy
 from symengine import Expr, sqrt, sympify
+from sympy.simplify import sqrtdenest
 from .Object import Object
+from .utils import symengine_equality
 
 
 class Point(Object):
@@ -10,13 +12,14 @@ class Point(Object):
         super().__init__()
         # self.x = sympy.core.sympify(x).simplify()
         # self.y = sympy.core.sympify(y).simplify()
-        self.x = sympify(x)
-        self.y = sympify(y)
+        self.x = sqrtdenest(sympify(x))
+        self.y = sqrtdenest(sympify(y))
         self.name = name
 
     def __eq__(self, other):
         if isinstance(other, Point):
-            return self.x == other.x and self.y == other.y
+            #return self.x == other.x and self.y == other.y
+            return symengine_equality(self.x, other.x) and symengine_equality(self.y, other.y)
         else:
             return False
 
@@ -42,7 +45,7 @@ class Point(Object):
         return f'Point {self.name}: ({self.x}, {self.y})'
 
     def __hash__(self):
-        return hash((self.x, self.y))
+        return hash((sqrtdenest(self.x), sqrtdenest(self.y)))
 
     def plt_draw(self) -> plt.Circle:
         return plt.Circle((self.x.evalf(), self.y.evalf()), radius=0.02)
@@ -60,8 +63,10 @@ class Point(Object):
         """
         state = self.__dict__.copy()
         # Change the unpickleable entries to sympy objects (which are pickleable)
-        state['x'] = sympy.core.sympify(state['x'])
-        state['y'] = sympy.core.sympify(state['y'])
+        #state['x'] = sympy.core.sympify(state['x'])
+        #state['y'] = sympy.core.sympify(state['y'])
+        state['x'] = repr(state['x'])
+        state['y'] = repr(state['y'])
         return state
 
     def __setstate__(self, state):
@@ -71,5 +76,5 @@ class Point(Object):
         :return:
         """
         self.__dict__.update(state)
-        self.x = sympify(self.x)
-        self.y = sympify(self.y)
+        self.x = sqrtdenest(sympify(self.x))
+        self.y = sqrtdenest(sympify(self.y))

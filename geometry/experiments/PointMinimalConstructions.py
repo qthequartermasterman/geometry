@@ -9,15 +9,14 @@ import copy
 import time
 import pickle
 
-#from multiprocessing import Process, Queue, cpu_count
-from multiprocessing import Process, cpu_count
+from multiprocessing import Process, cpu_count#, Queue
 from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
 from queue import Empty, Queue
 
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
-maximum_depth = 3 # How many steps deep can our search tree go?
+maximum_depth = 5  # How many steps deep can our search tree go?
 unique_constructions: {int, int} = {}  # Number of unique constructions of length.
 construction_job_queue = Queue()  # Job queue. Holds the constructions to analyze next
 
@@ -179,8 +178,7 @@ def construct_bfs(construction: Construction, max_depth: int, interesting=True):
 
 def construct_bfs_parallel(queue: Queue, visited_dict: {}, unique_constructions: {}, point_minimal, maximum_depth,
                            interesting=True):
-    while queue.qsize():
-        print(queue.qsize())
+    while not queue.empty():
         queue_construction, new_object = queue.get()
         print('\033[34m Dequeued:', len(queue_construction), new_object)
 
@@ -197,24 +195,8 @@ def construct_bfs_parallel(queue: Queue, visited_dict: {}, unique_constructions:
 
         for action in queue_construction.actions:
             new_construction = copy.deepcopy(queue_construction)
-            """
-            if isinstance(action, Circle):
-                action_function = new_construction.add_circle
-                point1 = new_construction.find_point(action.center)
-                point2 = new_construction.find_point(action.point2)
-            elif isinstance(action, Line):
-                action_function = new_construction.add_line
-                point1 = new_construction.find_point(action.point1)
-                point2 = new_construction.find_point(action.point2)
-            else:
-                raise TypeError(f'Invalid action type {action}')
-            
-            if point1 is None or point2 is None:
-                raise TypeError(f'Point does not exist {point1} {point2}\n{action.point2}\n{new_construction.points}')
-            new_object = action_function(point1, point2, interesting)
-            """
             new_object = new_construction.add_step_premade(action, interesting=interesting)
-            print(f'\033[36mChecking {new_object}\033[0m')
+            print(f'\033[36mCurrent Length: {len(queue_construction)}\t Number of actions {len(queue_construction.actions)}\tChecking {new_object}\033[0m')
             if new_construction not in visited_dict.keys():
                 print(f'\t\033[36mAdding {new_object} to discovery queue\033[0m')
                 visited_dict[new_construction] = 1
@@ -416,7 +398,8 @@ def run_bfs_in_series(queue, visited_dict, unique_constructions, point_minimal, 
 
 
 if __name__ == '__main__':
-    """import timeit
+    """
+    import timeit
 
     t = timeit.Timer(
         lambda: run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal,
@@ -425,3 +408,4 @@ if __name__ == '__main__':
     """
 
     run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal, maximum_depth)
+    #run_bfs_in_parallel()

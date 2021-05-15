@@ -1,5 +1,5 @@
 from unittest import TestCase
-from geometry import Point
+from geometry.core import Point
 import numpy as np
 from sympy.core.sympify import sympify
 
@@ -13,6 +13,9 @@ class TestPoint(TestCase):
         self.point1_list = [2, 3]
         self.point1_tuple = (2, 3)
         self.point1_np = np.array([2, 3])
+        self.point2_expanded = Point('sqrt((33/8 + (1/24)*sqrt(27)*sqrt(63))**2 + ((3/8)*sqrt(27) + (-1/8)*sqrt(63))**2)',
+                                     'sqrt((33/8 + (1/24)*sqrt(27)*sqrt(63))**2 + ((3/8)*sqrt(27) + (-1/8)*sqrt(63))**2)')
+        self.point2_simplified = Point('3*sqrt(2)/4 + 3*sqrt(42)/4', '3*sqrt(2)/4 + 3*sqrt(42)/4')
 
     def test_repr(self):
         rep = repr(self.point1_int)
@@ -30,11 +33,15 @@ class TestPoint(TestCase):
         for other in (self.point1_list, self.point1_tuple, self.point1_np):
             self.assertNotEqual(self.point1_int, other)
 
+        self.assertEqual(self.point2_expanded, self.point2_simplified)
+
     def test_hash(self):
         # Hash should just be the hash of the tuple (x,y) for each point. Name should not affect hash.
         # Points with different names but equivalent coordinates are still equivalent.
         for other in (self.point1_sympy_int, self.point1_sympy_expr, self.point1_name):
             self.assertEqual(hash(self.point1_int), hash(other))
+
+        self.assertEqual(hash(self.point2_expanded), hash(self.point2_simplified))
 
     def test_add(self):
         self.assertEqual(self.point1_int + self.point1_int, Point(4, 6))
