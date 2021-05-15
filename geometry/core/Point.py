@@ -2,9 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sympy
 from symengine import Expr, sqrt, sympify
-from sympy.simplify import sqrtdenest
 from .Object import Object
-from .utils import symengine_equality
+from .utils import symengine_equality, optimized_simplify
 
 
 class Point(Object):
@@ -12,8 +11,8 @@ class Point(Object):
         super().__init__()
         # self.x = sympy.core.sympify(x).simplify()
         # self.y = sympy.core.sympify(y).simplify()
-        self.x = sqrtdenest(sympify(x))
-        self.y = sqrtdenest(sympify(y))
+        self.x = optimized_simplify(sympify(x))
+        self.y = optimized_simplify(sympify(y))
         self.name = name
 
     def __eq__(self, other):
@@ -45,7 +44,7 @@ class Point(Object):
         return f'Point {self.name}: ({self.x}, {self.y})'
 
     def __hash__(self):
-        return hash((sqrtdenest(self.x), sqrtdenest(self.y)))
+        return hash((self.x, self.y))
 
     def plt_draw(self) -> plt.Circle:
         return plt.Circle((self.x.evalf(), self.y.evalf()), radius=0.02)
@@ -76,5 +75,5 @@ class Point(Object):
         :return:
         """
         self.__dict__.update(state)
-        self.x = sqrtdenest(sympify(self.x))
-        self.y = sqrtdenest(sympify(self.y))
+        self.x = sympify(self.x)
+        self.y = sympify(self.y)

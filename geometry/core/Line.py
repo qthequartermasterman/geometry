@@ -1,11 +1,10 @@
 import matplotlib.pyplot as plt
-from sympy import sqrtdenest
 
 from symengine import Expr, sqrt, sympify
 from symengine import oo as Infinity
 from .Object import Object
 from .Point import Point
-from .utils import symengine_equality
+from .utils import symengine_equality, optimized_simplify
 
 from methodtools import lru_cache
 import pickle
@@ -42,7 +41,7 @@ class Line(Object):
         if not point1.x == point2.x:
             try:
                 slope = (point2.y - point1.y) / (point2.x - point1.x)
-                return sqrtdenest(slope)
+                return optimized_simplify(slope)
             except ZeroDivisionError:
                 # If the line is vertical, its slope is undefined or "infinite"
                 return Infinity
@@ -68,7 +67,7 @@ class Line(Object):
             pass
         else:
             slope = slope
-        return sqrtdenest(point1.y - point1.x * slope)  # Solve for y-intercept.
+        return optimized_simplify(point1.y - point1.x * slope)  # Solve for y-intercept.
 
     def __repr__(self) -> str:
         """

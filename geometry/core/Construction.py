@@ -73,6 +73,7 @@ class Construction:
         # Set containing all the possible actions at any given moment in time.
         self.actions = set()
 
+    @lru_cache()
     def find_intersections(self, object1, object2, interesting=True) -> {Point}:
         intersections = None
         if isinstance(object1, Line):
@@ -357,7 +358,8 @@ class Construction:
         :return: the generated circle
         """
         circle = Circle(center=center, point2=point2)
-        self.circles.add(circle)
+        self.add_step_premade(circle, counts_as_step=counts_as_step, interesting=interesting)
+        '''self.circles.add(circle)
         if counts_as_step:
             self.steps.append(circle)
             self.steps_set.add(circle)
@@ -365,7 +367,7 @@ class Construction:
             self.interesting_circles.add(circle)
         new_points = self.update_intersections_with_object(circle)
         self.actions.discard(circle)
-        self.actions = self.get_valid_actions(new_points)
+        self.actions = self.get_valid_actions(new_points)'''
         return circle
 
     def add_line(self, point1: Point, point2: Point, counts_as_step=True, interesting=False) -> Line:
@@ -378,7 +380,8 @@ class Construction:
         :return: the generated line
         """
         line = Line(point1=point1, point2=point2)
-        self.lines.add(line)
+        self.add_step_premade(line, counts_as_step=counts_as_step, interesting=interesting)
+        '''self.lines.add(line)
         if counts_as_step:
             self.steps.append(line)
             self.steps_set.add(line)
@@ -386,7 +389,7 @@ class Construction:
             self.interesting_lines.add(line)
         new_points = self.update_intersections_with_object(line)
         self.actions.discard(line)
-        self.actions = self.get_valid_actions(new_points)
+        self.actions = self.get_valid_actions(new_points)'''
         return line
 
     def add_step_premade(self, step: Object, counts_as_step=True, interesting=False) -> Union[Circle, Line]:

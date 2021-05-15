@@ -1,9 +1,8 @@
 from .Object import Object
 from .Point import Point
-from .utils import symengine_equality
+from .utils import symengine_equality, optimized_simplify
 
 import matplotlib.pyplot as plt
-from sympy import sqrtdenest
 from symengine import Expr, sqrt, sympify
 
 
@@ -14,12 +13,12 @@ class Circle(Object):
         self.dependencies.update(center.dependencies)
         if point2 is not None:
             self.point2 = point2
-            self.radius = sqrtdenest(abs(center - point2))
+            self.radius = optimized_simplify(abs(center - point2))
             self.name = name if name else f'c{center.name}r{center.name}{point2.name}'
             self.dependencies.update(point2.dependencies)
         else:
             self.point2 = None
-            self.radius = sqrtdenest(sympify(radius))
+            self.radius = optimized_simplify(sympify(radius))
             self.name = name if name else f'c{center.name}r{radius}'
 
     def __repr__(self):
@@ -67,4 +66,4 @@ class Circle(Object):
         :return:
         """
         self.__dict__.update(state)
-        self.radius = sqrtdenest(sympify(self.radius))
+        self.radius = sympify(self.radius)
