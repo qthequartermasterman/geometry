@@ -1,13 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import sympy
 from symengine import Expr, sqrt, sympify
 from .Object import Object
-from .utils import symengine_equality, optimized_simplify
+from .utils import symengine_equality, optimized_simplify, Expression
 
 
 class Point(Object):
-    def __init__(self, x: Expr, y: Expr, name: str = ''):
+    def __init__(self, x: Expression, y: Expression, name: str = ''):
         super().__init__()
         # self.x = sympy.core.sympify(x).simplify()
         # self.y = sympy.core.sympify(y).simplify()
@@ -62,8 +61,6 @@ class Point(Object):
         """
         state = self.__dict__.copy()
         # Change the unpickleable entries to sympy objects (which are pickleable)
-        #state['x'] = sympy.core.sympify(state['x'])
-        #state['y'] = sympy.core.sympify(state['y'])
         state['x'] = repr(state['x'])
         state['y'] = repr(state['y'])
         return state

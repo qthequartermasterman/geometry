@@ -1,13 +1,13 @@
 from .Object import Object
 from .Point import Point
-from .utils import symengine_equality, optimized_simplify
+from .utils import symengine_equality, optimized_simplify, Expression
 
 import matplotlib.pyplot as plt
 from symengine import Expr, sqrt, sympify
 
 
 class Circle(Object):
-    def __init__(self, center: Point, radius: Expr = None, point2: Point = None, name=''):
+    def __init__(self, center: Point, radius: Expression = None, point2: Point = None, name=''):
         super().__init__()
         self.center = center
         self.dependencies.update(center.dependencies)
