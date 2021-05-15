@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from skimage import draw
-#import sympy
 from symengine import Expr, sqrt, sympify
 
 from .Object import Object
@@ -296,23 +295,23 @@ class Construction:
             f.write(str(self) + f'\n{notes}\n\n')
         plot.close()
 
-    def update_intersections_with_object(self, object: Object) -> {Point}:
+    def update_intersections_with_object(self, obj: Object) -> {Point}:
         """
         Calculate the set of intersection points with the given object and all other objects in the construction.
 
         TODO: Find a way to do this in less than O(n) time, where n is the number of shapes
 
-        :param object: the other object of which we should calculate the intersections with.
+        :param obj: the other object of which we should calculate the intersections with.
         :return: a set of intersection points
         """
         # The set of intersection points we will eventually return.
         intersections: {Point} = set()
         # Check every line except our given object
-        for line in self.lines - {object}:
-            intersections.update(self.find_intersections(object, line))
+        for line in self.lines - {obj}:
+            intersections.update(self.find_intersections(obj, line))
         # check every circle except our given object
-        for circle in self.circles - {object}:
-            intersections.update(self.find_intersections(object, circle))
+        for circle in self.circles - {obj}:
+            intersections.update(self.find_intersections(obj, circle))
 
         # Update the set of points to include the newly-found intersection points
         self.points.update(intersections)
