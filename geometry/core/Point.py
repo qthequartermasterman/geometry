@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from symengine import Expr, sqrt, sympify
 from .Object import Object
-from .utils import symengine_equality, optimized_simplify, Expression
+from .utils import symengine_equality, optimized_simplify, Expression, is_nan
 
 
 class Point(Object):
