@@ -166,3 +166,6 @@ class Line(Object):
         self.point2 = pickle.loads(self.point2)
         self.slope = sympify(self.slope)
         self.intercept = sympify(self.intercept)
+
+    def simplify(self):
+        return Line(self.point1.simplify(), self.point2.simplify(), name=self.name)

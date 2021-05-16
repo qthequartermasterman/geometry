@@ -74,3 +74,6 @@ class Point(Object):
         self.__dict__.update(state)
         self.x = sympify(self.x)
         self.y = sympify(self.y)
+
+    def simplify(self):
+        return Point(x=self.x.simplify(), y=self.y.simplify(), name=self.name)

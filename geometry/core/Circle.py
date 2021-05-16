@@ -67,3 +67,6 @@ class Circle(Object):
         """
         self.__dict__.update(state)
         self.radius = sympify(self.radius)
+
+    def simplify(self):
+        return Circle(center=self.center.simplify(), radius=self.radius.simplify(), name=self.name)

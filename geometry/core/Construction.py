@@ -843,3 +843,11 @@ class Construction:
             self.add_circle(move.point1, point2=move.point2, interesting=True)
         else:
             raise NotImplementedError
+
+    def simplify(self):
+        self.points = {point.simplify() for point in self.points}
+        self.lines = {line.simplify() for line in self.lines}
+        self.circles = {circle.simplify() for circle in self.circles}
+        self.steps = [step.simplify() for step in self.steps]
+        self.steps_set = set(self.steps)
+        return self
