@@ -590,7 +590,8 @@ class Construction:
         """
         :return: Returns a list of circles and lines corresponding to valid moves from the current construction
         """
-        legal_moves: {int} = set()  # List of integers showing legal moves
+        legal_lines: {Line} = set()  # Set of lines showing legal lines
+        legal_circles: {Circle} = set()  # Set of circles showing legal circles
         if focus_points is None:
             if force_calculate is True:
                 combinations = itertools.combinations(self.points, 2)
@@ -598,18 +599,22 @@ class Construction:
                 return self.actions
         else:
             combinations = itertools.product(focus_points, self.points)
+
+        used_points: {Point} = set()
         for point1, point2 in combinations:
-            if point1 != point2:
+            if point1 != point2 and point1 not in used_points:
+
                 line = Line(point1, point2)
                 circle1 = Circle(center=point1, point2=point2)
                 circle2 = Circle(point2, point2=point1)
-                if line not in self.lines:
-                    legal_moves.add(line)
-                if circle1 not in self.circles:
-                    legal_moves.add(circle1)
-                if circle2 not in self.circles:
-                    legal_moves.add(circle2)
-        self.actions.update(legal_moves)
+                if line not in self.lines | legal_lines:
+                    legal_lines.add(line)
+                if circle1 not in self.circles | legal_circles:
+                    legal_circles.add(circle1)
+                if circle2 not in self.circles | legal_circles:
+                    legal_circles.add(circle2)
+                # used_points.add(point1)
+        self.actions.update(legal_lines | legal_circles)
         return self.actions
 
     @staticmethod
