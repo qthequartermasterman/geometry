@@ -12,6 +12,9 @@ from .Object import Object
 from .Circle import Circle
 from .Line import Line
 from .Point import Point
+from .utils import alphabet, optimized_simplify
+
+import math
 
 from methodtools import lru_cache
 
@@ -91,7 +94,8 @@ class Construction:
             for intersect in intersections:
                 intersect.dependencies.update({object1, object2})
                 if not intersect.name:
-                    intersect.name = f'"{i}"'
+                    # intersect.name = f'"{i}"'
+                    intersect.name = alphabet[i]
                 i += 1
             self.points.update(intersections)
             if interesting:
@@ -125,7 +129,7 @@ class Construction:
             l2 = line(line2.point1, line2.point2)
 
             # d = sympy.core.sympify(l1[0] * l2[1] - l1[1] * l2[0])
-            d = sympify(l1[0] * l2[1] - l1[1] * l2[0])
+            d = optimized_simplify(sympify(l1[0] * l2[1] - l1[1] * l2[0]))
             dx = l1[2] * l2[1] - l1[1] * l2[2]
             dy = l1[0] * l2[2] - l1[2] * l2[0]
             if d != 0:
