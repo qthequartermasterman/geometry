@@ -16,7 +16,8 @@ from .utils import alphabet, optimized_simplify
 
 import math
 
-from methodtools import lru_cache
+
+# from methodtools import lru_cache
 
 
 class Construction:
@@ -75,7 +76,7 @@ class Construction:
         # Set containing all the possible actions at any given moment in time.
         self.actions = set()
 
-    @lru_cache()
+    # @lru_cache()
     def find_intersections(self, object1, object2, interesting=True) -> {Point}:
         intersections = None
         if isinstance(object1, Line):
@@ -104,7 +105,7 @@ class Construction:
         else:
             raise NotImplementedError(f'Cannot find intersection of unsupported objects: \n\t{object1}\n\t{object2}')
 
-    @lru_cache()
+    # @lru_cache()
     @staticmethod
     def find_intersections_line_line(line1: Line, line2: Line) -> {Point}:
         """
@@ -141,7 +142,7 @@ class Construction:
         else:
             return {}
 
-    @lru_cache()
+    # @lru_cache()
     @staticmethod
     def find_intersections_line_circle(line, circle) -> {Point}:
         """
@@ -176,7 +177,7 @@ class Construction:
             p_solution2 = line.point1 + line_basis_vector * t_solution2
             return {p_solution1, p_solution2}
 
-    @lru_cache()
+    # @lru_cache()
     @staticmethod
     def find_intersections_circle_circle(circle1: Circle, circle2: Circle) -> {Point}:
         """
@@ -197,7 +198,7 @@ class Construction:
         # 1. Centers are the same => Cannot intersect (either coincident or one contained in other)
         # 2. Circles are further apart than the sum of their radius => Cannot intersect (too far apart)
         # 3. Circles are close than the absolute value of the difference of radius => Cannot intersect(one inside other)
-        # 4. Otherwise => Circles intersec
+        # 4. Otherwise => Circles intersect
         # Note that in the 4th case, we can find two sub-cases, where the circles are tangent (and thus intersect once)
         # or where the circles intersect twice. Technically, we could just handle the second sub-case, but we separate
         # them here for computational speed.
