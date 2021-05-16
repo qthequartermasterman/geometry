@@ -1,6 +1,7 @@
 import geometry.core
 from geometry.core.Circle import Circle
 from geometry.core.Construction import Construction
+from geometry.core.EuclidConstructions import BaseConstruction
 from geometry.core.Point import Point
 from geometry.core.Line import Line
 from geometry.core.Object import Object
@@ -16,7 +17,7 @@ from queue import Empty, Queue
 
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
-maximum_depth = 5  # How many steps deep can our search tree go?
+maximum_depth = 4  # How many steps deep can our search tree go?
 unique_constructions: {int, int} = {}  # Number of unique constructions of length.
 construction_job_queue = Queue()  # Job queue. Holds the constructions to analyze next
 
@@ -50,17 +51,7 @@ class QueueManager(SyncManager):
     pass
 
 
-class BaseConstruction(Construction):
-    """A construction with two points a unit length apart.
-    It is easier to call this class instead of instantiating one every time.
-    """
 
-    def __init__(self):
-        super().__init__()
-        a = Point(0, 0, 'A')
-        b = Point(1, 0, 'B')
-        self.points = {a, b}
-        self.actions = self.get_valid_actions({a, b}, True)
 
 
 def check_for_minimal_points(construction: Construction, most_recent_object: Object,

@@ -41,3 +41,15 @@ class RandomConstruction(Construction):
         self.add_point(a, True)
         self.add_point(b, True)
         self.add_random_construction(length)
+
+
+class BaseConstruction(Construction):
+    """A construction with two points a unit length apart.
+    It is easier to call this class instead of instantiating manually one every time.
+    """
+    def __init__(self):
+        super().__init__()
+        a = Point(0, 0, 'A')
+        b = Point(1, 0, 'B')
+        self.points = {a, b}
+        self.actions = self.get_valid_actions({a, b}, True)
