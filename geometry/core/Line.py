@@ -58,13 +58,12 @@ class Line(Object):
         :param slope: optional sympy expression representing the slope of the line
         :return: sympy expression representing the slope between two points.
         """
+        if slope is None:
+            # slope is unknown.
+            slope = Line.calculate_slope(point1, point2)
         if slope == Infinity:
             # Line is vertical
             return Infinity
-        elif slope is None:
-            # slope is unknown.
-            # slope = self.calculate_slope(point1, point2)
-            pass
         else:
             slope = slope
         return optimized_simplify(point1.y - point1.x * slope)  # Solve for y-intercept.
