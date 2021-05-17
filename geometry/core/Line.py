@@ -48,7 +48,7 @@ class Line(Object):
         return Infinity
 
     @lru_cache()
-    #def calculate_intercept(self, point1: Point, point2: Point, slope: sympy.core.expr.Expr = None):
+    # def calculate_intercept(self, point1: Point, point2: Point, slope: sympy.core.expr.Expr = None):
     @staticmethod
     def calculate_intercept(point1: Point, point2: Point, slope: Expr = None):
         """
@@ -63,7 +63,7 @@ class Line(Object):
             return Infinity
         elif slope is None:
             # slope is unknown.
-            #slope = self.calculate_slope(point1, point2)
+            # slope = self.calculate_slope(point1, point2)
             pass
         else:
             slope = slope
@@ -74,7 +74,6 @@ class Line(Object):
         :return: a string that contains all the information describing the line.
         """
         return f'Line {self.name} through {self.point1} and {self.point2}: y={self.slope}x+{self.intercept}'
-
 
     def __eq__(self, other) -> bool:
         """
@@ -89,12 +88,14 @@ class Line(Object):
         :return: bool. True if equal, else false.
         """
         if isinstance(other, Line):
-            if self.slope != Infinity:  # Line is not vertical
-                #return self.slope == other.slope and self.intercept == other.intercept
+            if self.slope == Infinity and other.slope == Infinity:
+                # Both Lines are vertical, check the x-coordinate
+                return self.point1.x == other.point1.x
+            else:
+                # If one or both of the lines are not vertical, check to make sure they have the same
+                # slope and intercept.
                 return symengine_equality(self.slope, other.slope) and \
                        symengine_equality(self.intercept, other.intercept)
-            else:  # Line is vertical
-                return self.point1.x == other.point1.x
         else:  # Not the same type. Equality is not supported.
             return False
 
@@ -127,8 +128,12 @@ class Line(Object):
         """
         if isinstance(item, Point):
             # If the item is a generating point or if it satisfies the equation, then it is indeed in the line.
-            return (item in (self.point1, self.point2)) or \
-                   symengine_equality(item.x * self.slope + self.intercept, item.y)
+            # 1. Check if defining Point
+            # 2. Check if slope is infinity and x-coordinates match (vertical line)
+            # 3. Check if satisfies equation
+            return (item in (self.point1, self.point2)) \
+                   or (self.slope == Infinity and item.x == self.point1.x) \
+                   or symengine_equality(item.x * self.slope + self.intercept, item.y)
         else:
             return False
 
@@ -149,8 +154,8 @@ class Line(Object):
         # Change the unpickleable entries to sympy objects (which are pickleable)
         state['point1'] = pickle.dumps(state['point1'])
         state['point2'] = pickle.dumps(state['point2'])
-        #state['slope'] = sympy.core.sympify(state['slope'])
-        #state['intercept'] = sympy.core.sympify(state['intercept'])
+        # state['slope'] = sympy.core.sympify(state['slope'])
+        # state['intercept'] = sympy.core.sympify(state['intercept'])
         state['slope'] = repr(state['slope'])
         state['intercept'] = repr(state['intercept'])
         return state
