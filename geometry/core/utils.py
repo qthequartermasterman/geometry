@@ -2,7 +2,7 @@ from symengine import Expr, Eq, sympify, nan
 from sympy.simplify import sqrtdenest
 
 from typing import Union
-Expression = Union[Expr, str, int]  # Anything that is sympify-able
+Expression = Union[Expr, str, int, float]  # Anything that is sympify-able
 
 
 def is_nan(element: Expression):
