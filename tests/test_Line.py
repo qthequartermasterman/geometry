@@ -192,11 +192,13 @@ class TestLine(GeometryTestCase):
         self.assertIn(Point(2, 100), vertical_line)
         self.assertNotIn(Point(0, -100), vertical_line)
 
-    def test_get_state(self):
-        self.fail()
-
-    def test_set_state(self):
-        self.fail()
+    def test_pickle(self):
+        # For each of the coordinates, we will make points
+        points = [Point(x, y) for x, y in self.coordinates]
+        point_combinations = combinations(points, 2)
+        # Iterative over every pair of points
+        for point1, point2 in point_combinations:
+            self.assertPickle(Line(point1, point2))
 
     def test_calculate_slope(self):
         # For each of the coordinates, we will make points

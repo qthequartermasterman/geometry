@@ -1,10 +1,10 @@
-from unittest import TestCase
+from .test_constants import GeometryTestCase, coordinates
 from geometry.core import Point
 import numpy as np
 from symengine import sympify, nan
 
 
-class TestPoint(TestCase):
+class TestPoint(GeometryTestCase):
     def setUp(self) -> None:
         self.point1_int = Point(2, 3)
         self.point1_sympy_int = Point('2', '3')
@@ -17,6 +17,7 @@ class TestPoint(TestCase):
             'sqrt((33/8 + (1/24)*sqrt(27)*sqrt(63))**2 + ((3/8)*sqrt(27) + (-1/8)*sqrt(63))**2)',
             'sqrt((33/8 + (1/24)*sqrt(27)*sqrt(63))**2 + ((3/8)*sqrt(27) + (-1/8)*sqrt(63))**2)')
         self.point2_simplified = Point('3*sqrt(2)/4 + 3*sqrt(42)/4', '3*sqrt(2)/4 + 3*sqrt(42)/4')
+        self.coordinates = coordinates
 
     def test_nan_init(self):
         # Trying to initialize a coordinate as NaN should raise TypeError
@@ -108,8 +109,9 @@ class TestPoint(TestCase):
     def test_simplify(self):
         self.fail()
 
-    def test_get_state(self):
-        self.fail()
-
-    def test_set_state(self):
-        self.fail()
+    def test_pickle(self):
+        # For each of the coordinates, we will make points
+        points = [Point(x, y) for x, y in self.coordinates]
+        # Iterative over each point
+        for point in points:
+            self.assertPickle(point)
