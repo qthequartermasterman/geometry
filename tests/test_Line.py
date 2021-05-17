@@ -1,20 +1,19 @@
-from unittest import TestCase
+from .test_constants import GeometryTestCase, coordinates
 
 from geometry.core.Line import Line
 from geometry.core.Point import Point
 
+from symengine import zoo, oo
 
-class TestLine(TestCase):
-    def assertHashEqual(self, object1, object2, *args, **kwargs):
-        return self.assertEqual(hash(object1), hash(object2), *args, **kwargs)
+from itertools import combinations
 
-    def assertHashNotEqual(self, object1, object2, *args, **kwargs):
-        return self.assertNotEqual(hash(object1), hash(object2), *args, **kwargs)
 
+class TestLine(GeometryTestCase):
     def setUp(self) -> None:
         self.point1 = Point(0, 0)
         self.point2 = Point(1, 0)
         self.line1 = Line(self.point1, self.point2, name='AB')
+        self.coordinates = coordinates
 
     def test_init_same_point(self):
         # Instantiating a line with the same point twice should give a TypeError
@@ -168,7 +167,13 @@ class TestLine(TestCase):
                                 Line(Point(2, 0), Point(1, 1)))
 
     def test_abs(self):
-        self.fail()
+        # For each of the coordinates, we will make points
+        points = [Point(x, y) for x, y in self.coordinates]
+        point_combinations = combinations(points, 2)
+        # Iterative over every pair of points
+        for point1, point2 in point_combinations:
+            self.assertEqual(abs(Line(point1, point2)), abs(point2-point1))
+            self.assertEqual(abs(Line(point2, point1)), abs(point1 - point2))
 
     def test_contains(self):
         self.assertIn(Point(0, 0), self.line1)
@@ -194,10 +199,33 @@ class TestLine(TestCase):
         self.fail()
 
     def test_calculate_slope(self):
-        self.fail()
+        # For each of the coordinates, we will make points
+        points = [Point(x, y) for x, y in self.coordinates]
+        point_combinations = combinations(points, 2)
+        # Iterative over every pair of points
+        for pair in point_combinations:
+            # Slope should be equal to the slope formula for every pair above
+            slope = (pair[1].y - pair[0].y) / (pair[1].x - pair[0].x)
+            if slope == zoo:  # The above formula, when calculated this way will give a complex infinity in symengine
+                slope = oo
+            self.assertEqual(Line.calculate_slope(*pair), slope,
+                             f'{pair} failed to get the correct slope')
 
     def test_calculate_intercept(self):
-        self.fail()
+        # For each of the coordinates, we will make points
+        points = [Point(x, y) for x, y in self.coordinates]
+        point_combinations = combinations(points, 2)
+        # Iterative over every pair of points
+        for point1, point2 in point_combinations:
+            slope = Line.calculate_slope(point1, point2)
+            if slope == oo:
+                intercept = oo
+            else:
+                intercept = point1.y - point1.x * slope
+            self.assertEqual(Line.calculate_intercept(point1, point2), intercept,
+                             f'{point1, point2} failed to get the correct intercept')
+            self.assertEqual(Line.calculate_intercept(point1, point2, slope), intercept,
+                             f'{point1, point2} failed to get the correct intercept, when given slope')
 
     def test_plt_draw(self):
         self.fail()
