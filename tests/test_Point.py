@@ -1,7 +1,7 @@
 from unittest import TestCase
 from geometry.core import Point
 import numpy as np
-from sympy.core.sympify import sympify
+from symengine import sympify, nan
 
 
 class TestPoint(TestCase):
@@ -13,9 +13,22 @@ class TestPoint(TestCase):
         self.point1_list = [2, 3]
         self.point1_tuple = (2, 3)
         self.point1_np = np.array([2, 3])
-        self.point2_expanded = Point('sqrt((33/8 + (1/24)*sqrt(27)*sqrt(63))**2 + ((3/8)*sqrt(27) + (-1/8)*sqrt(63))**2)',
-                                     'sqrt((33/8 + (1/24)*sqrt(27)*sqrt(63))**2 + ((3/8)*sqrt(27) + (-1/8)*sqrt(63))**2)')
+        self.point2_expanded = Point(
+            'sqrt((33/8 + (1/24)*sqrt(27)*sqrt(63))**2 + ((3/8)*sqrt(27) + (-1/8)*sqrt(63))**2)',
+            'sqrt((33/8 + (1/24)*sqrt(27)*sqrt(63))**2 + ((3/8)*sqrt(27) + (-1/8)*sqrt(63))**2)')
         self.point2_simplified = Point('3*sqrt(2)/4 + 3*sqrt(42)/4', '3*sqrt(2)/4 + 3*sqrt(42)/4')
+
+    def test_nan_init(self):
+        # Trying to initialize a coordinate as NaN should raise TypeError
+        self.assertRaises(TypeError, Point, (nan, nan))
+        self.assertRaises(TypeError, Point, (0, nan))
+        self.assertRaises(TypeError, Point, (nan, 0))
+        self.assertRaises(TypeError, Point, (float('nan'), float('nan')))
+        self.assertRaises(TypeError, Point, (float('nan'), 1))
+        self.assertRaises(TypeError, Point, (1, float('nan')))
+        self.assertRaises(TypeError, Point, (np.nan, 1))
+        self.assertRaises(TypeError, Point, (1, np.nan))
+        self.assertRaises(TypeError, Point, (np.nan, np.nan))
 
     def test_repr(self):
         rep = repr(self.point1_int)
@@ -41,6 +54,9 @@ class TestPoint(TestCase):
         for other in (self.point1_sympy_int, self.point1_sympy_expr, self.point1_name):
             self.assertEqual(hash(self.point1_int), hash(other))
 
+    def test_hash_simplified(self):
+        # Ideally, two equivalent (although complicated they yield the same canonical simplification) expressions should
+        # give the same hash.
         self.assertEqual(hash(self.point2_expanded), hash(self.point2_simplified))
 
     def test_add(self):
@@ -88,3 +104,12 @@ class TestPoint(TestCase):
 
     def test_normalize(self):
         self.assertEqual(abs(Point(2, 3).normalize()), 1)
+
+    def test_simplify(self):
+        self.fail()
+
+    def test_get_state(self):
+        self.fail()
+
+    def test_set_state(self):
+        self.fail()
