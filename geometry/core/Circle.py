@@ -21,6 +21,9 @@ class Circle(Object):
             self.radius = optimized_simplify(sympify(radius))
             self.name = name if name else f'c{center.name}r{radius}'
 
+        if self.center == self.point2 or radius == 0:
+            raise ValueError(f'Circle cannot have radius of 0: {self.center, self.point2, self.radius, self.name}')
+
     def __repr__(self):
         """String repr of the circle"""
         return f'Circle {self.name} with center {self.center} and radius {self.radius}'
