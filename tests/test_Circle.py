@@ -37,7 +37,8 @@ class TestCircle(GeometryTestCase):
             self.assertEqual(Circle(point2, point2=point1), Circle(point2, radius=radius))
 
     def test_neq_not_symmetric(self):
-        # Circle instantiation is not symmetric in the sense that reversing the center and second point do not give equal circles
+        # Circle instantiation is not symmetric in the sense that reversing the center and second point do not give
+        # equal circles
         self.assertNotEqual(Circle(self.point1, point2=self.point2), Circle(self.point2, point2=self.point1))
 
     def test_eq_name(self):
