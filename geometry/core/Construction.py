@@ -119,26 +119,9 @@ class Construction:
         :returns {Point} a set of at most one point representing the intersection of the two lines
         """
         if line1.slope != line2.slope:
-            def line(p1, p2):
-                """Adapted from: https://stackoverflow.com/a/20679579"""
-                a = (p1.y - p2.y)
-                b = (p2.x - p1.x)
-                c = (p1.x * p2.y - p2.x * p1.y)
-                return a, b, -c
-
-            l1 = line(line1.point1, line1.point2)
-            l2 = line(line2.point1, line2.point2)
-
-            # d = sympy.core.sympify(l1[0] * l2[1] - l1[1] * l2[0])
-            d = optimized_simplify(sympify(l1[0] * l2[1] - l1[1] * l2[0]))
-            dx = l1[2] * l2[1] - l1[1] * l2[2]
-            dy = l1[0] * l2[2] - l1[2] * l2[0]
-            if d != 0:
-                x = dx / d
-                y = dy / d
-                return {Point(x, y)}
-            else:
-                return {}
+            x = (line2.intercept - line1.intercept) / (line1.slope - line2.slope)
+            y = line1(x)
+            return {Point(x, y)}
         else:
             return {}
 
