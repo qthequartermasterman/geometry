@@ -79,3 +79,82 @@ class Point(Object):
 
     def simplify(self):
         return Point(x=self.x.simplify(), y=self.y.simplify(), name=self.name)
+
+
+class FastPoint(Object):
+    def __init__(self, x: Expression = None, y: Expression = None, array: np.ndarray = None, name: str = ''):
+        super().__init__()
+        self.name = name
+        if isinstance(array, np.ndarray):
+            if array.shape == (2,):
+                self.array = array
+            else:
+                raise ValueError(f'If instantiating Fast Point using array, it must have shape (2,). Array has shape {array}')
+        else:
+            if x is None or y is None:
+                raise TypeError(f'Fast Points must be instantiated with either an array or both an x and y coordinate')
+            if isinstance(x, str):
+                x = sympify(x)
+            if isinstance(y, str):
+                y = sympify(y)
+            if isinstance(x, Expr):
+                x = x.evalf()
+            if isinstance(y, Expr):
+                y = y.evalf()
+            self.array = np.array([x, y], dtype=np.float32)
+
+    def __eq__(self, other):
+        if isinstance(other, FastPoint):
+            return np.allclose(self.array, other.array)
+        else:
+            return False
+
+    def __sub__(self, other):
+        diff_array = self.array-other.array
+        return FastPoint(array=diff_array)
+
+    def __add__(self, other):
+        sum_array = self.array + other.array
+        return FastPoint(array=sum_array)
+
+    def __mul__(self, other):
+        if isinstance(other, FastPoint):  # Take the dot product
+            return self.array.dot(other.array)
+        else:  # If the other object is not a point, then take a scalar product
+            prod_array = other * self.array
+            return FastPoint(array=prod_array)
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def __abs__(self):
+        # Norm/Magnitude of the vector. Equivalent to the sqrt of the dot product with itself.
+        return np.sqrt(self.array.dot(self.array))
+
+    def __repr__(self):
+        return f'Point {self.name}: ({self.array[0]}, {self.array[1]})'
+
+    def __hash__(self):
+        # We cannot hash an ndarray direectly, so instead hash the underlying data as bytes
+        return hash(self.array.data.tobytes())
+
+    def plt_draw(self) -> plt.Circle:
+        return plt.Circle((self.array[0], self.array[1]), radius=0.02)
+
+    def numpy(self) -> np.array:
+        return self.array
+
+    def normalize(self):
+        array = self.array/abs(self)
+        return FastPoint(array=array)
+
+    def simplify(self):
+        return self
+
+    @property
+    def x(self):
+        return self.array[0]
+
+    @property
+    def y(self):
+        return self.array[1]

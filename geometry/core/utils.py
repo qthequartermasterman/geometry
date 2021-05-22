@@ -17,4 +17,5 @@ def optimized_simplify(expr: Expr) -> Expr:
     #return sqrtdenest(expr)
     return expr.expand()
 
+
 alphabet = list(map(chr, range(97, 123)))

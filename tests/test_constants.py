@@ -1,4 +1,5 @@
 from unittest import TestCase
+from symengine import sympify
 import pickle
 
 
@@ -18,3 +19,7 @@ class GeometryTestCase(TestCase):
 # Set of coordinates that should cover many useful test cases
 coordinates = [(0, 0), (1, 0), (0, 1), (3, 2),
                ('1/2', 0), ('sqrt(3)', 1), ('exp(2)', '1/2'), ('-sqrt(3)', 'sqrt(1)')]
+
+
+def evaluate(x):
+    return sympify(x).evalf()
