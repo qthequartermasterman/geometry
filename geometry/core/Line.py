@@ -4,7 +4,7 @@ from symengine import Expr, sqrt, sympify
 from symengine import oo as Infinity
 from .Object import Object
 from .Point import Point
-from .utils import symengine_equality, optimized_simplify
+from .utils import symengine_equality, optimized_simplify, Expression
 
 from methodtools import lru_cache
 import pickle
@@ -173,3 +173,9 @@ class Line(Object):
 
     def simplify(self):
         return Line(self.point1.simplify(), self.point2.simplify(), name=self.name)
+
+    def calculate_value_at_x(self, x) -> Expression:
+        return self.slope * x + self.intercept
+
+    def __call__(self, x) -> Expression:
+        return self.calculate_value_at_x(x)
