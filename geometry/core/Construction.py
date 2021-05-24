@@ -120,26 +120,9 @@ class Construction:
         :returns {Point} a set of at most one point representing the intersection of the two lines
         """
         if line1.slope != line2.slope:
-            def line(p1, p2):
-                """Adapted from: https://stackoverflow.com/a/20679579"""
-                a = (p1.y - p2.y)
-                b = (p2.x - p1.x)
-                c = (p1.x * p2.y - p2.x * p1.y)
-                return a, b, -c
-
-            l1 = line(line1.point1, line1.point2)
-            l2 = line(line2.point1, line2.point2)
-
-            # d = sympy.core.sympify(l1[0] * l2[1] - l1[1] * l2[0])
-            d = optimized_simplify(sympify(l1[0] * l2[1] - l1[1] * l2[0]))
-            dx = l1[2] * l2[1] - l1[1] * l2[2]
-            dy = l1[0] * l2[2] - l1[2] * l2[0]
-            if d != 0:
-                x = dx / d
-                y = dy / d
-                return {Point(x, y)}
-            else:
-                return {}
+            x = (line2.intercept - line1.intercept) / (line1.slope - line2.slope)
+            y = line1(x)
+            return {Point(x, y)}
         else:
             return {}
 
@@ -154,29 +137,37 @@ class Construction:
         :param circle: a circle in the euclidean space
         :returns {Point} a set of at most one point representing the intersection of the two lines
         """
-        # We can represent our line as all vectors p so that p = p1+t(p2-p1) where p1, p2 are our original points
-        line_basis_vector = line.point2 - line.point1
-        # Circle is all points p so that |p-c|=r where c is the center
-        # substituting the original line equation in for the circle equation, we get a quadratic equation
-        # at^2+bt+c=0 where:
-        a = line_basis_vector * line_basis_vector  # Dot product
-        b = line_basis_vector * (line.point1 - circle.center) * 2
-        c = line.point1 * line.point1 + circle.center * circle.center - (
-                line.point1 * circle.center) * 2 - circle.radius ** 2
+        # In summary, the algorithm below takes the equation of the line, substitutes it in
+        # for y in the circle equation, then solves for x. It then takes that x value, and
+        # substitutes it into the equation of the line to get the y.
 
-        discriminant = b ** 2 - 4 * a * c
+        m = line.slope
+        b = line.intercept
+        x0 = circle.center.x
+        y0 = circle.center.y
+        r = circle.radius
+
+        diff = b - y0  # This subtraction shows up frequently. This is just so we do not need to repeat it.
+
+        # Coefficients of the substitued equation in terms of x. When expanded, it forms a quadratic equation on x.
+        A = 1 + m ** 2
+        B = -x0 + m * diff  # Technically, the coefficient is twice this quantity, but we will be factoring out a 2 of everything else later on.
+        C = x0 ** 2 + diff ** 2 - r ** 2  # Technically, the coefficient is twice this quantity, but we will be factoring out a 2 of everything else later on.
+
+        # Again, the discriminant should be $b^2-4ac$, but we can simplify the quadratic equation in this case by factoring out the aforementioned 2
+        discriminant = B ** 2 - A * C
         if discriminant < 0:  # There are no real solutions, so the line and circle do not intersect on the plane
             return {}
         elif discriminant == 0:  # The line is tangent and there is one real solution
-            t_solution = -b / (2 * a)
-            point_solution = line.point1 + line_basis_vector * t_solution
-            return {point_solution}
+            x = -B / A
+            y = line(x)
+            return {Point(x, y)}
         else:  # The discriminant is positive, so there are two real solutions and the line is secant
-            t_solution1 = (-b + sqrt(discriminant)) / (2 * a)
-            t_solution2 = (-b - sqrt(discriminant)) / (2 * a)
-            p_solution1 = line.point1 + line_basis_vector * t_solution1
-            p_solution2 = line.point1 + line_basis_vector * t_solution2
-            return {p_solution1, p_solution2}
+            x1 = (-B + sqrt(discriminant)) / A
+            x2 = (-B - sqrt(discriminant)) / A
+            y1 = line(x1)
+            y2 = line(x2)
+            return {Point(x1, y1), Point(x2, y2)}
 
     # @lru_cache()
     @staticmethod
@@ -194,6 +185,7 @@ class Construction:
         r2 = circle2.radius
         diff_between_centers = center2 - center1
         distance_between_centers = abs(diff_between_centers)
+        distance_between_centers_float = float(distance_between_centers.evalf())
 
         # Determine if the circles even do intersect. There are four cases:
         # 1. Centers are the same => Cannot intersect (either coincident or one contained in other)
@@ -206,19 +198,19 @@ class Construction:
         if distance_between_centers == 0:
             # Circles that have same center are either coincident or one is contained within the other
             return {}
-        elif distance_between_centers > r1 + r2:
+        elif distance_between_centers_float > float((r1 + r2).evalf()):
             # Circles are too far apart to intersect
             return {}
-        elif distance_between_centers < abs(r1 - r2):
+        elif distance_between_centers_float < float(abs(r1 - r2).evalf()):
             # One circle contained in other
             return {}
         else:
             # For certain, our circles intercept.
             # Calculate the distance to the intersection area center.
+            distance_recip = (1 / distance_between_centers)
             dis_to_area_center = (r1 ** 2 - r2 ** 2 + distance_between_centers ** 2) / (2 * distance_between_centers)
             # Calculate the center of the intersection area
-            center_of_intersection_area = center1 + dis_to_area_center * diff_between_centers * (
-                    1 / distance_between_centers)
+            center_of_intersection_area = center1 + dis_to_area_center * diff_between_centers * distance_recip
             if dis_to_area_center == r1:
                 # The two circles are tangent and thus intersect at exactly one point
                 # Technically this check is unnecessary, since the below computation will return two equal points.
@@ -230,10 +222,16 @@ class Construction:
                 height = sqrt(r1 ** 2 - dis_to_area_center ** 2)
                 x2 = center_of_intersection_area.x
                 y2 = center_of_intersection_area.y
-                x3 = x2 + height * (center2.y - center1.y) * (1 / distance_between_centers)
-                y3 = y2 - height * (center2.x - center1.x) * (1 / distance_between_centers)
-                x4 = x2 - height * (center2.y - center1.y) * (1 / distance_between_centers)
-                y4 = y2 + height * (center2.x - center1.x) * (1 / distance_between_centers)
+                diff_y = center2.y - center1.y
+                diff_x = center2.x - center1.x
+                height_times_distance_recip = height*distance_recip
+                y_displacement = diff_y* height_times_distance_recip
+                x_displacement = diff_x* height_times_distance_recip
+
+                x3 = x2 + y_displacement
+                y3 = y2 - x_displacement
+                x4 = x2 - y_displacement
+                y4 = y2 + x_displacement
                 return {Point(x3, y3), Point(x4, y4)}
 
     def find_point(self, point: Point):

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 #from symengine import oo as Infinity
 from .Object import Object
 from .Point import Point
+
 #from geometry.cas.symengine_utils import symengine_equality, optimized_simplify
 #from symengine import Expr
 from geometry.cas import (Expr,
@@ -17,7 +18,7 @@ import pickle
 
 
 class Line(Object):
-    def __init__(self, point1: Point, point2: Point, name=''):
+    def __init__(self, point1: Point, point2: Point, name='', slope: Expression = None, intercept: Expression = None):
         """
         Lines represent the set of points that can be drawn by tracing a straightedge between two points.
         :param point1: Point representing the first defining point.
@@ -25,11 +26,17 @@ class Line(Object):
         :param name: optional string representing the name of the Line
         """
         super().__init__()
-        self.point1 = point1
-        self.point2 = point2
-        self.dependencies.update(point1.dependencies | point2.dependencies)
-        self.slope = self.calculate_slope(point1, point2)
-        self.intercept = self.calculate_intercept(point1, point2, self.slope)
+        if slope is None and intercept is None:
+            self.point1 = point1
+            self.point2 = point2
+            self.dependencies.update(point1.dependencies | point2.dependencies)
+            self.slope = self.calculate_slope(point1, point2)
+            self.intercept = self.calculate_intercept(point1, point2, self.slope)
+        else:
+            self.slope = slope
+            self.intercept = intercept
+            self.point1 = Point(0, intercept)
+            self.point2 = Point(1, slope+intercept)
         # self.name = name if name else u'\u0305'.join(f'{point1.name}{point2.name} ')
         self.name = name if name else f'{point1.name}{point2.name}'
 
@@ -179,6 +186,18 @@ class Line(Object):
 
     def simplify(self):
         return Line(self.point1.simplify(), self.point2.simplify(), name=self.name)
+      
+    def calculate_value_at_x(self, x) -> Expression:
+        return self.slope * x + self.intercept
+
+    def __call__(self, x) -> Expression:
+        return self.calculate_value_at_x(x)
+
+    def get_perpendicular_at_point(self, point: Point):
+        new_slope = -1/self.slope
+        new_intercept = (self.slope - new_slope)*point.x + self.intercept
+        return Line(point, point, slope=new_slope, intercept=new_intercept)
+
 
 
 class FastLine(Line):
