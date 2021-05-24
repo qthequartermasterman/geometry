@@ -179,3 +179,10 @@ class Line(Object):
 
     def __call__(self, x) -> Expression:
         return self.calculate_value_at_x(x)
+
+    def get_perpendicular_at_point(self, point: Point):
+        direction = (self.point2-self.point1).normalize()
+        # Perpendicular direction is reverse the coordinates and negate one
+        perp_direction = Point(-direction.y, direction.x)
+        perpendicular_point = point+perp_direction
+        return Line(point, perpendicular_point)
