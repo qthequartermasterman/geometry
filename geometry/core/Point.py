@@ -5,8 +5,6 @@ from .Object import Object
 from symengine import Expr
 from geometry.cas.symengine_utils import symengine_equality, optimized_simplify, Expression, is_nan
 
-from numba import int32, float32
-from numba.experimental import jitclass
 
 #from symengine import Expr
 from geometry.cas import (sqrt,
@@ -92,11 +90,8 @@ class Point(Object):
         return Point(x=self.x.simplify(), y=self.y.simplify(), name=self.name)
 
 
-#@jitclass
-class FastPoint(Object):
-    name: str
-    array: float32[:]
 
+class FastPoint(Object):
     def __init__(self, x: Expression = None, y: Expression = None, array: np.ndarray = None, name: str = ''):
         super().__init__()
         self.name = name
