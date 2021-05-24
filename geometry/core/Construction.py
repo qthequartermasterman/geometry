@@ -6,15 +6,15 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from skimage import draw
-from symengine import Expr, sqrt, sympify
+#from symengine import Expr, sqrt, sympify
 
 from .Object import Object
 from .Circle import Circle
 from .Line import Line
 from .Point import Point
-from .utils import alphabet, optimized_simplify
-
-import math
+from geometry.cas import alphabet
+from geometry.cas import Expr, sqrt, sympify
+from geometry.cas import simplify as optimized_simplify
 
 
 # from methodtools import lru_cache

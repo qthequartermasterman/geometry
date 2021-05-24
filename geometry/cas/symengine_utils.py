@@ -18,4 +18,3 @@ def optimized_simplify(expr: Expr) -> Expr:
     return expr.expand()
 
 
-alphabet = list(map(chr, range(97, 123)))

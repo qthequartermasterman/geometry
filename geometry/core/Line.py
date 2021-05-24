@@ -1,10 +1,16 @@
 import matplotlib.pyplot as plt
 
-from symengine import Expr, sqrt, sympify
-from symengine import oo as Infinity
+#from symengine import Expr, sympify
+#from symengine import oo as Infinity
 from .Object import Object
 from .Point import Point
-from .utils import symengine_equality, optimized_simplify
+#from geometry.cas.symengine_utils import symengine_equality, optimized_simplify
+#from symengine import Expr
+from geometry.cas import (Expr,
+                          sympify,
+                          Infinity,
+                          equals as symengine_equality,
+                          simplify as optimized_simplify)
 
 from methodtools import lru_cache
 import pickle
@@ -256,7 +262,6 @@ class FastLine(Line):
                    or (self.slope != Infinity and np.allclose(item.x * self.slope + self.intercept, item.y))
         else:
             return False
-
 
     def __eq__(self, other) -> bool:
         """

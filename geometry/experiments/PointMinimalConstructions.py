@@ -1,16 +1,16 @@
 import geometry.core
 from geometry.core.Circle import Circle
-from geometry.core.Construction import Construction
+from geometry import Construction
 from geometry.core.EuclidConstructions import BaseConstruction
-from geometry.core.Point import Point
+from geometry import Point
 from geometry.core.Line import Line
-from geometry.core.Object import Object
+from geometry import Object
 
 import copy
 import time
 import pickle
 
-from multiprocessing import Process, cpu_count#, Queue
+from multiprocessing import Process, cpu_count #, Queue
 from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
 from queue import Empty, Queue
@@ -187,9 +187,9 @@ def construct_bfs_parallel(queue: Queue, visited_dict: {}, unique_constructions:
         for action in queue_construction.actions:
             new_construction = copy.deepcopy(queue_construction)
             new_object = new_construction.add_step_premade(action, interesting=interesting)
-            print(f'\033[36mCurrent Length: {len(queue_construction)}\t Number of actions {len(queue_construction.actions)}\tChecking {new_object}\033[0m')
+            #print(f'\033[36mCurrent Length: {len(queue_construction)}\t Number of actions {len(queue_construction.actions)}\tChecking {new_object}\033[0m')
             if new_construction not in visited_dict.keys():
-                print(f'\t\033[36mAdding {new_object} to discovery queue\033[0m')
+                #print(f'\t\033[36mAdding {new_object} to discovery queue\033[0m')
                 visited_dict[new_construction] = 1
                 queue.put((new_construction, new_object))
 
