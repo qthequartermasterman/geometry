@@ -5,6 +5,9 @@ from .Object import Object
 from symengine import Expr
 from geometry.cas.symengine_utils import symengine_equality, optimized_simplify, Expression, is_nan
 
+from numba import int32, float32
+from numba.experimental import jitclass
+
 #from symengine import Expr
 from geometry.cas import (sqrt,
                           sympify,
@@ -89,7 +92,11 @@ class Point(Object):
         return Point(x=self.x.simplify(), y=self.y.simplify(), name=self.name)
 
 
+#@jitclass
 class FastPoint(Object):
+    name: str
+    array: float32[:]
+
     def __init__(self, x: Expression = None, y: Expression = None, array: np.ndarray = None, name: str = ''):
         super().__init__()
         self.name = name
@@ -144,7 +151,8 @@ class FastPoint(Object):
 
     def __hash__(self):
         # We cannot hash an ndarray direectly, so instead hash the underlying data as bytes
-        return hash(self.array.data.tobytes())
+        array = np.array(self.array, dtype=np.float16)
+        return hash(array.data.tobytes())
 
     def plt_draw(self) -> plt.Circle:
         return plt.Circle((self.array[0], self.array[1]), radius=0.02)

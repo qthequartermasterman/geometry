@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 
 #from symengine import Expr, sympify
 #from symengine import oo as Infinity
-from geometry import Object
-from geometry import Point
+from .Object import Object
+from .Point import Point
 #from geometry.cas.symengine_utils import symengine_equality, optimized_simplify
 #from symengine import Expr
 from geometry.cas import (Expr,
@@ -214,7 +214,7 @@ class FastLine(Line):
         :param point2: Point representing the second defining point.
         :return: float representing the slope between two points.
         """
-        if not np.allclose(point1.x, point2.x):
+        if not symengine_equality(point1.x, point2.x):
             try:
                 slope = (point2.y - point1.y) / (point2.x - point1.x)
                 return slope
@@ -249,7 +249,7 @@ class FastLine(Line):
         :param item: the other point
         :return: bool. True if point is on line.
         """
-        if isinstance(item, FastPoint):
+        if isinstance(item, Point):
             # If the item is a generating point or if it satisfies the equation, then it is indeed in the line.
             # 1. Check if defining Point
             # 2. Check if slope is infinity and x-coordinates match (vertical line)
@@ -279,7 +279,24 @@ class FastLine(Line):
             else:
                 # If one or both of the lines are not vertical, check to make sure they have the same
                 # slope and intercept.
-                return np.allclose(self.slope, other.slope) and \
-                       np.allclose(self.intercept, other.intercept)
+                return symengine_equality(self.slope, other.slope) and \
+                       symengine_equality(self.intercept, other.intercept)
         else:  # Not the same type. Equality is not supported.
             return False
+
+    def __hash__(self) -> int:
+        """
+        Return a unique hash for each line.
+        These three pieces of information uniquely define a line:
+        There is a 1-1 correspondence between lines and (slope, intercept) pairs EXCEPT for vertical lines
+        there is a 1-1 correspondence between vertical lines and the x-coordinate of any point on them
+        :return: hash encoding all the data necessary to uniquely describe a line.
+        """
+
+        if self.slope != Infinity:
+            #return hash((self.slope.data.tobytes(), self.intercept.data.tobytes()))
+            return hash((self.slope, self.intercept))
+        else:
+            #return hash((self.slope.data.tobytes(), self.intercept.data.tobytes(), self.point1.x))
+            return hash((self.slope, self.intercept, self.point1.x))
+

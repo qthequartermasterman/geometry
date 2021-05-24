@@ -9,9 +9,10 @@ from skimage import draw
 #from symengine import Expr, sqrt, sympify
 
 from .Object import Object
-from .Circle import Circle
-from .Line import Line
-from .Point import Point
+#from .Circle import Circle as Circle
+from geometry.core import Circle, Line, Point
+#from .Line import Line as Line
+#from .Point import Point
 from geometry.cas import alphabet
 from geometry.cas import Expr, sqrt, sympify
 from geometry.cas import simplify as optimized_simplify

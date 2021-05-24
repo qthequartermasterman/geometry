@@ -1,12 +1,14 @@
 from geometry import USE_EXACT
+
 use_numpy = not USE_EXACT
 
 if use_numpy:
     from .numpy_utils import (sympify,
-                             identity as simplify,
-                             Expression)
+                              identity as simplify,
+                              Expression,
+                              equals as equals)
     from numpy import (sqrt,
-                       allclose as equals,
+                       # allclose as equals,
                        inf as Infinity,
                        float32 as Expr,
                        isnan as is_nan)
