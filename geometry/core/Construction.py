@@ -184,6 +184,7 @@ class Construction:
         r2 = circle2.radius
         diff_between_centers = center2 - center1
         distance_between_centers = abs(diff_between_centers)
+        distance_between_centers_float = float(distance_between_centers.evalf())
 
         # Determine if the circles even do intersect. There are four cases:
         # 1. Centers are the same => Cannot intersect (either coincident or one contained in other)
@@ -196,19 +197,19 @@ class Construction:
         if distance_between_centers == 0:
             # Circles that have same center are either coincident or one is contained within the other
             return {}
-        elif distance_between_centers > r1 + r2:
+        elif distance_between_centers_float > float((r1 + r2).evalf()):
             # Circles are too far apart to intersect
             return {}
-        elif distance_between_centers < abs(r1 - r2):
+        elif distance_between_centers_float < float(abs(r1 - r2).evalf()):
             # One circle contained in other
             return {}
         else:
             # For certain, our circles intercept.
             # Calculate the distance to the intersection area center.
+            distance_recip = (1 / distance_between_centers)
             dis_to_area_center = (r1 ** 2 - r2 ** 2 + distance_between_centers ** 2) / (2 * distance_between_centers)
             # Calculate the center of the intersection area
-            center_of_intersection_area = center1 + dis_to_area_center * diff_between_centers * (
-                    1 / distance_between_centers)
+            center_of_intersection_area = center1 + dis_to_area_center * diff_between_centers * distance_recip
             if dis_to_area_center == r1:
                 # The two circles are tangent and thus intersect at exactly one point
                 # Technically this check is unnecessary, since the below computation will return two equal points.
@@ -220,10 +221,16 @@ class Construction:
                 height = sqrt(r1 ** 2 - dis_to_area_center ** 2)
                 x2 = center_of_intersection_area.x
                 y2 = center_of_intersection_area.y
-                x3 = x2 + height * (center2.y - center1.y) * (1 / distance_between_centers)
-                y3 = y2 - height * (center2.x - center1.x) * (1 / distance_between_centers)
-                x4 = x2 - height * (center2.y - center1.y) * (1 / distance_between_centers)
-                y4 = y2 + height * (center2.x - center1.x) * (1 / distance_between_centers)
+                diff_y = center2.y - center1.y
+                diff_x = center2.x - center1.x
+                height_times_distance_recip = height*distance_recip
+                y_displacement = diff_y* height_times_distance_recip
+                x_displacement = diff_x* height_times_distance_recip
+
+                x3 = x2 + y_displacement
+                y3 = y2 - x_displacement
+                x4 = x2 - y_displacement
+                y4 = y2 + x_displacement
                 return {Point(x3, y3), Point(x4, y4)}
 
     def find_point(self, point: Point):
