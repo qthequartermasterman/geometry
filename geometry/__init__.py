@@ -1,4 +1,4 @@
-USE_EXACT = False
+USE_EXACT = True  # Should we use the Exact algebra system (symengine) or inexact algebra system (numpy)?
 
 if USE_EXACT:
     from geometry.core.Object import Object
