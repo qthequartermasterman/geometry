@@ -11,7 +11,8 @@ from geometry.cas import (Expr,
                           sympify,
                           Infinity,
                           equals as symengine_equality,
-                          simplify as optimized_simplify)
+                          simplify as optimized_simplify,
+                          Expression)
 
 from methodtools import lru_cache
 import pickle
@@ -188,7 +189,10 @@ class Line(Object):
         return Line(self.point1.simplify(), self.point2.simplify(), name=self.name)
       
     def calculate_value_at_x(self, x) -> Expression:
-        return self.slope * x + self.intercept
+        if self.slope is not Infinity:
+            return self.slope * x + self.intercept
+        else:
+            raise ValueError('Cannot use vertical line as a mathematical function. Output is all real numbers or none.')
 
     def __call__(self, x) -> Expression:
         return self.calculate_value_at_x(x)

@@ -14,7 +14,7 @@ from geometry.core import Circle, Line, Point
 #from .Line import Line as Line
 #from .Point import Point
 from geometry.cas import alphabet
-from geometry.cas import Expr, sqrt, sympify
+from geometry.cas import Expr, sqrt, sympify, Infinity
 from geometry.cas import simplify as optimized_simplify
 
 
@@ -120,8 +120,17 @@ class Construction:
         :returns {Point} a set of at most one point representing the intersection of the two lines
         """
         if line1.slope != line2.slope:
-            x = (line2.intercept - line1.intercept) / (line1.slope - line2.slope)
-            y = line1(x)
+            if line1.slope is Infinity:
+                # Line 1 is vertical, use its x value as the x value to evaluate line2
+                x = line1.point1.x
+                y = line2(x)
+            elif line2.slope is Infinity:
+                # Line 2 is vertical, use its x value as the x value to evaluate line1
+                x = line2.point1.x
+                y = line1(x)
+            else:
+                x = (line2.intercept - line1.intercept) / (line1.slope - line2.slope)
+                y = line1(x)
             return {Point(x, y)}
         else:
             return {}
@@ -146,6 +155,14 @@ class Construction:
         x0 = circle.center.x
         y0 = circle.center.y
         r = circle.radius
+        if m is Infinity or b is Infinity:
+            # When dealing with vertical lines, we need to be a bit more clever.
+            # Use the equation of a circle in the plane, and solve for y, using the x-coordinate of the line as x
+            x = line.point1.x
+            inside_sqrt = r**2 - (x - x0)**2
+            return {Point(x, y0+sqrt(inside_sqrt)), Point(x, y0-sqrt(inside_sqrt))}
+
+
 
         diff = b - y0  # This subtraction shows up frequently. This is just so we do not need to repeat it.
 
