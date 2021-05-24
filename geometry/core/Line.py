@@ -2,8 +2,8 @@ import matplotlib.pyplot as plt
 
 #from symengine import Expr, sympify
 #from symengine import oo as Infinity
-from .Object import Object
-from .Point import Point
+from geometry import Object
+from geometry import Point
 #from geometry.cas.symengine_utils import symengine_equality, optimized_simplify
 #from symengine import Expr
 from geometry.cas import (Expr,
@@ -180,10 +180,7 @@ class Line(Object):
     def simplify(self):
         return Line(self.point1.simplify(), self.point2.simplify(), name=self.name)
 
-from geometry.core.Point import FastPoint as Point
-from geometry.core.Point import FastPoint
-from numpy import inf as Infinity
-import numpy as np
+
 class FastLine(Line):
     def __getstate__(self):
         """
