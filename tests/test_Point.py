@@ -1,7 +1,7 @@
 from .test_constants import GeometryTestCase, coordinates
 from geometry.core import Point
 import numpy as np
-from symengine import sympify, nan
+from symengine import sympify, nan, Expr, Number
 
 
 class TestPoint(GeometryTestCase):
@@ -90,7 +90,8 @@ class TestPoint(GeometryTestCase):
                            ('sqrt(3)', 'sqrt(2)'): 'sqrt(5)'}
 
         for point, magnitude in point_magnitude.items():
-            self.assertEqual(abs(Point(*point)), sympify(magnitude))
+            magnitude = sympify(magnitude)
+            self.assertEqual(abs(Point(*point)), magnitude)
 
     def test_plt_draw(self):
         self.fail()
@@ -115,3 +116,19 @@ class TestPoint(GeometryTestCase):
         # Iterative over each point
         for point in points:
             self.assertPickle(point)
+
+
+from geometry.core.Point import FastPoint as Point
+from geometry.core.Point import FastPoint
+from .test_constants import evaluate as sympify
+class TestFastPoint(TestPoint):
+    def setUp(self) -> None:
+        super().setUp()
+
+    def assertEqual(self, *args, **kwargs):
+        try:
+            return super().assertEqual(*args, **kwargs)
+        except AssertionError:
+            # For numpy Fast Points, we need to do float evaluation, which is close but not quite.
+            args = [float(arg.evalf()) if isinstance(arg, Expr) or isinstance(arg, Number) else arg for arg in args]
+            return super().assertAlmostEqual(*args, **kwargs)

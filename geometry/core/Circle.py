@@ -1,9 +1,13 @@
 from .Object import Object
 from .Point import Point
-from .utils import symengine_equality, optimized_simplify, Expression
+#from geometry.cas.symengine_utils import symengine_equality, optimized_simplify, Expression
+from geometry.cas import (equals as symengine_equality,
+                          simplify as optimized_simplify,
+                          Expression,
+                          sympify)
 
 import matplotlib.pyplot as plt
-from symengine import Expr, sqrt, sympify
+#from symengine import sympify
 
 
 class Circle(Object):
@@ -73,3 +77,29 @@ class Circle(Object):
 
     def simplify(self):
         return Circle(center=self.center.simplify(), radius=self.radius.simplify(), name=self.name)
+
+
+class FastCircle(Circle):
+    def __hash__(self):
+        """Circles are equivalent if their centers are equal and their radii are equal"""
+        return hash((self.center, self.radius.data.tobytes()))
+
+    def __getstate__(self):
+        """
+
+        :return:
+        """
+        state = self.__dict__.copy()
+        # Change the unpickleable entries to sympy objects (which are pickleable)
+        #state['radius'] = sympy.core.sympify(state['radius'])
+        #state['radius'] = repr(state['radius'])
+        return state
+
+    def __setstate__(self, state):
+        """
+
+        :param state:
+        :return:
+        """
+        self.__dict__.update(state)
+        #self.radius = sympify(self.radius)
