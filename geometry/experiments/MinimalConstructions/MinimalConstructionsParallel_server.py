@@ -114,5 +114,5 @@ def run_bfs_in_parallel():
     manager.shutdown()
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     run_bfs_in_parallel()
