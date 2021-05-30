@@ -15,10 +15,12 @@ from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
 from queue import Empty, Queue
 
+from typing import List
+
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
 maximum_depth = 3  # How many steps deep can our search tree go?
-unique_constructions: {int, int} = {}  # Number of unique constructions of length.
+#unique_constructions: {int, int} = {}  # Number of unique constructions of length.
 construction_job_queue = Queue()  # Job queue. Holds the constructions to analyze next
 
 # Keys are the visited constructions (which are added to queue),
@@ -39,19 +41,34 @@ def return_point_minimal(): return point_minimal
 def return_maximum_depth(): return maximum_depth
 
 
-def return_unique_construction(): return unique_constructions
+#def return_unique_construction(): return unique_constructions
 
 
 def return_visited_dict(): return visited_dict
+
+
+def count_unique_constructions(constructions_set):
+    """
+    Counts the number of unique constructions of every length in the given constructions set.
+    :param constructions_set: set containing all of the visited constructions
+    :return:
+    """
+    length_num_unique_dict = {}
+
+    for construction in constructions_set:
+        length = len(construction)
+        if length in length_num_unique_dict.keys():
+            length_num_unique_dict[length] += 1
+        else:
+            length_num_unique_dict[length] = 1
+
+    return length_num_unique_dict
 
 
 class QueueManager(SyncManager):
     """Custom multiprocessing manager subclassing SyncManager. Only difference is later we will register various
     custom methods for consistency across clients. """
     pass
-
-
-
 
 
 def check_for_minimal_points(construction: Construction, most_recent_object: Object,
@@ -142,12 +159,6 @@ def construct_bfs(construction: Construction, max_depth: int, interesting=True):
         queue_construction, new_object = queue.pop(0)
         print('Dequeued:', len(queue_construction), new_object)
 
-        # Count the number of constructions while we go
-        if len(queue_construction) in unique_constructions.keys():
-            unique_constructions[len(queue_construction)] += 1
-        else:
-            unique_constructions[len(queue_construction)] = 1
-
         if len(queue_construction) > max_depth:
             # If we are too deep, skip this one and move to the next one in queue
             continue
@@ -167,17 +178,11 @@ def construct_bfs(construction: Construction, max_depth: int, interesting=True):
                             queue.append((new_construction, new_object))
 
 
-def construct_bfs_parallel(queue: Queue, visited_dict: {}, unique_constructions: {}, point_minimal, maximum_depth,
-                           interesting=True):
+def construct_bfs_parallel(queue: Queue, visited_dict: {}, point_minimal, maximum_depth, interesting=True):
     while not queue.empty():
         queue_construction, new_object = queue.get()
         print('\033[34m Dequeued:', len(queue_construction), new_object)
 
-        # Count the number of constructions while we go
-        if len(queue_construction) in unique_constructions.keys():
-            unique_constructions[len(queue_construction)] += 1
-        else:
-            unique_constructions[len(queue_construction)] = 1
         if len(queue_construction) > maximum_depth:
             # If we are too deep, skip this one and move to the next one in queue
             continue
@@ -203,18 +208,14 @@ def construct():
     # Breadth-first Search
     construct_bfs(construction, maximum_depth)
     print(point_minimal)
-    print(unique_constructions)
 
 
-def construct_bfs_parallel_processes(job_queue: Queue,
-                                     initialized_construction_dict: {Construction: int},
-                                     num_unique_constructions_dict: {int, int},
-                                     point_minimal_construction_dict: {Point, int},
-                                     max_depth: int) -> [Process]:
+def construct_bfs_parallel_processes(job_queue: Queue, initialized_construction_dict: {Construction: int},
+                                     point_minimal_construction_dict: {Point, int}, max_depth: int) -> [Process]:
     # Initialize processes. Each process will do construct_bfs_parallel.
     num_processes = cpu_count()  # We want to maximize the process count of each client in our cluster. Use every CPU!
     processes = [Process(target=construct_bfs_parallel,
-                         args=(job_queue, initialized_construction_dict, num_unique_constructions_dict,
+                         args=(job_queue, initialized_construction_dict,
                                point_minimal_construction_dict, max_depth,))
                  for _ in range(num_processes)]
     # Start each process
@@ -230,7 +231,7 @@ def make_server_manager(port, authkey):
     QueueManager.register('get_queue', return_queue)
     QueueManager.register('get_maximum_depth', return_maximum_depth)
     QueueManager.register('get_visited_dict', return_visited_dict, managers.DictProxy)
-    QueueManager.register('get_unique_constructions', return_unique_construction, managers.DictProxy)
+    #QueueManager.register('get_unique_constructions', return_unique_construction, managers.DictProxy)
     QueueManager.register('get_point_minimal', return_point_minimal, managers.DictProxy)
 
     # Create the server manager and start
@@ -248,7 +249,7 @@ def make_client_manager(ip, port, authkey):
     QueueManager.register('get_queue')
     QueueManager.register('get_maximum_depth')
     QueueManager.register('get_visited_dict')
-    QueueManager.register('get_unique_constructions')
+    #QueueManager.register('get_unique_constructions')
     QueueManager.register('get_point_minimal')
     client_manager = QueueManager(address=(ip, port), authkey=authkey)
     client_manager.connect()
@@ -266,16 +267,36 @@ def run_client() -> [Process]:
     job_queue = client_manager.get_queue()
     point_minimal_construction_dict = client_manager.get_point_minimal()
     initialized_constructions_dict = client_manager.get_visited_dict()
-    num_unique_constructions_dict = client_manager.get_unique_constructions()
     max_depth = client_manager.get_maximum_depth()._getvalue()
 
     # Initialize the procsesses and start running analysis
-    processes = construct_bfs_parallel_processes(job_queue,
-                                                 initialized_constructions_dict,
-                                                 num_unique_constructions_dict,
-                                                 point_minimal_construction_dict,
-                                                 max_depth)
+    processes = construct_bfs_parallel_processes(job_queue, initialized_constructions_dict,
+                                                 point_minimal_construction_dict, max_depth)
     return processes
+
+
+def print_report(point_minimal_length_dict: {Point: int}, unique_constructions_dict: {int: int},
+                 generated_constructions: List[Construction]):
+    # Perform our final report
+    print(f'\033[32mMinimal Construction of Points at {time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime())}')
+    print(f'\tDiscovered {len(point_minimal)} constructed points\033[0m')
+    # Minimal Construction Length for each point
+    print('\033[32mMinimal Construction Length for each point:')
+    for point, length in point_minimal_length_dict.items():
+        print('\t\033[32m', length, point)
+
+    # Number of unique constructions of each length (categorized)
+    print('\033[33mNumber of Unique Constructions of each given length')
+    for num_steps, num_constructions in unique_constructions_dict.items():
+        print('\tSteps:', num_steps, 'Num Unique Constructions: ', num_constructions)
+
+    # Total number of unique constructions generated (not necessarily categorized by length)
+    print('\033[34mTotal Unique Constructions')
+    print(f'\tGenerated {len(generated_constructions)} different constructions')
+
+    # Reset colors
+    print('\033[0m')
+
 
 def run_bfs_in_parallel():
     manager = make_server_manager(12349, b'1234')
@@ -283,7 +304,6 @@ def run_bfs_in_parallel():
     construction_job_queue = manager.get_queue()
     point_minimal = manager.get_point_minimal()
     visited_dict = manager.get_visited_dict()
-    unique_constructions = manager.get_unique_constructions()
     maximum_depth = manager.get_maximum_depth()
 
     # Define Construction
@@ -302,19 +322,8 @@ def run_bfs_in_parallel():
 
     while most_recent_time - start_time <= cut_off_time:
         if most_recent_time - last_print_time > 2:
-            print(
-                f'\033[32mMinimal Construction of Points at {time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime())}')
-            # print('\t', point_minimal, '\033[0m')
-            print(f'\tDiscovered {len(point_minimal)} constructed points\033[0m')
-            print(
-                f'\033[33mCurrent Number of Unique Constructions (up to permuting steps) at {time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime())}')
-            for num_steps, num_constructions in unique_constructions.items():
-                print('\tSteps:', num_steps, 'Num Unique Constructions: ', num_constructions)
-            print(f'\033[34mDiscovered {len(visited_dict)} constructions (including permutations)')
-
-            # print(f'{queue.qsize()} items still in queue.')
-            print('\033[0m')
-
+            unique_constructions = count_unique_constructions(visited_dict.keys())
+            print_report(point_minimal, unique_constructions, visited_dict.keys())
             if empty and construction_job_queue.empty():
                 # If the queue is empty and has been for 2 seconds, go ahead and cancel it, since I can't find a
                 # cleaner way of stopping.
@@ -327,29 +336,22 @@ def run_bfs_in_parallel():
 
     # Perform our final report
     # Minimal Construction Length for each point
-    print('\033[32mMinimal Construction Length for each point:')
-    for point, length in point_minimal.items():
-        print('\t\033[32m', length, point)
     point_minimal = dict(point_minimal)
-
     # Number of unique constructions of each length (categorized)
-    print('\033[33mFinal Number of Unique Constructions of each length')
-    for num_steps, num_constructions in unique_constructions.items():
-        print('Steps:', num_steps, 'Num Unique Constructions: ', num_constructions)
-    unique_constructions = dict(unique_constructions)
-
+    unique_constructions = count_unique_constructions(visited_dict.keys())
     # Total number of unique constructions generated (not necessarily categorized by length)
-    print('\033[34mFinal Unique Constructions')
     generated_construction_list = list(visited_dict.keys())
-    print(f'Generated {len(generated_construction_list)} different constructions')
+
+    print_report(point_minimal, unique_constructions, generated_construction_list)
+
     # Save the generated list to disc.
-    filehandler = open(results_dir + 'visited_constructions.pkl', 'wb')
-    pickle.dump(generated_construction_list, filehandler)
+    with open(results_dir + 'visited_constructions.pkl', 'wb') as visited_constructions_file:
+        pickle.dump(generated_construction_list, visited_constructions_file)
 
     # Save the job queue (for future analysis)
     try:
-        filehandler2 = open(results_dir + 'queue.pkl', 'wb')
-        pickle.dump(construction_job_queue._getvalue(), filehandler2)
+        with open(results_dir + 'queue.pkl', 'wb') as construction_queue_file:
+            pickle.dump(construction_job_queue._getvalue(), construction_queue_file)
     except:
         pass
 
@@ -357,7 +359,7 @@ def run_bfs_in_parallel():
     item = True
     while item:
         try:
-            construction_job_queue.get(block=False)
+            item = construction_job_queue.get(block=False)
         except Empty:
             break
 
@@ -365,27 +367,22 @@ def run_bfs_in_parallel():
     manager.shutdown()
 
 
-def run_bfs_in_series(queue, visited_dict, unique_constructions, point_minimal, maximum_depth):
+def run_bfs_in_series(queue, visited_dict, point_minimal, maximum_depth):
     base_construction = BaseConstruction()
+    visited_dict[base_construction] = 0  # Put the base construction in our visited_dict
     construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
-    construct_bfs_parallel(queue, visited_dict, unique_constructions, point_minimal, maximum_depth)
+    construct_bfs_parallel(queue, visited_dict, point_minimal, maximum_depth)
     # Perform our final report
     # Minimal Construction Length for each point
-    print('\033[32mMinimal Construction Length for each point:')
-    for point, length in point_minimal.items():
-        print('\t\033[32m', length, point)
     point_minimal = dict(point_minimal)
 
     # Number of unique constructions of each length (categorized)
-    print('\033[33mFinal Number of Unique Constructions of each length')
-    for num_steps, num_constructions in unique_constructions.items():
-        print('Steps:', num_steps, 'Num Unique Constructions: ', num_constructions)
-    unique_constructions = dict(unique_constructions)
+    unique_constructions = count_unique_constructions(visited_dict.keys())
 
     # Total number of unique constructions generated (not necessarily categorized by length)
-    print('\033[34mFinal Unique Constructions')
     generated_construction_list = list(visited_dict.keys())
-    print(f'Generated {len(generated_construction_list)} different constructions')
+
+    print_report(point_minimal, unique_constructions, generated_construction_list)
 
 
 if __name__ == '__main__':
@@ -397,6 +394,5 @@ if __name__ == '__main__':
                                   maximum_depth))
     print(t.timeit(5))"""
 
-
-    run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal, maximum_depth)
+    run_bfs_in_series(construction_job_queue, visited_dict, point_minimal, maximum_depth)
     #run_bfs_in_parallel()
