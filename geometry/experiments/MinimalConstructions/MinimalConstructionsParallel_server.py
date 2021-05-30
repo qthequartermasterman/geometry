@@ -112,3 +112,7 @@ def run_bfs_in_parallel():
 
     time.sleep(2)
     manager.shutdown()
+
+
+if __name__=='__main__':
+    run_bfs_in_parallel()
