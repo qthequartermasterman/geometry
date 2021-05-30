@@ -1,18 +1,15 @@
 import matplotlib.pyplot as plt
 import numpy as np
-#from symengine import Expr, sqrt, sympify
 from .Object import Object
 from symengine import Expr
-from geometry.cas.symengine_utils import symengine_equality, optimized_simplify, Expression, is_nan
 
-
-#from symengine import Expr
 from geometry.cas import (sqrt,
                           sympify,
-                          equals as symengine_equality,
-                          simplify as optimized_simplify,
+                          equals,
+                          simplify,
                           Expression,
                           is_nan)
+
 
 class Point(Object):
     def __init__(self, x: Expression, y: Expression, name: str = ''):
@@ -21,14 +18,13 @@ class Point(Object):
         # self.y = sympy.core.sympify(y).simplify()
         if is_nan(x) or is_nan(y):
             raise TypeError(f'Coordinates are NaN: {x},\t {y}')
-        self.x = optimized_simplify(sympify(x))
-        self.y = optimized_simplify(sympify(y))
+        self.x = simplify(sympify(x))
+        self.y = simplify(sympify(y))
         self.name = name
 
     def __eq__(self, other):
         if isinstance(other, Point):
-            #return self.x == other.x and self.y == other.y
-            return symengine_equality(self.x, other.x) and symengine_equality(self.y, other.y)
+            return equals(self.x, other.x) and equals(self.y, other.y)
         else:
             return False
 
@@ -90,7 +86,6 @@ class Point(Object):
         return Point(x=self.x.simplify(), y=self.y.simplify(), name=self.name)
 
 
-
 class FastPoint(Object):
     def __init__(self, x: Expression = None, y: Expression = None, array: np.ndarray = None, name: str = ''):
         super().__init__()
@@ -99,7 +94,8 @@ class FastPoint(Object):
             if array.shape == (2,):
                 self.array = array
             else:
-                raise ValueError(f'If instantiating Fast Point using array, it must have shape (2,). Array has shape {array}')
+                raise ValueError(
+                    f'If instantiating Fast Point using array, it must have shape (2,). Array has shape {array}')
         else:
             if x is None or y is None:
                 raise TypeError(f'Fast Points must be instantiated with either an array or both an x and y coordinate')
