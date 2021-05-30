@@ -1,8 +1,8 @@
 from geometry import Point, Construction
-from .PointMinimalConstructions import QueueManager, BaseConstruction, construct_bfs_parallel
+from .PointMinimalConstructions import BaseConstruction, Queue
+from .MinimalConstructionsParallel_server import QueueManager, construct_bfs_parallel
 
-from multiprocessing import Process, cpu_count  #,Queue
-from queue import Queue
+from multiprocessing import Process, cpu_count
 
 
 def construct_bfs_parallel_processes(job_queue: Queue, initialized_construction_dict: {Construction: int},

@@ -10,11 +10,10 @@ import copy
 import time
 import pickle
 
-from multiprocessing.managers import SyncManager
-import multiprocessing.managers as managers
 from queue import Empty, Queue
 
-from typing import List, Any
+from typing import List
+
 
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
@@ -27,19 +26,6 @@ visited_dict: {Construction: int} = {}
 
 # Directory to store all results
 results_dir = '../../../results/'
-
-
-# Helper functions for our multiprocessing servers. These are not lambdas, since those are not pickle-able.
-def return_queue(): return construction_job_queue
-
-
-def return_point_minimal(): return point_minimal
-
-
-def return_maximum_depth(): return maximum_depth
-
-
-def return_visited_dict(): return visited_dict
 
 
 def count_unique_constructions(constructions_set):
@@ -58,12 +44,6 @@ def count_unique_constructions(constructions_set):
             length_num_unique_dict[length] = 1
 
     return length_num_unique_dict
-
-
-class QueueManager(SyncManager):
-    """Custom multiprocessing manager subclassing SyncManager. Only difference is later we will register various
-    custom methods for consistency across clients. """
-    pass
 
 
 def check_for_minimal_points(construction: Construction, most_recent_object: Object,
@@ -173,44 +153,6 @@ def construct_bfs(construction: Construction, max_depth: int, interesting=True):
                             queue.append((new_construction, new_object))
 
 
-def construct_bfs_parallel(queue: Queue, visited_dict: {}, point_minimal, maximum_depth, interesting=True):
-    while not queue.empty():
-        queue_construction, new_object = queue.get()
-        print('\033[34m Dequeued:', len(queue_construction), new_object)
-
-        if len(queue_construction) > maximum_depth:
-            # If we are too deep, skip this one and move to the next one in queue
-            continue
-
-        check_for_minimal_points(queue_construction, new_object, point_minimal)
-
-        for action in queue_construction.actions:
-            new_construction = copy.deepcopy(queue_construction)
-            new_object = new_construction.add_step_premade(action, interesting=interesting)
-            #print(f'\033[36mCurrent Length: {len(queue_construction)}\t Number of actions {len(queue_construction.actions)}\tChecking {new_object}\033[0m')
-            if new_construction not in visited_dict.keys():
-                #print(f'\t\033[36mAdding {new_object} to discovery queue\033[0m')
-                visited_dict[new_construction] = 1
-                queue.put((new_construction, new_object))
-
-
-def make_server_manager(port, authkey):
-    """Create a manager for the server, listening on the given port."""
-    # Register the getter functions for queue, max depth, visited, etc...
-    # We need to register these functions so that our client managers can use the shared state data.
-    QueueManager.register('get_queue', return_queue)
-    QueueManager.register('get_maximum_depth', return_maximum_depth)
-    QueueManager.register('get_visited_dict', return_visited_dict, managers.DictProxy)
-    QueueManager.register('get_point_minimal', return_point_minimal, managers.DictProxy)
-
-    # Create the server manager and start
-    # Bind to all addresses, so address is empty string
-    server_manager = QueueManager(address=('', port), authkey=authkey)
-    server_manager.start()
-    print(f'Server started at port {port}')
-    return server_manager
-
-
 def print_report(point_minimal_length_dict: {Point: int}, unique_constructions_dict: {int: int},
                  generated_constructions: List[Construction]):
     # Perform our final report
@@ -234,74 +176,25 @@ def print_report(point_minimal_length_dict: {Point: int}, unique_constructions_d
     print('\033[0m')
 
 
-def run_bfs_in_parallel():
-    manager = make_server_manager(12349, b'1234')
-    # Reference the shared queues and dicts.
-    check_construction_job_queue = manager.get_queue()
-    dict_point_minimal_construction_length = manager.get_point_minimal()
-    generated_constructions_dict = manager.get_visited_dict()
-    maximum_search_depth = manager.get_maximum_depth()
+def construct_bfs_parallel(queue: Queue, visited_dict: {}, point_minimal, maximum_depth, interesting=True):
+    while not queue.empty():
+        queue_construction, new_object = queue.get()
+        print('\033[34m Dequeued:', len(queue_construction), new_object)
 
-    # Define Construction
-    base_construction = BaseConstruction()
-    check_construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
+        if len(queue_construction) > maximum_depth:
+            # If we are too deep, skip this one and move to the next one in queue
+            continue
 
-    # run_client()
+        check_for_minimal_points(queue_construction, new_object, point_minimal)
 
-    # Set up the loop that will wait and print progress until completed
-    start_time = time.time()
-    most_recent_time = time.time()
-    last_print_time = time.time()
-    empty = check_construction_job_queue.empty()
-
-    cut_off_time = 5 * 60 * 60  # 5 hr = 5 * 60 min/hr * 60 sec/min
-
-    while most_recent_time - start_time <= cut_off_time:
-        if most_recent_time - last_print_time > 2:
-            unique_constructions = count_unique_constructions(generated_constructions_dict.keys())
-            print_report(dict_point_minimal_construction_length, unique_constructions, generated_constructions_dict.keys())
-            if empty and check_construction_job_queue.empty():
-                # If the queue is empty and has been for 2 seconds, go ahead and cancel it, since I can't find a
-                # cleaner way of stopping.
-                break
-            else:
-                empty = check_construction_job_queue.empty()
-
-            last_print_time = time.time()
-        most_recent_time = time.time()
-
-    # Perform our final report
-    # Minimal Construction Length for each point
-    dict_point_minimal_construction_length = dict(dict_point_minimal_construction_length)
-    # Number of unique constructions of each length (categorized)
-    unique_constructions = count_unique_constructions(generated_constructions_dict.keys())
-    # Total number of unique constructions generated (not necessarily categorized by length)
-    generated_construction_list = list(generated_constructions_dict.keys())
-
-    print_report(dict_point_minimal_construction_length, unique_constructions, generated_construction_list)
-
-    # Save the generated list to disc.
-    with open(results_dir + 'visited_constructions.pkl', 'wb') as visited_constructions_file:
-        pickle.dump(generated_construction_list, visited_constructions_file)
-
-    # Save the job queue (for future analysis)
-    try:
-        with open(results_dir + 'queue.pkl', 'wb') as construction_queue_file:
-            pickle.dump(check_construction_job_queue._getvalue(), construction_queue_file)
-    except:
-        pass
-
-    # Empty the job queue
-    item = True
-    while item:
-        try:
-            item = check_construction_job_queue.get(block=False)
-        except Empty:
-            break
-
-    time.sleep(2)
-    manager.shutdown()
-
+        for action in queue_construction.actions:
+            new_construction = copy.deepcopy(queue_construction)
+            new_object = new_construction.add_step_premade(action, interesting=interesting)
+            # print(f'\033[36mCurrent Length: {len(queue_construction)}\t Number of actions {len(queue_construction.actions)}\tChecking {new_object}\033[0m')
+            if new_construction not in visited_dict.keys():
+                # print(f'\t\033[36mAdding {new_object} to discovery queue\033[0m')
+                visited_dict[new_construction] = 1
+                queue.put((new_construction, new_object))
 
 def run_bfs_in_series(queue: Queue,
                       previously_generated_constructions_dict: {Construction: int},
