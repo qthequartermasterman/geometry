@@ -237,14 +237,14 @@ def print_report(point_minimal_length_dict: {Point: int}, unique_constructions_d
 def run_bfs_in_parallel():
     manager = make_server_manager(12349, b'1234')
     # Reference the shared queues and dicts.
-    construction_job_queue = manager.get_queue()
-    point_minimal = manager.get_point_minimal()
-    visited_dict = manager.get_visited_dict()
-    maximum_depth = manager.get_maximum_depth()
+    check_construction_job_queue = manager.get_queue()
+    dict_point_minimal_construction_length = manager.get_point_minimal()
+    generated_constructions_dict = manager.get_visited_dict()
+    maximum_search_depth = manager.get_maximum_depth()
 
     # Define Construction
     base_construction = BaseConstruction()
-    construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
+    check_construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
 
     # run_client()
 
@@ -252,33 +252,33 @@ def run_bfs_in_parallel():
     start_time = time.time()
     most_recent_time = time.time()
     last_print_time = time.time()
-    empty = construction_job_queue.empty()
+    empty = check_construction_job_queue.empty()
 
     cut_off_time = 5 * 60 * 60  # 5 hr = 5 * 60 min/hr * 60 sec/min
 
     while most_recent_time - start_time <= cut_off_time:
         if most_recent_time - last_print_time > 2:
-            unique_constructions = count_unique_constructions(visited_dict.keys())
-            print_report(point_minimal, unique_constructions, visited_dict.keys())
-            if empty and construction_job_queue.empty():
+            unique_constructions = count_unique_constructions(generated_constructions_dict.keys())
+            print_report(dict_point_minimal_construction_length, unique_constructions, generated_constructions_dict.keys())
+            if empty and check_construction_job_queue.empty():
                 # If the queue is empty and has been for 2 seconds, go ahead and cancel it, since I can't find a
                 # cleaner way of stopping.
                 break
             else:
-                empty = construction_job_queue.empty()
+                empty = check_construction_job_queue.empty()
 
             last_print_time = time.time()
         most_recent_time = time.time()
 
     # Perform our final report
     # Minimal Construction Length for each point
-    point_minimal = dict(point_minimal)
+    dict_point_minimal_construction_length = dict(dict_point_minimal_construction_length)
     # Number of unique constructions of each length (categorized)
-    unique_constructions = count_unique_constructions(visited_dict.keys())
+    unique_constructions = count_unique_constructions(generated_constructions_dict.keys())
     # Total number of unique constructions generated (not necessarily categorized by length)
-    generated_construction_list = list(visited_dict.keys())
+    generated_construction_list = list(generated_constructions_dict.keys())
 
-    print_report(point_minimal, unique_constructions, generated_construction_list)
+    print_report(dict_point_minimal_construction_length, unique_constructions, generated_construction_list)
 
     # Save the generated list to disc.
     with open(results_dir + 'visited_constructions.pkl', 'wb') as visited_constructions_file:
@@ -287,7 +287,7 @@ def run_bfs_in_parallel():
     # Save the job queue (for future analysis)
     try:
         with open(results_dir + 'queue.pkl', 'wb') as construction_queue_file:
-            pickle.dump(construction_job_queue._getvalue(), construction_queue_file)
+            pickle.dump(check_construction_job_queue._getvalue(), construction_queue_file)
     except:
         pass
 
@@ -295,7 +295,7 @@ def run_bfs_in_parallel():
     item = True
     while item:
         try:
-            item = construction_job_queue.get(block=False)
+            item = check_construction_job_queue.get(block=False)
         except Empty:
             break
 
