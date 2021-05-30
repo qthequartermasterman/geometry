@@ -28,7 +28,7 @@ construction_job_queue = Queue()  # Job queue. Holds the constructions to analyz
 visited_dict: {Construction: int} = {}
 
 # Directory to store all results
-results_dir = '../../results/'
+results_dir = '../../../results/'
 
 
 # Helper functions for our multiprocessing servers. These are not lambdas, since those are not pickle-able.
