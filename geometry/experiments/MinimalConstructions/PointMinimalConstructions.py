@@ -8,12 +8,8 @@ from geometry import Object
 
 import copy
 import time
-import pickle
-
-from queue import Empty, Queue
-
+from queue import Queue
 from typing import List
-
 
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
@@ -176,25 +172,48 @@ def print_report(point_minimal_length_dict: {Point: int}, unique_constructions_d
     print('\033[0m')
 
 
-def construct_bfs_parallel(queue: Queue, visited_dict: {}, point_minimal, maximum_depth, interesting=True):
+def generate_constructions_breadth_first_search(queue: Queue, generated_constructions_dict: {Construction: int},
+                                                point_minimal_construction_length_dict: {Point: int}, max_search_depth: int,
+                                                interesting=True, verbose=False):
+    """
+    Runs a breadth-first-search for new points and constructions from the base construction.
+    :param queue: Queue that holds the constructions that we need to build off of.
+    :param generated_constructions_dict: Dictionary whose keys are previously generated constructions and
+    values are ints. This should logically be a set, but since multiprocess does not have a shared set, we can make due
+    by using the keys of this dictionary, instead.
+    :param point_minimal_construction_length_dict: Dictionary whose keys are points and values are the lengths of corresponding
+    minimal constructions (found so far)
+    :param max_search_depth: Maximum depth to search. If a construction is deeper than this, skip.
+    :param interesting: Bool representing whether or not constructed objects should be marked interesting
+    :param verbose: Bool representing whether or not to include diagnostic information
+    :return:
+    """
     while not queue.empty():
         queue_construction, new_object = queue.get()
-        print('\033[34m Dequeued:', len(queue_construction), new_object)
-
-        if len(queue_construction) > maximum_depth:
+        if verbose:
+            print('\033[34m Dequeued:', len(queue_construction), new_object)
+        if len(queue_construction) > max_search_depth:
             # If we are too deep, skip this one and move to the next one in queue
             continue
+        # Check to see if we have any faster constructions
+        check_for_minimal_points(queue_construction, new_object, point_minimal_construction_length_dict)
 
-        check_for_minimal_points(queue_construction, new_object, point_minimal)
-
+        # Generate the new child constructions for the current construction and enqueue them for later checking
         for action in queue_construction.actions:
             new_construction = copy.deepcopy(queue_construction)
             new_object = new_construction.add_step_premade(action, interesting=interesting)
-            # print(f'\033[36mCurrent Length: {len(queue_construction)}\t Number of actions {len(queue_construction.actions)}\tChecking {new_object}\033[0m')
-            if new_construction not in visited_dict.keys():
-                # print(f'\t\033[36mAdding {new_object} to discovery queue\033[0m')
-                visited_dict[new_construction] = 1
+            if verbose:
+                print('\033[36m', 'Generating new construction: '
+                      f'Current Length: {len(queue_construction)}',
+                      f'Number of actions {len(queue_construction.actions)}',
+                      f'Checking {new_object}',
+                      '\033[0m')
+            if new_construction not in generated_constructions_dict.keys():
+                if verbose:
+                    print(f'\t\033[36mAdding {new_object} to discovery queue\033[0m')
+                generated_constructions_dict[new_construction] = 1
                 queue.put((new_construction, new_object))
+
 
 def run_bfs_in_series(queue: Queue,
                       previously_generated_constructions_dict: {Construction: int},
@@ -202,6 +221,7 @@ def run_bfs_in_series(queue: Queue,
                       max_search_depth: int) -> None:
     """
     Runs a breadth-first-search for new points and constructions from the base construction.
+    NOTE: This is a serial Breadth-first search. A parallelized version of this search exists in the server file.
     :param queue: Queue that holds the constructions that we need to build off of.
     :param previously_generated_constructions_dict: Dictionary whose keys are previously generated constructions and
     values are ints. This should logically be a set, but since multiprocess does not have a shared set, we can make due
@@ -215,7 +235,8 @@ def run_bfs_in_series(queue: Queue,
     base_construction = BaseConstruction()
     previously_generated_constructions_dict[base_construction] = 0  # Put the base construction in our visited_dict
     construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
-    construct_bfs_parallel(queue, previously_generated_constructions_dict, point_minimal_construction_dict, max_search_depth)
+    generate_constructions_breadth_first_search(queue, previously_generated_constructions_dict, point_minimal_construction_dict,
+                                                max_search_depth)
     # Perform our final report
     # Minimal Construction Length for each point
     point_minimal_construction_dict = dict(point_minimal_construction_dict)
@@ -230,7 +251,6 @@ def run_bfs_in_series(queue: Queue,
 
 
 if __name__ == '__main__':
-
     """import timeit
 
     t = timeit.Timer(
@@ -239,4 +259,4 @@ if __name__ == '__main__':
     print(t.timeit(5))"""
 
     run_bfs_in_series(construction_job_queue, visited_dict, point_minimal, maximum_depth)
-    #run_bfs_in_parallel()
+    # run_bfs_in_parallel()

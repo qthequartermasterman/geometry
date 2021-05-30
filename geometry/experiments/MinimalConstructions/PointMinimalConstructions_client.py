@@ -1,6 +1,6 @@
 from geometry import Point, Construction
-from .PointMinimalConstructions import BaseConstruction, Queue
-from .MinimalConstructionsParallel_server import QueueManager, construct_bfs_parallel
+from .PointMinimalConstructions import BaseConstruction, Queue, generate_constructions_breadth_first_search
+from .MinimalConstructionsParallel_server import QueueManager
 
 from multiprocessing import Process, cpu_count
 
@@ -9,7 +9,7 @@ def construct_bfs_parallel_processes(job_queue: Queue, initialized_construction_
                                      point_minimal_construction_dict: {Point, int}, max_depth: int) -> [Process]:
     # Initialize processes. Each process will do construct_bfs_parallel.
     num_processes = cpu_count()  # We want to maximize the process count of each client in our cluster. Use every CPU!
-    processes = [Process(target=construct_bfs_parallel,
+    processes = [Process(target=generate_constructions_breadth_first_search,
                          args=(job_queue, initialized_construction_dict,
                                point_minimal_construction_dict, max_depth,))
                  for _ in range(num_processes)]
@@ -26,7 +26,7 @@ def make_client_manager(ip, port, authkey):
     QueueManager.register('get_queue')
     QueueManager.register('get_maximum_depth')
     QueueManager.register('get_visited_dict')
-    #QueueManager.register('get_unique_constructions')
+    # QueueManager.register('get_unique_constructions')
     QueueManager.register('get_point_minimal')
     client_manager = QueueManager(address=(ip, port), authkey=authkey)
     client_manager.connect()
@@ -52,5 +52,5 @@ def run_client() -> [Process]:
     return processes
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     run_client()
