@@ -10,7 +10,6 @@ import copy
 import time
 import pickle
 
-from multiprocessing import Process, cpu_count #, Queue
 from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
 from queue import Empty, Queue
@@ -20,7 +19,6 @@ from typing import List, Any
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
 maximum_depth = 3  # How many steps deep can our search tree go?
-#unique_constructions: {int, int} = {}  # Number of unique constructions of length.
 construction_job_queue = Queue()  # Job queue. Holds the constructions to analyze next
 
 # Keys are the visited constructions (which are added to queue),
@@ -39,9 +37,6 @@ def return_point_minimal(): return point_minimal
 
 
 def return_maximum_depth(): return maximum_depth
-
-
-#def return_unique_construction(): return unique_constructions
 
 
 def return_visited_dict(): return visited_dict
@@ -199,31 +194,6 @@ def construct_bfs_parallel(queue: Queue, visited_dict: {}, point_minimal, maximu
                 queue.put((new_construction, new_object))
 
 
-def construct():
-    # Define Construction
-    construction = BaseConstruction()
-    # Depth-first Search
-    # construct_helper_dfs(construction, 0)
-
-    # Breadth-first Search
-    construct_bfs(construction, maximum_depth)
-    print(point_minimal)
-
-
-def construct_bfs_parallel_processes(job_queue: Queue, initialized_construction_dict: {Construction: int},
-                                     point_minimal_construction_dict: {Point, int}, max_depth: int) -> [Process]:
-    # Initialize processes. Each process will do construct_bfs_parallel.
-    num_processes = cpu_count()  # We want to maximize the process count of each client in our cluster. Use every CPU!
-    processes = [Process(target=construct_bfs_parallel,
-                         args=(job_queue, initialized_construction_dict,
-                               point_minimal_construction_dict, max_depth,))
-                 for _ in range(num_processes)]
-    # Start each process
-    for process in processes:
-        process.start()
-    return processes
-
-
 def make_server_manager(port, authkey):
     """Create a manager for the server, listening on the given port."""
     # Register the getter functions for queue, max depth, visited, etc...
@@ -231,7 +201,6 @@ def make_server_manager(port, authkey):
     QueueManager.register('get_queue', return_queue)
     QueueManager.register('get_maximum_depth', return_maximum_depth)
     QueueManager.register('get_visited_dict', return_visited_dict, managers.DictProxy)
-    #QueueManager.register('get_unique_constructions', return_unique_construction, managers.DictProxy)
     QueueManager.register('get_point_minimal', return_point_minimal, managers.DictProxy)
 
     # Create the server manager and start
@@ -240,39 +209,6 @@ def make_server_manager(port, authkey):
     server_manager.start()
     print(f'Server started at port {port}')
     return server_manager
-
-
-def make_client_manager(ip, port, authkey):
-    """Create a manager for a client"""
-    # Register the getter functions for queue, max depth, visited, etc...
-    # We need to register these functions so that our client managers can use the shared state data.
-    QueueManager.register('get_queue')
-    QueueManager.register('get_maximum_depth')
-    QueueManager.register('get_visited_dict')
-    #QueueManager.register('get_unique_constructions')
-    QueueManager.register('get_point_minimal')
-    client_manager = QueueManager(address=(ip, port), authkey=authkey)
-    client_manager.connect()
-
-    print(f'Client connected to {ip}:{port}')
-    return client_manager
-
-
-def run_client() -> [Process]:
-    # Initialize and start the manager
-    # client_manager = make_client_manager('192.168.254.19', 12349, b'1234')
-    client_manager = make_client_manager('localhost', 12349, b'1234')
-
-    # Get our shared data structures
-    job_queue = client_manager.get_queue()
-    point_minimal_construction_dict = client_manager.get_point_minimal()
-    initialized_constructions_dict = client_manager.get_visited_dict()
-    max_depth = client_manager.get_maximum_depth()._getvalue()
-
-    # Initialize the procsesses and start running analysis
-    processes = construct_bfs_parallel_processes(job_queue, initialized_constructions_dict,
-                                                 point_minimal_construction_dict, max_depth)
-    return processes
 
 
 def print_report(point_minimal_length_dict: {Point: int}, unique_constructions_dict: {int: int},
@@ -310,7 +246,7 @@ def run_bfs_in_parallel():
     base_construction = BaseConstruction()
     construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
 
-    run_client()
+    # run_client()
 
     # Set up the loop that will wait and print progress until completed
     start_time = time.time()
