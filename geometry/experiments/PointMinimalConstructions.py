@@ -17,7 +17,7 @@ from queue import Empty, Queue
 
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
-maximum_depth = 4  # How many steps deep can our search tree go?
+maximum_depth = 3  # How many steps deep can our search tree go?
 unique_constructions: {int, int} = {}  # Number of unique constructions of length.
 construction_job_queue = Queue()  # Job queue. Holds the constructions to analyze next
 
@@ -389,14 +389,14 @@ def run_bfs_in_series(queue, visited_dict, unique_constructions, point_minimal, 
 
 
 if __name__ == '__main__':
-    """
-    import timeit
+
+    """import timeit
 
     t = timeit.Timer(
         lambda: run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal,
                                   maximum_depth))
-    print(t.timeit(5))
-    """
+    print(t.timeit(5))"""
+
 
     run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal, maximum_depth)
     #run_bfs_in_parallel()
