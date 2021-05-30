@@ -779,6 +779,7 @@ class Construction:
         :return: a unique hash that represents the the construction.
         """
         # Turn the steps into a set first, so that permuting the steps doesn't change the equality.
+        self.simplify()
         return hash(tuple(sorted(self.steps_set)))
 
     def __eq__(self, other) -> bool:
