@@ -43,25 +43,29 @@ def count_unique_constructions(constructions_set):
 
 
 def check_for_minimal_points(construction: Construction, most_recent_object: Object,
-                             point_minimal_construction_dict: {Point, int}) -> None:
+                             point_minimal_construction_dict: {Point, int}, verbose=False) -> None:
     """
     Check the given construction's new points. If the construction is a faster way of generating any point than what is
     stored in point_minimal_construction_dict, then record this one as a faster construction.
+
 
     :param construction: the current construction to analyze
     :param most_recent_object: most recent line or circle added to the construction, so we don't have to check all
     points--just the new ones
     :param point_minimal_construction_dict: dictionary to store all the data (as a side effect)
+    :param verbose: Bool representing whether diagnostic information should be printed to console
     :return: None
     """
     for point in construction.update_intersections_with_object(most_recent_object):
         if point not in point_minimal_construction_dict.keys():
             point_minimal_construction_dict[point] = len(construction)
-            print('\033[31m New lowest', point, len(construction), '\033[0m')
+            if verbose:
+                print('\033[31m New lowest', point, len(construction), '\033[0m')
         else:
             if point_minimal_construction_dict[point] > len(construction):
                 point_minimal_construction_dict[point] = len(construction)
-                print('\033[31m New lowest', point, len(construction), '\033[0m')
+                if verbose:
+                    print('\033[31m New lowest', point, len(construction), '\033[0m')
 
 
 def construct_helper_dfs(construction: Construction, point_minimal_construction_dict: {Point, int}, max_depth: int,
@@ -113,7 +117,7 @@ def construct_helper_dfs(construction: Construction, point_minimal_construction_
                     break
 
                 # Check if the new construction is a faster way of generating any points
-                check_for_minimal_points(new_construction, new_object, point_minimal_construction_dict)
+                check_for_minimal_points(new_construction, new_object, point_minimal_construction_dict, False)
                 # Recursively call this function on the new construction
                 construct_helper_dfs(new_construction, point_minimal_construction_dict, max_depth,
                                      current_depth + 1, interesting)
@@ -134,7 +138,7 @@ def construct_bfs(construction: Construction, max_depth: int, interesting=True):
             # If we are too deep, skip this one and move to the next one in queue
             continue
 
-        check_for_minimal_points(queue_construction, new_object, point_minimal_construction_length)
+        check_for_minimal_points(queue_construction, new_object, point_minimal_construction_length, False)
 
         prebuilt_steps = queue_construction.steps[:]
         for point1 in queue_construction.points:
@@ -196,7 +200,7 @@ def generate_constructions_breadth_first_search(queue: Queue, generated_construc
             # If we are too deep, skip this one and move to the next one in queue
             continue
         # Check to see if we have any faster constructions
-        check_for_minimal_points(queue_construction, new_object, point_minimal_construction_length_dict)
+        check_for_minimal_points(queue_construction, new_object, point_minimal_construction_length_dict, False)
 
         # Generate the new child constructions for the current construction and enqueue them for later checking
         for action in queue_construction.actions:
