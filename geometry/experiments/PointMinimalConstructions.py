@@ -15,7 +15,7 @@ from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
 from queue import Empty, Queue
 
-from typing import List
+from typing import List, Any
 
 # Declare some constants
 point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
@@ -367,22 +367,37 @@ def run_bfs_in_parallel():
     manager.shutdown()
 
 
-def run_bfs_in_series(queue, visited_dict, point_minimal, maximum_depth):
+def run_bfs_in_series(queue: Queue,
+                      previously_generated_constructions_dict: {Construction: int},
+                      point_minimal_construction_dict: {Point, int},
+                      max_search_depth: int) -> None:
+    """
+    Runs a breadth-first-search for new points and constructions from the base construction.
+    :param queue: Queue that holds the constructions that we need to build off of.
+    :param previously_generated_constructions_dict: Dictionary whose keys are previously generated constructions and
+    values are ints. This should logically be a set, but since multiprocess does not have a shared set, we can make due
+    by using the keys of this dictionary, instead.
+    :param point_minimal_construction_dict: Dictionary whose keys are points and values are the lengths of corresponding
+    minimal constructions (found so far)
+    :param max_search_depth: maximum number of steps to permit in a generated construction
+    :return: None
+    """
+
     base_construction = BaseConstruction()
-    visited_dict[base_construction] = 0  # Put the base construction in our visited_dict
+    previously_generated_constructions_dict[base_construction] = 0  # Put the base construction in our visited_dict
     construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
-    construct_bfs_parallel(queue, visited_dict, point_minimal, maximum_depth)
+    construct_bfs_parallel(queue, previously_generated_constructions_dict, point_minimal_construction_dict, max_search_depth)
     # Perform our final report
     # Minimal Construction Length for each point
-    point_minimal = dict(point_minimal)
+    point_minimal_construction_dict = dict(point_minimal_construction_dict)
 
     # Number of unique constructions of each length (categorized)
-    unique_constructions = count_unique_constructions(visited_dict.keys())
+    unique_constructions = count_unique_constructions(previously_generated_constructions_dict.keys())
 
     # Total number of unique constructions generated (not necessarily categorized by length)
-    generated_construction_list = list(visited_dict.keys())
+    generated_construction_list = list(previously_generated_constructions_dict.keys())
 
-    print_report(point_minimal, unique_constructions, generated_construction_list)
+    print_report(point_minimal_construction_dict, unique_constructions, generated_construction_list)
 
 
 if __name__ == '__main__':
