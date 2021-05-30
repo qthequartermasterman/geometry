@@ -1,5 +1,5 @@
-from .MinimalConstructionsCore import (construction_job_queue, point_minimal, maximum_depth,
-                                       visited_dict, Queue, BaseConstruction, results_dir,
+from .MinimalConstructionsCore import (construction_job_queue, point_minimal_construction_length, maximum_depth,
+                                       generated_constructions, Queue, BaseConstruction, results_dir,
                                        count_unique_constructions, print_report)
 from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
@@ -12,13 +12,13 @@ import pickle
 def return_queue(): return construction_job_queue
 
 
-def return_point_minimal(): return point_minimal
+def return_point_minimal(): return point_minimal_construction_length
 
 
 def return_maximum_depth(): return maximum_depth
 
 
-def return_visited_dict(): return visited_dict
+def return_visited_dict(): return generated_constructions
 
 
 class QueueManager(SyncManager):

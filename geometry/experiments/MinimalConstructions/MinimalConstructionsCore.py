@@ -12,13 +12,13 @@ from queue import Queue
 from typing import List
 
 # Declare some constants
-point_minimal: {Point: int} = {}  # Contain the minimal construction length of each new point
+point_minimal_construction_length: {Point: int} = {}  # Contain the minimal construction length of each new point
 maximum_depth = 3  # How many steps deep can our search tree go?
 construction_job_queue = Queue()  # Job queue. Holds the constructions to analyze next
 
-# Keys are the visited constructions (which are added to queue),
+# Keys are the generated constructions (which are added to queue),
 # values are dummy, since multiprocessing managers only work with dicts
-visited_dict: {Construction: int} = {}
+generated_constructions: {Construction: int} = {}
 
 # Directory to store all results
 results_dir = '../../../results/'
@@ -134,7 +134,7 @@ def construct_bfs(construction: Construction, max_depth: int, interesting=True):
             # If we are too deep, skip this one and move to the next one in queue
             continue
 
-        check_for_minimal_points(queue_construction, new_object, point_minimal)
+        check_for_minimal_points(queue_construction, new_object, point_minimal_construction_length)
 
         prebuilt_steps = queue_construction.steps[:]
         for point1 in queue_construction.points:
@@ -153,7 +153,7 @@ def print_report(point_minimal_length_dict: {Point: int}, unique_constructions_d
                  generated_constructions: List[Construction]):
     # Perform our final report
     print(f'\033[32mMinimal Construction of Points at {time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime())}')
-    print(f'\tDiscovered {len(point_minimal)} constructed points\033[0m')
+    print(f'\tDiscovered {len(point_minimal_construction_length)} constructed points\033[0m')
     # Minimal Construction Length for each point
     print('\033[32mMinimal Construction Length for each point:')
     for point, length in point_minimal_length_dict.items():
@@ -251,12 +251,4 @@ def run_bfs_in_series(queue: Queue,
 
 
 if __name__ == '__main__':
-    """import timeit
-
-    t = timeit.Timer(
-        lambda: run_bfs_in_series(construction_job_queue, visited_dict, unique_constructions, point_minimal,
-                                  maximum_depth))
-    print(t.timeit(5))"""
-
-    run_bfs_in_series(construction_job_queue, visited_dict, point_minimal, maximum_depth)
-    # run_bfs_in_parallel()
+    run_bfs_in_series(construction_job_queue, generated_constructions, point_minimal_construction_length, maximum_depth)
