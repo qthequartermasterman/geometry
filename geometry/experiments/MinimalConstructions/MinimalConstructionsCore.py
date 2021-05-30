@@ -200,7 +200,7 @@ def generate_constructions_breadth_first_search(queue: Queue, generated_construc
             # If we are too deep, skip this one and move to the next one in queue
             continue
         # Check to see if we have any faster constructions
-        check_for_minimal_points(queue_construction, new_object, point_minimal_construction_length_dict, False)
+        check_for_minimal_points(queue_construction, new_object, point_minimal_construction_length_dict, verbose=False)
 
         # Generate the new child constructions for the current construction and enqueue them for later checking
         for action in queue_construction.actions:
@@ -219,13 +219,12 @@ def generate_constructions_breadth_first_search(queue: Queue, generated_construc
                 queue.put((new_construction, new_object))
 
 
-def run_bfs_in_series(queue: Queue,
-                      previously_generated_constructions_dict: {Construction: int},
-                      point_minimal_construction_dict: {Point, int},
-                      max_search_depth: int) -> None:
+def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Construction: int},
+                      point_minimal_construction_dict: {Point, int}, max_search_depth: int, verbose=True) -> None:
     """
     Runs a breadth-first-search for new points and constructions from the base construction.
     NOTE: This is a serial Breadth-first search. A parallelized version of this search exists in the server file.
+
     :param queue: Queue that holds the constructions that we need to build off of.
     :param previously_generated_constructions_dict: Dictionary whose keys are previously generated constructions and
     values are ints. This should logically be a set, but since multiprocess does not have a shared set, we can make due
@@ -233,14 +232,16 @@ def run_bfs_in_series(queue: Queue,
     :param point_minimal_construction_dict: Dictionary whose keys are points and values are the lengths of corresponding
     minimal constructions (found so far)
     :param max_search_depth: maximum number of steps to permit in a generated construction
+    :param verbose: Bool representing whether or not we should print reports
     :return: None
     """
 
     base_construction = BaseConstruction()
     previously_generated_constructions_dict[base_construction] = 0  # Put the base construction in our visited_dict
     construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
-    generate_constructions_breadth_first_search(queue, previously_generated_constructions_dict, point_minimal_construction_dict,
-                                                max_search_depth)
+    generate_constructions_breadth_first_search(queue, previously_generated_constructions_dict,
+                                                point_minimal_construction_dict,
+                                                max_search_depth, verbose=False)
     # Perform our final report
     # Minimal Construction Length for each point
     point_minimal_construction_dict = dict(point_minimal_construction_dict)
@@ -251,7 +252,8 @@ def run_bfs_in_series(queue: Queue,
     # Total number of unique constructions generated (not necessarily categorized by length)
     generated_construction_list = list(previously_generated_constructions_dict.keys())
 
-    print_report(point_minimal_construction_dict, unique_constructions, generated_construction_list)
+    if verbose:
+        print_report(point_minimal_construction_dict, unique_constructions, generated_construction_list)
 
 
 if __name__ == '__main__':
