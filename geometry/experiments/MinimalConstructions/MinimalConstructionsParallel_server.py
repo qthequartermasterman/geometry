@@ -1,6 +1,6 @@
-from .PointMinimalConstructions import (construction_job_queue, point_minimal, maximum_depth,
-                                        visited_dict, Queue, BaseConstruction, results_dir,
-                                        count_unique_constructions, print_report)
+from .MinimalConstructionsCore import (construction_job_queue, point_minimal, maximum_depth,
+                                       visited_dict, Queue, BaseConstruction, results_dir,
+                                       count_unique_constructions, print_report)
 from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
 from queue import Empty

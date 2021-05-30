@@ -1,5 +1,5 @@
 from geometry import Point, Construction
-from .PointMinimalConstructions import BaseConstruction, Queue, generate_constructions_breadth_first_search
+from .MinimalConstructionsCore import BaseConstruction, Queue, generate_constructions_breadth_first_search
 from .MinimalConstructionsParallel_server import QueueManager
 
 from multiprocessing import Process, cpu_count
