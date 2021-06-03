@@ -8,7 +8,8 @@ from geometry.cas import (sqrt,
                           equals,
                           simplify,
                           Expression,
-                          is_nan)
+                          is_nan,
+                          full_simplify)
 
 
 class Point(Object):

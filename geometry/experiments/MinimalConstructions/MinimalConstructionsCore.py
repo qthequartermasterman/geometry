@@ -221,7 +221,7 @@ def generate_constructions_breadth_first_search(queue: Queue, generated_construc
 
 
 def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Construction: int},
-                      point_minimal_construction_dict: {Point, int}, max_search_depth: int, verbose=True) -> None:
+                      point_minimal_construction_dict: {Point, int}, max_search_depth: int, verbose=False, report=True) -> None:
     """
     Runs a breadth-first-search for new points and constructions from the base construction.
     NOTE: This is a serial Breadth-first search. A parallelized version of this search exists in the server file.
@@ -242,7 +242,7 @@ def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Co
     queue.put((base_construction, tuple(base_construction.points)[0]))
     generate_constructions_breadth_first_search(queue, previously_generated_constructions_dict,
                                                 point_minimal_construction_dict,
-                                                max_search_depth, verbose=False)
+                                                max_search_depth, verbose=verbose)
     # Perform our final report
     # Minimal Construction Length for each point
     point_minimal_construction_dict = dict(point_minimal_construction_dict)
@@ -253,11 +253,11 @@ def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Co
     # Total number of unique constructions generated (not necessarily categorized by length)
     generated_construction_list = list(previously_generated_constructions_dict.keys())
 
-    if verbose:
+    if report:
         print_report(point_minimal_construction_dict, unique_constructions, generated_construction_list)
 
 
-def find_all_constructions_of_length(max_depth: int, verbose=True):
+def find_all_constructions_of_length(max_depth: int, verbose=False, report=True):
     # Declare some constants
     point_minimal_construction_length_dict: {Point: int} = {}  # Contain the minimal construction length of each new point
     construction_queue = Queue()  # Job queue. Holds the constructions to analyze next
@@ -265,7 +265,7 @@ def find_all_constructions_of_length(max_depth: int, verbose=True):
     # Keys are the generated constructions (which are added to queue),
     # values are dummy, since multiprocessing managers only work with dicts
     generated_constructions_dict: {Construction: int} = {}
-    run_bfs_in_series(construction_queue, generated_constructions_dict, point_minimal_construction_length_dict, max_depth, verbose)
+    run_bfs_in_series(construction_queue, generated_constructions_dict, point_minimal_construction_length_dict, max_depth, verbose, report)
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ use_numpy = not USE_EXACT
 if use_numpy:
     from .numpy_utils import (sympify,
                               identity as simplify,
+                              identity as fullsimplify,
                               Expression,
                               equals as equals)
     from numpy import (sqrt,
@@ -21,6 +22,8 @@ else:
     from .symengine_utils import (symengine_equality as equals,
                                   optimized_simplify as simplify,
                                   Expression,
-                                  is_nan)
+                                  is_nan,
+                                  full_simplify)
+
 
 alphabet = list(map(chr, range(97, 123)))
