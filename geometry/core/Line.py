@@ -38,7 +38,7 @@ class Line(Object):
         self.name = name if name else f'{point1.name}{point2.name}'
         self._simplified = pre_simplified
 
-    @lru_cache()
+    @lru_cache(maxsize=None)
     @staticmethod
     def calculate_slope(point1: Point, point2: Point) -> Expr:
         """
@@ -58,10 +58,10 @@ class Line(Object):
                 return Infinity
         return Infinity
 
-    @lru_cache()
+    @lru_cache(maxsize=None)
     # def calculate_intercept(self, point1: Point, point2: Point, slope: sympy.core.expr.Expr = None):
     @staticmethod
-    def calculate_intercept(point1: Point, point2: Point, slope: Expr = None):
+    def calculate_intercept(point1: Point, point2: Point, slope: Expression = None):
         """
         Calculate the y-intercept of a line. This is the $b$ in $y=mx+b$.
         :param point1: Point representing the first defining point.

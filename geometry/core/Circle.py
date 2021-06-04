@@ -6,6 +6,7 @@ from geometry.cas import (equals as symengine_equality,
                           sympify)
 
 import matplotlib.pyplot as plt
+from methodtools import lru_cache
 
 
 class Circle(Object):

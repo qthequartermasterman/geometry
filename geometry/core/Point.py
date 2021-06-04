@@ -12,6 +12,7 @@ from geometry.cas import (sqrt,
                           full_simplify)
 
 
+
 class Point(Object):
     def __init__(self, x: Expression, y: Expression, name: str = '', pre_simplified=False):
         super().__init__()

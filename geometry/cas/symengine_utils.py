@@ -14,25 +14,25 @@ from typing import Union
 Expression = Union[Expr, str, int, float]  # Anything that is sympify-able
 
 
-@lru_cache
+@lru_cache(maxsize=None)
 def is_nan(element: Expression):
     element = sympify(element)
     return isinstance(element, type(nan))
 
 
-@lru_cache
+@lru_cache(maxsize=None)
 def symengine_equality(a: Expr, b: Expr):
     return Eq(a, b).simplify()
 
 
-@lru_cache
+@lru_cache(maxsize=None)
 def optimized_simplify(expr: Expr) -> Expr:
     #return sqrtdenest(expr)
     #return expr.expand()
-    #return simplify(expr)
-    return sqrtdenest(expr).expand()
+    return simplify(expr)
+    #return sqrtdenest(expr).expand()
 
-@lru_cache
+@lru_cache(maxsize=None)
 def full_simplify(expr: Expr) -> Expr:
     return simplify(optimized_simplify(expr))
 
