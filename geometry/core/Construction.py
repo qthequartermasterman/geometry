@@ -6,13 +6,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from skimage import draw
-#from symengine import Expr, sqrt, sympify
 
 from .Object import Object
-#from .Circle import Circle as Circle
 from geometry.core import Circle, Line, Point
-#from .Line import Line as Line
-#from .Point import Point
 from geometry.cas import alphabet
 from geometry.cas import Expr, sqrt, sympify, Infinity
 from geometry.cas import simplify as optimized_simplify
@@ -202,7 +198,15 @@ class Construction:
         r2 = circle2.radius
         diff_between_centers = center2 - center1
         distance_between_centers = abs(diff_between_centers)
-        distance_between_centers_float = float(distance_between_centers.evalf())
+        if hasattr(distance_between_centers, 'evalf'):
+            dis_evalf = distance_between_centers.evalf()
+            # print(distance_between_centers, dis_evalf)
+            if not hasattr(dis_evalf, '__float__'):
+                raise ValueError(f'dis_evalf has no float attribute: {type(dis_evalf)} {dis_evalf}')
+            distance_between_centers_float = float(dis_evalf)
+        else:
+            print(f'{distance_between_centers} has no evalf property.')
+            distance_between_centers_float = float(distance_between_centers)
 
         # Determine if the circles even do intersect. There are four cases:
         # 1. Centers are the same => Cannot intersect (either coincident or one contained in other)

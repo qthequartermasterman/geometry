@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from .Object import Object
-from symengine import Expr
+from geometry.cas import Expr
 
 from geometry.cas import (sqrt,
                           sympify,
@@ -45,7 +45,7 @@ class Point(Object):
         return self.__mul__(other)
 
     def __abs__(self):
-        return sqrt(self * self)
+        return simplify(sqrt(self * self))
 
     def __repr__(self):
         return f'Point {self.name}: ({self.x}, {self.y})'

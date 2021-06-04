@@ -1,13 +1,11 @@
 from .Object import Object
 from .Point import Point
-#from geometry.cas.symengine_utils import symengine_equality, optimized_simplify, Expression
 from geometry.cas import (equals as symengine_equality,
                           simplify as optimized_simplify,
                           Expression,
                           sympify)
 
 import matplotlib.pyplot as plt
-#from symengine import sympify
 
 
 class Circle(Object):

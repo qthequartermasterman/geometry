@@ -1,12 +1,8 @@
 import matplotlib.pyplot as plt
 
-#from symengine import Expr, sympify
-#from symengine import oo as Infinity
 from .Object import Object
 from .Point import Point
 
-#from geometry.cas.symengine_utils import symengine_equality, optimized_simplify
-#from symengine import Expr
 from geometry.cas import (Expr,
                           sympify,
                           Infinity,
