@@ -1,4 +1,10 @@
-from symengine import Expr, Eq, sympify, nan
+import geometry
+
+if geometry.USE_PURE_SYMPY:
+    from symengine import Expr, Eq, sympify, nan
+else:
+    from sympy import Expr, Eq, sympify, nan
+
 from sympy.simplify import sqrtdenest
 from sympy import simplify
 

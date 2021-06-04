@@ -1,4 +1,4 @@
-from geometry import USE_EXACT
+from geometry import USE_EXACT, USE_PURE_SYMPY
 
 use_numpy = not USE_EXACT
 
@@ -15,15 +15,20 @@ if use_numpy:
                        isnan as is_nan)
 
 else:
-    from symengine import (sympify,
+    if USE_PURE_SYMPY:
+        from sympy import (sympify,
                            sqrt,
                            oo as Infinity,
                            Expr)
+    else:
+        from symengine import (sympify,
+                               sqrt,
+                               oo as Infinity,
+                               Expr)
     from .symengine_utils import (symengine_equality as equals,
                                   optimized_simplify as simplify,
                                   Expression,
                                   is_nan,
                                   full_simplify)
-
 
 alphabet = list(map(chr, range(97, 123)))
