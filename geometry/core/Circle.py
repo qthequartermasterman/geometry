@@ -9,10 +9,11 @@ import matplotlib.pyplot as plt
 
 
 class Circle(Object):
-    def __init__(self, center: Point, radius: Expression = None, point2: Point = None, name=''):
+    def __init__(self, center: Point, radius: Expression = None, point2: Point = None, name='', pre_simplified=False):
         super().__init__()
         self.center = center
         self.dependencies.update(center.dependencies)
+        self._simplified = pre_simplified
         if point2 is not None:
             self.point2 = point2
             self.radius = optimized_simplify(abs(center - point2))
@@ -74,7 +75,12 @@ class Circle(Object):
         self.radius = sympify(self.radius)
 
     def simplify(self):
-        return Circle(center=self.center.simplify(), radius=self.radius.simplify(), name=self.name)
+        if self._simplified:
+            return self
+        else:
+            c = Circle(center=self.center.simplify(), radius=self.radius.simplify(), name=self.name, pre_simplified=True)
+            c.dependencies = self.dependencies
+            return c
 
 
 class FastCircle(Circle):

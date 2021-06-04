@@ -28,9 +28,9 @@ def symengine_equality(a: Expr, b: Expr):
 @lru_cache
 def optimized_simplify(expr: Expr) -> Expr:
     #return sqrtdenest(expr)
-    return expr.expand()
+    #return expr.expand()
     #return simplify(expr)
-    #return sqrtdenest(expr).expand()
+    return sqrtdenest(expr).expand()
 
 @lru_cache
 def full_simplify(expr: Expr) -> Expr:

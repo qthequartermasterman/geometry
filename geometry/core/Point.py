@@ -13,7 +13,7 @@ from geometry.cas import (sqrt,
 
 
 class Point(Object):
-    def __init__(self, x: Expression, y: Expression, name: str = ''):
+    def __init__(self, x: Expression, y: Expression, name: str = '', pre_simplified=False):
         super().__init__()
         # self.x = sympy.core.sympify(x).simplify()
         # self.y = sympy.core.sympify(y).simplify()
@@ -22,6 +22,7 @@ class Point(Object):
         self.x = simplify(sympify(x))
         self.y = simplify(sympify(y))
         self.name = name
+        self._simplified = pre_simplified
 
     def __eq__(self, other):
         if isinstance(other, Point):
@@ -84,7 +85,12 @@ class Point(Object):
         self.y = sympify(self.y)
 
     def simplify(self):
-        return Point(x=self.x.simplify(), y=self.y.simplify(), name=self.name)
+        if self._simplified:
+            return self
+        else:
+            p = Point(x=self.x.simplify(), y=self.y.simplify(), name=self.name, pre_simplified=True)
+            p.dependencies = self.dependencies
+            return p
 
 
 class FastPoint(Object):

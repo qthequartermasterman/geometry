@@ -15,7 +15,7 @@ import pickle
 
 
 class Line(Object):
-    def __init__(self, point1: Point, point2: Point, name='', slope: Expression = None, intercept: Expression = None):
+    def __init__(self, point1: Point, point2: Point, name='', slope: Expression = None, intercept: Expression = None, pre_simplified=False):
         """
         Lines represent the set of points that can be drawn by tracing a straightedge between two points.
         :param point1: Point representing the first defining point.
@@ -36,6 +36,7 @@ class Line(Object):
             self.point2 = Point(1, slope+intercept)
         # self.name = name if name else u'\u0305'.join(f'{point1.name}{point2.name} ')
         self.name = name if name else f'{point1.name}{point2.name}'
+        self._simplified = pre_simplified
 
     @lru_cache()
     @staticmethod
@@ -182,7 +183,12 @@ class Line(Object):
         self.intercept = sympify(self.intercept)
 
     def simplify(self):
-        return Line(self.point1.simplify(), self.point2.simplify(), name=self.name)
+        if self._simplified:
+            return self
+        else:
+            l = Line(self.point1.simplify(), self.point2.simplify(), name=self.name, pre_simplified=True)
+            l.dependencies = self.dependencies
+            return l
       
     def calculate_value_at_x(self, x) -> Expression:
         if self.slope is not Infinity:
