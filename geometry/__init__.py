@@ -1,5 +1,5 @@
 USE_EXACT = True  # Should we use the Exact algebra system (symengine/sympy) or inexact algebra system (numpy)?
-USE_PURE_SYMPY = True
+USE_PURE_SYMPY = False
 
 if USE_EXACT:
     from geometry.core.Object import Object

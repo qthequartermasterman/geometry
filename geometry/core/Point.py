@@ -18,7 +18,7 @@ class Point(Object):
         # self.x = sympy.core.sympify(x).simplify()
         # self.y = sympy.core.sympify(y).simplify()
         if is_nan(x) or is_nan(y):
-            raise TypeError(f'Coordinates are NaN: {x},\t {y}')
+            raise TypeError(f'Point Coordinates are NaN: ({x},\t {y}), with dependencies {self.dependencies}')
         self.x = simplify(sympify(x))
         self.y = simplify(sympify(y))
         self.name = name
