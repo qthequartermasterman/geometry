@@ -14,6 +14,8 @@ from typing import Union
 Expression = Union[Expr, str, int, float]  # Anything that is sympify-able
 
 
+
+
 @lru_cache(maxsize=None)
 def is_nan(element: Expression):
     element = sympify(element)
@@ -29,8 +31,10 @@ def symengine_equality(a: Expr, b: Expr):
 def optimized_simplify(expr: Expr) -> Expr:
     #return sqrtdenest(expr)
     #return expr.expand()
-    return simplify(expr)
+    #return simplify(sqrtdenest(expr))
     #return sqrtdenest(expr).expand()
+    #return sympify(sqrtdenest(expr)).simplify()
+    return expr.expand()
 
 @lru_cache(maxsize=None)
 def full_simplify(expr: Expr) -> Expr:
