@@ -21,21 +21,6 @@ def check_if_points_on_same_side(line: Line, point1: Point, point2: Point):
     # Check if f_point1 and f_point2 have the same sign.
     return f_point1 * f_point2 > 0
 
-    """
-    normal = line.get_perpendicular_at_point(line.point1).get_direction_vector()
-    s = ((point1-line.point1)*normal)*((point2-line.point1)*normal)
-    print(normal)
-    print(line, point1, point2)
-    print(s)
-    print(bool(s<0))
-    if s < 0:
-        # They are on the same side
-        return True
-    elif s > 0:
-        return False
-    else:
-        raise ValueError(f'At least one point {point1=} {point2=} is on {line=}')"""
-
 
 def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
     """A construction with two points a unit length apart.
@@ -57,16 +42,7 @@ def EquilateralUnitTriangle():
     a, b = construction.points
     # The construction is to erect a triangle on the given segment, so this doesn't count as a step.
     construction.ab = construction.add_line(a, b, counts_as_step=False)
-
-    # These are the steps of the constructions
-    construction.circ1 = construction.add_circle(a, b)
-    construction.circ2 = construction.add_circle(b, a)
-    intersections = {point for point in construction.points if point.y != 0}  # Only include circle intersections.
-    for intersect in intersections:
-        construction.c = intersect
-        construction.ac = construction.add_line(a, intersect, interesting=True)
-        construction.bc = construction.add_line(b, intersect, interesting=True)
-        break  # Only do it for one intersection point
+    EuclidI1(construction, construction.ab, Point(1, 1))  # Erect a triangle on the same side as Point(1,1)
     return construction
 
 
