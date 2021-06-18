@@ -31,19 +31,6 @@ class EuclidI1(Construction):
             break  # Only do it for one intersection point
 
 
-class RandomConstruction(Construction):
-    """Generates a random construction of given length. Not included in Euclid, but sometimes useful, nonetheless."""
-    def __init__(self, length):
-        super(RandomConstruction, self).__init__(name=f'RandomConstruction_{length}')
-        a = Point(0, 0, 'A')
-        b = Point(1, 0, 'B')
-        self.a = a
-        self.b = b
-        self.add_point(a, True)
-        self.add_point(b, True)
-        self.add_random_construction(length)
-
-
 def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
     """A construction with two points a unit length apart.
     It is easier to use this function instead of instantiating manually one every time.
@@ -53,4 +40,11 @@ def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
     b = Point(1, 0, 'B')
     construction.points = {a, b}
     construction.actions = construction.get_valid_actions({a, b}, True)
+    return construction
+
+
+def RandomConstruction(length, construction_mode=ConstructionMode.DEFAULT):
+    """Generates a random construction of given length. Not included in Euclid, but sometimes useful, nonetheless."""
+    construction = BaseConstruction(name=f'RandomConstruction_{length}', construction_mode=construction_mode)
+    construction.add_random_construction(length)
     return construction
