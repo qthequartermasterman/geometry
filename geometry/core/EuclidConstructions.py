@@ -5,30 +5,7 @@ from geometry import Construction
 from geometry.core.Construction import ConstructionMode
 
 
-class EuclidI1(Construction):
-    """Erect an equilateral triangle on a given segment."""
-    def __init__(self):
-        super().__init__(name='EuclidI1')
-        a = Point(0, 0, 'A')
-        b = Point(1, 0, 'B')
-        self.a = a
-        self.b = b
-        self.c: Point
-        self.points.update({a, b})
-        self.interesting_points.update({a, b})  # Mark these as interesting
 
-        # The construction is to erect a triangle on the given segment, so this doesn't count as a step.
-        self.ab = self.add_line(a, b, counts_as_step=False)
-
-        # These are the steps of the constructions
-        self.circ1 = self.add_circle(a, b)
-        self.circ2 = self.add_circle(b, a)
-        intersections = self.points - {a, b}
-        for intersect in intersections:
-            self.c = intersect
-            self.ac = self.add_line(a, intersect, interesting=True)
-            self.bc = self.add_line(b, intersect, interesting=True)
-            break  # Only do it for one intersection point
 
 
 def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
@@ -40,6 +17,25 @@ def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
     b = Point(1, 0, 'B')
     construction.points = {a, b}
     construction.actions = construction.get_valid_actions({a, b}, True)
+    return construction
+
+
+def EuclidI1():
+    """Erect an equilateral triangle on a given segment."""
+    construction = BaseConstruction(name='EuclidI1', construction_mode=ConstructionMode.DEFAULT)  # EuclidI1 requires both lines and circles
+    a, b = construction.points
+    # The construction is to erect a triangle on the given segment, so this doesn't count as a step.
+    construction.ab = construction.add_line(a, b, counts_as_step=False)
+
+    # These are the steps of the constructions
+    construction.circ1 = construction.add_circle(a, b)
+    construction.circ2 = construction.add_circle(b, a)
+    intersections = {point for point in construction.points if point.y != 0}  # Only include circle intersections.
+    for intersect in intersections:
+        construction.c = intersect
+        construction.ac = construction.add_line(a, intersect, interesting=True)
+        construction.bc = construction.add_line(b, intersect, interesting=True)
+        break  # Only do it for one intersection point
     return construction
 
 
