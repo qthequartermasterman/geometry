@@ -5,6 +5,7 @@ from geometry.core.EuclidConstructions import BaseConstruction
 from geometry import Point
 from geometry.core.Line import Line
 from geometry import Object
+from geometry.core.Construction import ConstructionMode
 
 import copy
 import time
@@ -221,7 +222,8 @@ def generate_constructions_breadth_first_search(queue: Queue, generated_construc
 
 
 def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Construction: int},
-                      point_minimal_construction_dict: {Point, int}, max_search_depth: int, verbose=False, report=True) -> None:
+                      point_minimal_construction_dict: {Point, int}, max_search_depth: int, verbose=False,
+                      report=True, construction_mode=ConstructionMode.DEFAULT) -> None:
     """
     Runs a breadth-first-search for new points and constructions from the base construction.
     NOTE: This is a serial Breadth-first search. A parallelized version of this search exists in the server file.
@@ -237,7 +239,7 @@ def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Co
     :return: None
     """
 
-    base_construction = BaseConstruction()
+    base_construction = BaseConstruction(construction_mode=construction_mode)
     previously_generated_constructions_dict[base_construction] = 0  # Put the base construction in our visited_dict
     queue.put((base_construction, tuple(base_construction.points)[0]))
     generate_constructions_breadth_first_search(queue, previously_generated_constructions_dict,
@@ -257,7 +259,7 @@ def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Co
         print_report(point_minimal_construction_dict, unique_constructions, generated_construction_list)
 
 
-def find_all_constructions_of_length(max_depth: int, verbose=False, report=True):
+def find_all_constructions_of_length(max_depth: int, verbose=False, report=True,construction_mode=ConstructionMode.DEFAULT):
     # Declare some constants
     point_minimal_construction_length_dict: {Point: int} = {}  # Contain the minimal construction length of each new point
     construction_queue = Queue()  # Job queue. Holds the constructions to analyze next
@@ -265,9 +267,12 @@ def find_all_constructions_of_length(max_depth: int, verbose=False, report=True)
     # Keys are the generated constructions (which are added to queue),
     # values are dummy, since multiprocessing managers only work with dicts
     generated_constructions_dict: {Construction: int} = {}
-    run_bfs_in_series(construction_queue, generated_constructions_dict, point_minimal_construction_length_dict, max_depth, verbose, report)
+    run_bfs_in_series(construction_queue, generated_constructions_dict, point_minimal_construction_length_dict, max_depth, verbose, report,construction_mode=construction_mode)
 
 
 if __name__ == '__main__':
     #run_bfs_in_series(construction_job_queue, generated_constructions, point_minimal_construction_length, maximum_depth)
-    find_all_constructions_of_length(maximum_depth)
+    #find_all_constructions_of_length(maximum_depth)
+    find_all_constructions_of_length(3, verbose=True, construction_mode=ConstructionMode.DEFAULT)
+    find_all_constructions_of_length(3, verbose=True, construction_mode=ConstructionMode.LINES_ONLY)
+    find_all_constructions_of_length(3, verbose=True, construction_mode=ConstructionMode.CIRCLES_ONLY)
