@@ -22,6 +22,23 @@ def check_if_points_on_same_side(line: Line, point1: Point, point2: Point):
     return f_point1 * f_point2 > 0
 
 
+def pick_point_on_side(line: Line, side: Point, points: {Point}, same_side=True):
+    for intersect in points:
+        if same_side:
+            if check_if_points_on_same_side(line, side, intersect):
+                return intersect
+        else:
+            if not check_if_points_on_same_side(line, side, intersect):
+                return intersect
+    else:
+        raise ValueError(f'No points were on the same side of {line=} as point {side}')
+
+
+def pick_point_not_on_line(line: Line):
+    """Pick a point not on the line for when we do not care about which side."""
+    return line.point1 + line.get_perpendicular_at_point(line.point1).get_direction_vector()
+
+
 def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
     """A construction with two points a unit length apart.
     It is easier to use this function instead of instantiating manually one every time.
@@ -67,20 +84,35 @@ def EuclidI1(construction: Construction, line: Line, side: Point, interesting=Tr
 
     a, b = line.point1, line.point2
     # These are the steps of the constructions
-    circ1 = construction.add_circle(a, b)
-    circ2 = construction.add_circle(b, a)
+    circ1 = construction.add_circle(a, b, interesting=interesting)
+    circ2 = construction.add_circle(b, a, interesting=interesting)
     intersections = construction.find_intersections(circ1, circ2)  # Only include circle intersections.
     c = None
     for intersect in intersections:
         if check_if_points_on_same_side(line, side, intersect):
             c = intersect
-            construction.ac = construction.add_line(a, intersect, interesting=True)
-            construction.bc = construction.add_line(b, intersect, interesting=True)
+            construction.ac = construction.add_line(a, intersect, interesting=interesting)
+            construction.bc = construction.add_line(b, intersect, interesting=interesting)
             break  # Only do it for one intersection point
     if c:
         return c
     else:
         raise ValueError(f'No intersections were on the same side of {line=} as point {side}')
+
+
+def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesting=True) -> Line:
+    if a not in construction.points:
+        raise ValueError(f'Cannot copy line segment. Point {a=} not in {construction=}.')
+    b, c = line_segment.point1, line_segment.point2
+    ab = construction.add_line(a, b, interesting=interesting)
+    d = EuclidI1(construction, ab, pick_point_not_on_line(ab))
+    circle_bc = construction.add_circle(b, c, interesting=interesting)
+    intersections = construction.find_intersections_line_circle(Line(d, b), circle_bc)
+    g = pick_point_on_side(line_segment, d, intersections, same_side=False)
+    circle_dg = construction.add_circle(d, g, interesting=interesting)
+    intersections = construction.find_intersections_line_circle(Line(d, a), circle_dg)
+    final_point = pick_point_on_side(ab, d, intersections, same_side=False)
+    return Line(a, final_point)
 
 
 def RandomConstruction(length, construction_mode=ConstructionMode.DEFAULT):
