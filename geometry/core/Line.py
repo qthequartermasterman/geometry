@@ -200,9 +200,14 @@ class Line(Object):
         return self.calculate_value_at_x(x)
 
     def get_perpendicular_at_point(self, point: Point):
+        if self.slope == 0:
+            return Line(point, point+Point(0, 1))
         new_slope = -1/self.slope
         new_intercept = (self.slope - new_slope)*point.x + self.intercept
         return Line(point, point, slope=new_slope, intercept=new_intercept)
+
+    def get_direction_vector(self):
+        return (self.point2-self.point1).normalize()
 
 
 
