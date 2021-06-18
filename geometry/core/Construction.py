@@ -12,9 +12,22 @@ from geometry.core import Circle, Line, Point
 from geometry.cas import alphabet
 from geometry.cas import Expr, sqrt, sympify, Infinity
 from geometry.cas import simplify as optimized_simplify
+from enum import Enum
 
 
 # from methodtools import lru_cache
+
+class ConstructionMode(Enum):
+    """
+    Enum containing the different modes for a construction.
+    This allows you to limit the tools (compass/circles or lines/straightedge) you can use to build constructions.
+    DEFAULT: Both compass and straightedge are considered valid tools.
+    LINES_ONLY: Only straightedges are considered valid tools. Compasses are forbidden
+    CIRCLES_ONLY: Only compasses are considered valid tools. Straightedges are forbidden
+    """
+    DEFAULT = 0
+    LINES_ONLY = 1
+    CIRCLES_ONLY = 2
 
 
 class Construction:
@@ -52,7 +65,7 @@ class Construction:
     Finally, also for convenience, we maintain a set of "actions" representing the valid actions at any given time, so
     we do not have to compute them each step.
     """
-    def __init__(self, name=''):
+    def __init__(self, name='', construction_mode=ConstructionMode.DEFAULT):
         # Fundamental sets--points, lines and circles
         self.points: {Point} = set()
         self.lines: {Line} = set()
@@ -72,6 +85,9 @@ class Construction:
 
         # Set containing all the possible actions at any given moment in time.
         self.actions = set()
+
+        # Enum specifying what type of mode this construction should be.
+        self.construction_mode = construction_mode
 
     # @lru_cache()
     def find_intersections(self, object1, object2, interesting=True) -> {Point}:
@@ -623,17 +639,18 @@ class Construction:
         used_points: {Point} = set()
         for point1, point2 in combinations:
             if point1 != point2 and point1 not in used_points:
-
-                line = Line(point1, point2)
-                circle1 = Circle(center=point1, point2=point2)
-                circle2 = Circle(point2, point2=point1)
-                if line not in self.lines | legal_lines:
-                    legal_lines.add(line)
-                if circle1 not in self.circles | legal_circles:
-                    legal_circles.add(circle1)
-                if circle2 not in self.circles | legal_circles:
-                    legal_circles.add(circle2)
-                # used_points.add(point1)
+                if self.construction_mode in (ConstructionMode.DEFAULT, ConstructionMode.LINES_ONLY):
+                    line = Line(point1, point2)
+                    if line not in self.lines | legal_lines:
+                        legal_lines.add(line)
+                if self.construction_mode in (ConstructionMode.DEFAULT, ConstructionMode.CIRCLES_ONLY):
+                    circle1 = Circle(center=point1, point2=point2)
+                    circle2 = Circle(point2, point2=point1)
+                    if circle1 not in self.circles | legal_circles:
+                        legal_circles.add(circle1)
+                    if circle2 not in self.circles | legal_circles:
+                        legal_circles.add(circle2)
+                used_points.add(point1)
         self.actions.update(legal_lines | legal_circles)
         return self.actions
 
