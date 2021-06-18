@@ -2,6 +2,7 @@
 
 from geometry import Point
 from geometry import Construction
+from geometry.core.Construction import ConstructionMode
 
 
 class EuclidI1(Construction):
@@ -43,13 +44,13 @@ class RandomConstruction(Construction):
         self.add_random_construction(length)
 
 
-class BaseConstruction(Construction):
+def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
     """A construction with two points a unit length apart.
-    It is easier to call this class instead of instantiating manually one every time.
+    It is easier to use this function instead of instantiating manually one every time.
     """
-    def __init__(self):
-        super().__init__()
-        a = Point(0, 0, 'A')
-        b = Point(1, 0, 'B')
-        self.points = {a, b}
-        self.actions = self.get_valid_actions({a, b}, True)
+    construction = Construction(name=name, construction_mode=construction_mode)
+    a = Point(0, 0, 'A')
+    b = Point(1, 0, 'B')
+    construction.points = {a, b}
+    construction.actions = construction.get_valid_actions({a, b}, True)
+    return construction
