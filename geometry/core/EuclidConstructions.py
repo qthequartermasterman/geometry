@@ -1,8 +1,8 @@
-"""This file contains various constructions found in Euclid's Elements"""
-
 from geometry import Point, Construction, Line, Circle
 from geometry.core.Construction import ConstructionMode
 from geometry.cas import Infinity
+
+"""This file contains various constructions found in Euclid's Elements"""
 
 
 def check_if_points_on_same_side(line: Line, point1: Point, point2: Point):
@@ -39,7 +39,7 @@ def pick_point_not_on_line(line: Line):
     return line.point1 + line.get_perpendicular_at_point(line.point1).get_direction_vector()
 
 
-def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
+def base_construction(name='', construction_mode=ConstructionMode.DEFAULT):
     """A construction with two points a unit length apart.
     It is easier to use this function instead of instantiating manually one every time.
     """
@@ -54,8 +54,8 @@ def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
 def EquilateralUnitTriangle():
     """Erect an equilateral triangle on a given segment."""
     # EuclidI1 requires both lines and circles, so set the ConstructionMode to default.
-    construction = BaseConstruction(name='EuclidI1',
-                                    construction_mode=ConstructionMode.DEFAULT)
+    construction = base_construction(name='EuclidI1',
+                                     construction_mode=ConstructionMode.DEFAULT)
     a, b = construction.points
     # The construction is to erect a triangle on the given segment, so this doesn't count as a step.
     construction.ab = construction.add_line(a, b, counts_as_step=False)
@@ -129,6 +129,6 @@ def EuclidI3(construction: Construction, short_line: Line, long_line: Line, inte
 
 def RandomConstruction(length, construction_mode=ConstructionMode.DEFAULT):
     """Generates a random construction of given length. Not included in Euclid, but sometimes useful, nonetheless."""
-    construction = BaseConstruction(name=f'RandomConstruction_{length}', construction_mode=construction_mode)
+    construction = base_construction(name=f'RandomConstruction_{length}', construction_mode=construction_mode)
     construction.add_random_construction(length)
     return construction

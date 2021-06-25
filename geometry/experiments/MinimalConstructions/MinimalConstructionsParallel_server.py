@@ -1,5 +1,5 @@
 from .MinimalConstructionsCore import (construction_job_queue, point_minimal_construction_length, maximum_depth,
-                                       generated_constructions, Queue, BaseConstruction, results_dir,
+                                       generated_constructions, Queue, base_construction, results_dir,
                                        count_unique_constructions, print_report)
 from multiprocessing.managers import SyncManager
 import multiprocessing.managers as managers
@@ -53,7 +53,7 @@ def run_bfs_in_parallel():
     maximum_search_depth = manager.get_maximum_depth()
 
     # Define Construction
-    base_construction = BaseConstruction()
+    base_construction = base_construction()
     check_construction_job_queue.put((base_construction, tuple(base_construction.points)[0]))
 
     # run_client()
