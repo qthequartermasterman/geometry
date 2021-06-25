@@ -6,7 +6,6 @@ from geometry.cas import (equals as symengine_equality,
                           sympify)
 
 import matplotlib.pyplot as plt
-from methodtools import lru_cache
 
 
 class Circle(Object):
@@ -46,7 +45,7 @@ class Circle(Object):
         :param item:
         :return: bool. True if point is on the circle
         """
-        return isinstance(item, Point) and symengine_equality(abs(item-self.center), self.radius)
+        return isinstance(item, Point) and symengine_equality(abs(item - self.center), self.radius)
 
     def plt_draw(self) -> plt.Circle:
         """
@@ -62,7 +61,7 @@ class Circle(Object):
         """
         state = self.__dict__.copy()
         # Change the unpickleable entries to sympy objects (which are pickleable)
-        #state['radius'] = sympy.core.sympify(state['radius'])
+        # state['radius'] = sympy.core.sympify(state['radius'])
         state['radius'] = repr(state['radius'])
         return state
 
@@ -79,7 +78,8 @@ class Circle(Object):
         if self._simplified:
             return self
         else:
-            c = Circle(center=self.center.simplify(), radius=self.radius.simplify(), name=self.name, pre_simplified=True)
+            c = Circle(center=self.center.simplify(), radius=self.radius.simplify(), name=self.name,
+                       pre_simplified=True)
             c.dependencies = self.dependencies
             return c
 
@@ -96,8 +96,8 @@ class FastCircle(Circle):
         """
         state = self.__dict__.copy()
         # Change the unpickleable entries to sympy objects (which are pickleable)
-        #state['radius'] = sympy.core.sympify(state['radius'])
-        #state['radius'] = repr(state['radius'])
+        # state['radius'] = sympy.core.sympify(state['radius'])
+        # state['radius'] = repr(state['radius'])
         return state
 
     def __setstate__(self, state):
@@ -107,4 +107,4 @@ class FastCircle(Circle):
         :return:
         """
         self.__dict__.update(state)
-        #self.radius = sympify(self.radius)
+        # self.radius = sympify(self.radius)
