@@ -9,11 +9,16 @@ from numpy import inf as oo
 from numpy import inf as zoo
 
 from .test_Line import TestLine
+from .test_constants import coordinates
 
 
 class TestFastLine(TestLine):
     def setUp(self) -> None:
-        super().setUp()
+        #super().setUp()
+        self.point1 = Point(0, 0)
+        self.point2 = Point(1, 0)
+        self.line1 = Line(self.point1, self.point2, name='AB')
+        self.coordinates = coordinates
 
     def assertEqual(self, *args, **kwargs):
         try:

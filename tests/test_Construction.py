@@ -1,4 +1,4 @@
-from test_constants import GeometryTestCase
+from .test_constants import GeometryTestCase
 
 from geometry.core.Construction import Construction
 from geometry.core.Point import Point

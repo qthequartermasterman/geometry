@@ -287,7 +287,8 @@ class FastLine(Line):
             # 3. Check if satisfies equation
             return (item in (self.point1, self.point2)) \
                    or (self.slope == Infinity and item.x == self.point1.x) \
-                   or (self.slope != Infinity and np.allclose(item.x * self.slope + self.intercept, item.y))
+                   or (self.slope != Infinity and np.isclose(np.array(item.x * self.slope + self.intercept, dtype=float),
+                                                             np.array(item.y, dtype=float)))
         else:
             return False
 
