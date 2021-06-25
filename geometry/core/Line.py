@@ -12,6 +12,7 @@ from geometry.cas import (Expr,
 
 from methodtools import lru_cache
 import pickle
+import numpy as np
 
 
 class Line(Object):
