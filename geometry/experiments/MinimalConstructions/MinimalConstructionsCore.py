@@ -1,7 +1,7 @@
 import geometry.core
 from geometry.core.Circle import Circle
 from geometry import Construction
-from geometry.core.EuclidConstructions import base_construction
+from geometry.core.EuclidConstructions import BaseConstruction
 from geometry import Point
 from geometry.core.Line import Line
 from geometry import Object
@@ -239,7 +239,7 @@ def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Co
     :return: None
     """
 
-    base_construction = base_construction(construction_mode=construction_mode)
+    base_construction = BaseConstruction(construction_mode=construction_mode)
     previously_generated_constructions_dict[base_construction] = 0  # Put the base construction in our visited_dict
     queue.put((base_construction, tuple(base_construction.points)[0]))
     generate_constructions_breadth_first_search(queue, previously_generated_constructions_dict,
