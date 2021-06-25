@@ -11,11 +11,8 @@ from .Object import Object
 from geometry.core import Circle, Line, Point
 from geometry.cas import alphabet
 from geometry.cas import Expr, sqrt, sympify, Infinity
-from geometry.cas import simplify as optimized_simplify
 from enum import Enum
 
-
-# from methodtools import lru_cache
 
 class ConstructionMode(Enum):
     """
@@ -65,6 +62,7 @@ class Construction:
     Finally, also for convenience, we maintain a set of "actions" representing the valid actions at any given time, so
     we do not have to compute them each step.
     """
+
     def __init__(self, name='', construction_mode=ConstructionMode.DEFAULT):
         # Fundamental sets--points, lines and circles
         self.points: {Point} = set()
@@ -171,19 +169,22 @@ class Construction:
             # When dealing with vertical lines, we need to be a bit more clever.
             # Use the equation of a circle in the plane, and solve for y, using the x-coordinate of the line as x
             x = line.point1.x
-            inside_sqrt = r**2 - (x - x0)**2
-            return {Point(x, y0+sqrt(inside_sqrt)), Point(x, y0-sqrt(inside_sqrt))}
-
-
+            inside_sqrt = r ** 2 - (x - x0) ** 2
+            return {Point(x, y0 + sqrt(inside_sqrt)), Point(x, y0 - sqrt(inside_sqrt))}
 
         diff = b - y0  # This subtraction shows up frequently. This is just so we do not need to repeat it.
 
-        # Coefficients of the substitued equation in terms of x. When expanded, it forms a quadratic equation on x.
+        # Coefficients of the substituted equation in terms of x. When expanded, it forms a quadratic equation on x.
         A = 1 + m ** 2
-        B = -x0 + m * diff  # Technically, the coefficient is twice this quantity, but we will be factoring out a 2 of everything else later on.
-        C = x0 ** 2 + diff ** 2 - r ** 2  # Technically, the coefficient is twice this quantity, but we will be factoring out a 2 of everything else later on.
+        # Technically, the B coefficient is twice this quantity, but we will be factoring out a 2 of everything else
+        # later on.
+        B = -x0 + m * diff
+        # Technically, the C coefficient is twice this quantity, but we will be factoring out a 2 of everything else
+        # later on.
+        C = x0 ** 2 + diff ** 2 - r ** 2
 
-        # Again, the discriminant should be $b^2-4ac$, but we can simplify the quadratic equation in this case by factoring out the aforementioned 2
+        # Again, the discriminant should be $b^2-4ac$, but we can simplify the quadratic equation in this case by
+        # factoring out the aforementioned 2
         discriminant = B ** 2 - A * C
         if discriminant < 0:  # There are no real solutions, so the line and circle do not intersect on the plane
             return {}
@@ -261,9 +262,9 @@ class Construction:
                 y2 = center_of_intersection_area.y
                 diff_y = center2.y - center1.y
                 diff_x = center2.x - center1.x
-                height_times_distance_recip = height*distance_recip
-                y_displacement = diff_y* height_times_distance_recip
-                x_displacement = diff_x* height_times_distance_recip
+                height_times_distance_recip = height * distance_recip
+                y_displacement = diff_y * height_times_distance_recip
+                x_displacement = diff_x * height_times_distance_recip
 
                 x3 = x2 + y_displacement
                 y3 = y2 - x_displacement
