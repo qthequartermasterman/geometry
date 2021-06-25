@@ -12,4 +12,3 @@ class Object:
 
     def __lt__(self, other):
         return hash(self) < hash(other)
-

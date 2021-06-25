@@ -8,9 +8,7 @@ from geometry.cas import (sqrt,
                           equals,
                           simplify,
                           Expression,
-                          is_nan,
-                          full_simplify)
-
+                          is_nan)
 
 
 class Point(Object):
@@ -32,14 +30,14 @@ class Point(Object):
             return False
 
     def __sub__(self, other):
-        return Point(self.x-other.x, self.y-other.y)
+        return Point(self.x - other.x, self.y - other.y)
 
     def __add__(self, other):
         return Point(self.x + other.x, self.y + other.y)
 
     def __mul__(self, other):
         if isinstance(other, Point):  # Take the dot product
-            return self.x*other.x + self.y*other.y
+            return self.x * other.x + self.y * other.y
         else:  # If the other object is not a point, then take a scalar product
             return Point(other * self.x, other * self.y)
 
@@ -62,7 +60,7 @@ class Point(Object):
         return np.array([self.x, self.y], dtype=np.float32)
 
     def normalize(self):
-        return (1/abs(self))*self
+        return (1 / abs(self)) * self
 
     def __getstate__(self):
         """
@@ -124,7 +122,7 @@ class FastPoint(Object):
             return False
 
     def __sub__(self, other):
-        diff_array = self.array-other.array
+        diff_array = self.array - other.array
         return FastPoint(array=diff_array)
 
     def __add__(self, other):
@@ -160,7 +158,7 @@ class FastPoint(Object):
         return self.array
 
     def normalize(self):
-        array = self.array/abs(self)
+        array = self.array / abs(self)
         return FastPoint(array=array)
 
     def simplify(self):
