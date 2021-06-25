@@ -16,6 +16,9 @@ setup(
         'matplotlib',
         'scikit-image'
     ],
+    extras_require = {
+        'gym_environments':  ["gym"]
+    },
 
     classifiers=[
         ''
