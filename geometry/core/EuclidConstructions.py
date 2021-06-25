@@ -115,6 +115,18 @@ def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesti
     return Line(a, final_point)
 
 
+def EuclidI3(construction: Construction, short_line: Line, long_line: Line, interesting=True) -> Line:
+    if short_line not in construction.lines or long_line not in construction.lines:
+        raise ValueError(f'Cannot cut off line segment. {short_line=} or {long_line=} not in {construction=}')
+    a, b = long_line.point1, long_line.point2
+    line_ad = EuclidI2(construction, short_line, a, interesting=interesting)
+    d = line_ad.point2
+    circle_def = construction.add_circle(center=a, point2=d, interesting=interesting)
+    intersections = construction.find_intersections_line_circle(long_line, circle_def)
+    e = pick_point_on_side(Line(a, d), b, intersections)
+    return Line(a, e)
+
+
 def RandomConstruction(length, construction_mode=ConstructionMode.DEFAULT):
     """Generates a random construction of given length. Not included in Euclid, but sometimes useful, nonetheless."""
     construction = BaseConstruction(name=f'RandomConstruction_{length}', construction_mode=construction_mode)
