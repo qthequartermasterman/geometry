@@ -16,7 +16,8 @@ import numpy as np
 
 
 class Line(Object):
-    def __init__(self, point1: Point, point2: Point, name='', slope: Expression = None, intercept: Expression = None, pre_simplified=False):
+    def __init__(self, point1: Point, point2: Point, name='', slope: Expression = None, intercept: Expression = None,
+                 pre_simplified=False):
         """
         Lines represent the set of points that can be drawn by tracing a straightedge between two points.
         :param point1: Point representing the first defining point.
@@ -34,13 +35,13 @@ class Line(Object):
             self.slope = slope
             self.intercept = intercept
             self.point1 = Point(0, intercept)
-            self.point2 = Point(1, slope+intercept)
+            self.point2 = Point(1, slope + intercept)
         # self.name = name if name else u'\u0305'.join(f'{point1.name}{point2.name} ')
         self.name = name if name else f'{point1.name}{point2.name}'
         self._simplified = pre_simplified
 
-    @lru_cache(maxsize=None)
     @staticmethod
+    @lru_cache(maxsize=None)
     def calculate_slope(point1: Point, point2: Point) -> Expr:
         """
         Calculate the slope of a given line, as if embedded onto the cartesian plane. This is the $m$ in $y=mx+b$.
@@ -59,9 +60,9 @@ class Line(Object):
                 return Infinity
         return Infinity
 
-    @lru_cache(maxsize=None)
     # def calculate_intercept(self, point1: Point, point2: Point, slope: sympy.core.expr.Expr = None):
     @staticmethod
+    @lru_cache(maxsize=None)
     def calculate_intercept(point1: Point, point2: Point, slope: Expression = None):
         """
         Calculate the y-intercept of a line. This is the $b$ in $y=mx+b$.
@@ -190,7 +191,7 @@ class Line(Object):
             l = Line(self.point1.simplify(), self.point2.simplify(), name=self.name, pre_simplified=True)
             l.dependencies = self.dependencies
             return l
-      
+
     def calculate_value_at_x(self, x) -> Expression:
         if self.slope is not Infinity:
             return self.slope * x + self.intercept
@@ -202,14 +203,13 @@ class Line(Object):
 
     def get_perpendicular_at_point(self, point: Point):
         if self.slope == 0:
-            return Line(point, point+Point(0, 1))
-        new_slope = -1/self.slope
-        new_intercept = (self.slope - new_slope)*point.x + self.intercept
+            return Line(point, point + Point(0, 1))
+        new_slope = -1 / self.slope
+        new_intercept = (self.slope - new_slope) * point.x + self.intercept
         return Line(point, point, slope=new_slope, intercept=new_intercept)
 
     def get_direction_vector(self):
-        return (self.point2-self.point1).normalize()
-
+        return (self.point2 - self.point1).normalize()
 
 
 class FastLine(Line):
@@ -287,8 +287,9 @@ class FastLine(Line):
             # 3. Check if satisfies equation
             return (item in (self.point1, self.point2)) \
                    or (self.slope == Infinity and item.x == self.point1.x) \
-                   or (self.slope != Infinity and np.isclose(np.array(item.x * self.slope + self.intercept, dtype=float),
-                                                             np.array(item.y, dtype=float)))
+                   or (self.slope != Infinity and np.isclose(
+                np.array(item.x * self.slope + self.intercept, dtype=float),
+                np.array(item.y, dtype=float)))
         else:
             return False
 
@@ -326,9 +327,8 @@ class FastLine(Line):
         """
 
         if self.slope != Infinity:
-            #return hash((self.slope.data.tobytes(), self.intercept.data.tobytes()))
+            # return hash((self.slope.data.tobytes(), self.intercept.data.tobytes()))
             return hash((self.slope, self.intercept))
         else:
-            #return hash((self.slope.data.tobytes(), self.intercept.data.tobytes(), self.point1.x))
+            # return hash((self.slope.data.tobytes(), self.intercept.data.tobytes(), self.point1.x))
             return hash((self.slope, self.intercept, self.point1.x))
-
