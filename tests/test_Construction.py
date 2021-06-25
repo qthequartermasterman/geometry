@@ -2,7 +2,6 @@ from .test_constants import GeometryTestCase
 
 from geometry.core.Construction import Construction
 from geometry.core.Point import Point
-from geometry.core.Line import Line
 from copy import deepcopy
 
 
@@ -75,17 +74,17 @@ class TestConstruction(GeometryTestCase):
         construction = deepcopy(self.construction1)
         line1 = construction.add_line(self.pointA, self.pointB)
 
-        pointC = Point(0, 1)
-        pointD = Point(1, 1)
-        construction.add_point(pointC)
-        construction.add_point(pointD)
-        line2 = construction.add_line(pointC, pointD)
+        point_c = Point(0, 1)
+        point_d = Point(1, 1)
+        construction.add_point(point_c)
+        construction.add_point(point_d)
+        line2 = construction.add_line(point_c, point_d)
 
-        pointE = Point(0, 10)
-        pointF = Point(1, 10)
-        construction.add_point(pointE)
-        construction.add_point(pointF)
-        line3 = construction.add_line(pointE, pointF)
+        point_e = Point(0, 10)
+        point_f = Point(1, 10)
+        construction.add_point(point_e)
+        construction.add_point(point_f)
+        line3 = construction.add_line(point_e, point_f)
 
         self.assertEqual(construction.update_intersections_with_object(line1), set())
         self.assertEqual(construction.update_intersections_with_object(line2), set())
@@ -96,27 +95,27 @@ class TestConstruction(GeometryTestCase):
         construction = deepcopy(self.construction1)
         line1 = construction.add_line(self.pointA, self.pointB)
 
-        pointC = Point(2, 2)
-        pointD = Point(1, 1)
-        construction.add_point(pointC)
-        construction.add_point(pointD)
-        line2 = construction.add_line(pointC, pointD)
+        point_c = Point(2, 2)
+        point_d = Point(1, 1)
+        construction.add_point(point_c)
+        construction.add_point(point_d)
+        line2 = construction.add_line(point_c, point_d)
         self.assertEqual(construction.update_intersections_with_object(line2), {Point(0, 0)})
 
-        pointE = Point(2, 2)
-        pointF = Point(3, 1)
-        construction.add_point(pointE)
-        construction.add_point(pointF)
-        line3 = construction.add_line(pointE, pointF)
+        point_e = Point(2, 2)
+        point_f = Point(3, 1)
+        construction.add_point(point_e)
+        construction.add_point(point_f)
+        line3 = construction.add_line(point_e, point_f)
         self.assertEqual(construction.update_intersections_with_object(line3), {Point(2, 2), Point(4, 0)})
 
     def test_intersection_circle_line_no_intersection(self):
         construction = self.construction1
         circle = construction.add_circle(self.pointA, self.pointB)
 
-        pointC = Point(10, 0)
-        pointD = Point(0, 10)
-        line = construction.add_line(pointC, pointD)
+        point_c = Point(10, 0)
+        point_d = Point(0, 10)
+        line = construction.add_line(point_c, point_d)
 
         self.assertEqual(construction.update_intersections_with_object(line), set())
         self.assertEqual(construction.update_intersections_with_object(circle), set())
@@ -125,9 +124,9 @@ class TestConstruction(GeometryTestCase):
         construction = self.construction1
         circle = construction.add_circle(self.pointA, self.pointB)
 
-        pointC = Point(0, 1)
-        pointD = Point(1, 1)
-        line = construction.add_line(pointC, pointD)
+        point_c = Point(0, 1)
+        point_d = Point(1, 1)
+        line = construction.add_line(point_c, point_d)
 
         self.assertEqual(construction.update_intersections_with_object(line), {Point(0, 1)})
         self.assertEqual(construction.update_intersections_with_object(circle), {Point(0, 1)})
@@ -137,9 +136,9 @@ class TestConstruction(GeometryTestCase):
         # Circle with radius=2, so we can avoid using sqrts in this test
         circle = construction.add_circle(self.pointA, Point(1, 1))
 
-        pointC = Point(0, 2)
-        pointD = Point(2, 0)
-        line = construction.add_line(pointC, pointD)
+        point_c = Point(0, 2)
+        point_d = Point(2, 0)
+        line = construction.add_line(point_c, point_d)
         print(construction.find_intersections(circle, line))
 
         self.assertEqual(construction.update_intersections_with_object(line), {Point(1, 1)})
@@ -150,9 +149,9 @@ class TestConstruction(GeometryTestCase):
         # Circle with radius=2, so we can avoid using sqrts in this test
         circle = construction.add_circle(self.pointA, self.pointB)
 
-        pointC = Point(0, 1)
-        pointD = Point(1, 0)
-        line = construction.add_line(pointC, pointD)
+        point_c = Point(0, 1)
+        point_d = Point(1, 0)
+        line = construction.add_line(point_c, point_d)
 
         self.assertEqual(construction.update_intersections_with_object(line), {Point(1, 0), Point(0,1)})
         self.assertEqual(construction.update_intersections_with_object(circle), {Point(1, 0), Point(0,1)})

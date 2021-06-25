@@ -4,9 +4,9 @@ from geometry.core.Object import Object
 class TestObject(TestCase):
     def test_set_dependencies_general(self):
         dependencies = {1, 2, 3}
-        object = Object()
-        object.set_dependencies(dependencies)
-        self.assertEqual(object.dependencies, dependencies)
+        test_object = Object()
+        test_object.set_dependencies(dependencies)
+        self.assertEqual(test_object.dependencies, dependencies)
 
     def test_set_dependencies_object(self):
         object1 = Object()

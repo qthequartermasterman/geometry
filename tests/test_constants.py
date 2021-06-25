@@ -11,8 +11,8 @@ class GeometryTestCase(TestCase):
         return self.assertNotEqual(hash(object1), hash(object2), *args, **kwargs)
 
     def assertPickle(self, obj):
-        bytes = pickle.dumps(obj)
-        reconstructed = pickle.loads(bytes)
+        object_bytes = pickle.dumps(obj)
+        reconstructed = pickle.loads(object_bytes)
         return self.assertEqual(obj, reconstructed)
 
 

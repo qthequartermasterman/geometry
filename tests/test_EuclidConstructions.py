@@ -18,4 +18,4 @@ class Test(TestCase):
         line2 = Line(a, c)
         self.assertTrue(check_if_points_on_same_side(line2, b, e))
 
-        self.assertRaises(ValueError, lambda:check_if_points_on_same_side(line1, a, c))
+        self.assertRaises(ValueError, lambda: check_if_points_on_same_side(line1, a, c))

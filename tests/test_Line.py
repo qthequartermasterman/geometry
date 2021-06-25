@@ -181,7 +181,7 @@ class TestLine(GeometryTestCase):
         point_combinations = combinations(points, 2)
         # Iterative over every pair of points
         for point1, point2 in point_combinations:
-            self.assertEqual(abs(Line(point1, point2)), abs(point2-point1))
+            self.assertEqual(abs(Line(point1, point2)), abs(point2 - point1))
             self.assertEqual(abs(Line(point2, point1)), abs(point1 - point2))
 
     def test_contains(self):
@@ -218,7 +218,8 @@ class TestLine(GeometryTestCase):
             # Slope should be equal to the slope formula for every pair above
             if pair[1].x != pair[0].x:
                 slope = (pair[1].y - pair[0].y) / (pair[1].x - pair[0].x)
-                if slope == zoo:  # The above formula, when calculated this way will give a complex infinity in symengine
+                # The above formula, when calculated this way will give a complex infinity in symengine
+                if slope == zoo:
                     slope = oo
             else:
                 slope = oo
@@ -242,11 +243,9 @@ class TestLine(GeometryTestCase):
                              f'{point1, point2} failed to get the correct intercept, when given slope')
 
     def test_plt_draw(self):
-        #self.fail()
+        # self.fail()
         pass
 
     def test_simplify(self):
         # self.fail()
         pass
-
-

@@ -3,8 +3,6 @@ from tests.test_constants import GeometryTestCase, coordinates
 from geometry.core.Circle import Circle
 from geometry.core.Point import Point
 
-from symengine import zoo, oo
-
 from itertools import combinations
 
 
@@ -32,7 +30,7 @@ class TestCircle(GeometryTestCase):
 
     def test_eq_with_radius_from_point2(self):
         for point1, point2 in self.point_combinations:
-            radius = abs(point2-point1)
+            radius = abs(point2 - point1)
             self.assertEqual(Circle(point1, point2=point2), Circle(point1, radius=radius))
             self.assertEqual(Circle(point2, point2=point1), Circle(point2, radius=radius))
 
@@ -46,11 +44,11 @@ class TestCircle(GeometryTestCase):
                          Circle(self.point1, point2=self.point2))
 
     def test_eq_different_second_point_on_same_circle(self):
-        center = Point(0,0)
-        radius1 = Point(1,0)
-        radius2 = Point(-1,0)
-        radius3 = Point(0,1)
-        radius4 = Point(0,-1)
+        center = Point(0, 0)
+        radius1 = Point(1, 0)
+        radius2 = Point(-1, 0)
+        radius3 = Point(0, 1)
+        radius4 = Point(0, -1)
         self.assertEqual(Circle(center, point2=radius1),
                          Circle(center, point2=radius2))
         self.assertEqual(Circle(center, point2=radius1),
@@ -67,13 +65,13 @@ class TestCircle(GeometryTestCase):
         radius3 = Point(0, 1)
         radius4 = Point(0, 4)
         self.assertNotEqual(Circle(center, point2=radius1),
-                         Circle(center, point2=radius2))
+                            Circle(center, point2=radius2))
         self.assertNotEqual(Circle(center, point2=radius1),
-                         Circle(center, point2=radius3))
+                            Circle(center, point2=radius3))
         self.assertNotEqual(Circle(center, point2=radius1),
-                         Circle(center, point2=radius4))
+                            Circle(center, point2=radius4))
         self.assertNotEqual(Circle(center, point2=radius1),
-                         Circle(center, radius=1))
+                            Circle(center, radius=1))
 
     def test_hash(self):
         center = Point(0, 0)
@@ -82,13 +80,13 @@ class TestCircle(GeometryTestCase):
         radius3 = Point(0, 1)
         radius4 = Point(0, -1)
         self.assertHashEqual(Circle(center, point2=radius1),
-                         Circle(center, point2=radius2))
+                             Circle(center, point2=radius2))
         self.assertHashEqual(Circle(center, point2=radius1),
-                         Circle(center, point2=radius3))
+                             Circle(center, point2=radius3))
         self.assertHashEqual(Circle(center, point2=radius1),
-                         Circle(center, point2=radius4))
+                             Circle(center, point2=radius4))
         self.assertHashEqual(Circle(center, point2=radius1),
-                         Circle(center, radius=1))
+                             Circle(center, radius=1))
 
     def test_neq_hash(self):
         center = Point(0, 0)
@@ -97,17 +95,17 @@ class TestCircle(GeometryTestCase):
         radius3 = Point(0, 1)
         radius4 = Point(0, 4)
         self.assertHashNotEqual(Circle(center, point2=radius1),
-                            Circle(center, point2=radius2))
+                                Circle(center, point2=radius2))
         self.assertHashNotEqual(Circle(center, point2=radius1),
-                            Circle(center, point2=radius3))
+                                Circle(center, point2=radius3))
         self.assertHashNotEqual(Circle(center, point2=radius1),
-                            Circle(center, point2=radius4))
+                                Circle(center, point2=radius4))
         self.assertHashNotEqual(Circle(center, point2=radius1),
-                            Circle(center, radius=1))
+                                Circle(center, radius=1))
 
     def test_contains(self):
-        circle = Circle(Point(3,0), radius=5)
-        self.assertIn(Point(8,0), circle)
+        circle = Circle(Point(3, 0), radius=5)
+        self.assertIn(Point(8, 0), circle)
         self.assertIn(Point(-2, 0), circle)
         self.assertIn(Point(3, 5), circle)
         self.assertIn(Point(3, -5), circle)
@@ -119,7 +117,7 @@ class TestCircle(GeometryTestCase):
         # Iterative over every pair of points
         for point1, point2 in point_combinations:
             self.assertPickle(Circle(point1, point2=point2))
-            radius = abs(point2-point1)
+            radius = abs(point2 - point1)
             self.assertPickle(Circle(point1, radius=radius))
 
     def test_plt_draw(self):

@@ -1,7 +1,7 @@
 from .test_constants import GeometryTestCase, coordinates
 from geometry.core import Point
 import numpy as np
-from symengine import sympify, nan, Expr, Number
+from symengine import sympify, nan
 
 
 class TestPoint(GeometryTestCase):
@@ -94,7 +94,7 @@ class TestPoint(GeometryTestCase):
             self.assertEqual(abs(Point(*point)), magnitude)
 
     def test_plt_draw(self):
-        #self.fail()
+        # self.fail()
         pass
 
     def test_numpy(self):
@@ -109,7 +109,7 @@ class TestPoint(GeometryTestCase):
         self.assertEqual(abs(Point(2, 3).normalize()), 1)
 
     def test_simplify(self):
-        #self.fail()
+        # self.fail()
         pass
 
     def test_pickle(self):
@@ -118,6 +118,3 @@ class TestPoint(GeometryTestCase):
         # Iterative over each point
         for point in points:
             self.assertPickle(point)
-
-
-

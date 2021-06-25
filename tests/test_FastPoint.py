@@ -4,7 +4,7 @@ from .test_constants import evaluate as sympify
 
 from .test_Point import TestPoint
 
-from symengine import sympify, nan, Expr, Number
+from symengine import Expr, Number
 
 
 class TestFastPoint(TestPoint):
