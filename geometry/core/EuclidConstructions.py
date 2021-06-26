@@ -1,14 +1,12 @@
-
 """This file contains various constructions found in Euclid's Elements"""
 from geometry import Point, Construction, Line
 from geometry.core.Construction import ConstructionMode
 from geometry.cas import Infinity
 
 
-
 def check_if_points_on_same_side(line: Line, point1: Point, point2: Point):
     if point1 in line or point2 in line:
-        raise ValueError(f'At least one point {point1=} {point2=} is on {line=}')
+        raise ValueError(f'At least one point {point1} {point2} is on {line}')
 
     if line.slope == Infinity:
         point1_diff = point1.x - line.point1.x
@@ -32,7 +30,7 @@ def pick_point_on_side(line: Line, side: Point, points: {Point}, same_side=True)
             if not check_if_points_on_same_side(line, side, intersect):
                 return intersect
     else:
-        raise ValueError(f'No points were on the same side of {line=} as point {side}')
+        raise ValueError(f'No points were on the same side of {line} as point {side}')
 
 
 def pick_point_not_on_line(line: Line):
@@ -81,7 +79,7 @@ def EuclidI1(construction: Construction, line: Line, side: Point, interesting=Tr
     if side in line:
         raise ValueError(f'Point {side} is on line {line}, so side is ambiguous when erecting triangle.')
     if line not in construction.lines:
-        raise ValueError(f'Cannot erect triangle. {line=} is not in {construction=}')
+        raise ValueError(f'Cannot erect triangle. {line} is not in {construction}')
 
     a, b = line.point1, line.point2
     # These are the steps of the constructions
@@ -98,12 +96,12 @@ def EuclidI1(construction: Construction, line: Line, side: Point, interesting=Tr
     if c:
         return c
     else:
-        raise ValueError(f'No intersections were on the same side of {line=} as point {side}')
+        raise ValueError(f'No intersections were on the same side of {line} as point {side}')
 
 
 def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesting=True) -> Line:
     if a not in construction.points:
-        raise ValueError(f'Cannot copy line segment. Point {a=} not in {construction=}.')
+        raise ValueError(f'Cannot copy line segment. Point {a} not in {construction}.')
     b, c = line_segment.point1, line_segment.point2
     ab = construction.add_line(a, b, interesting=interesting)
     d = EuclidI1(construction, ab, pick_point_not_on_line(ab))
@@ -118,7 +116,7 @@ def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesti
 
 def EuclidI3(construction: Construction, short_line: Line, long_line: Line, interesting=True) -> Line:
     if short_line not in construction.lines or long_line not in construction.lines:
-        raise ValueError(f'Cannot cut off line segment. {short_line=} or {long_line=} not in {construction=}')
+        raise ValueError(f'Cannot cut off line segment. {short_line} or {long_line} not in {construction}')
     a, b = long_line.point1, long_line.point2
     line_ad = EuclidI2(construction, short_line, a, interesting=interesting)
     d = line_ad.point2
