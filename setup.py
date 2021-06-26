@@ -14,7 +14,8 @@ setup(
         'numpy',
         'networkx',
         'matplotlib',
-        'scikit-image'
+        'scikit-image',
+        'symengine'
     ],
     extras_require = {
         'gym_environments':  ["gym"]
