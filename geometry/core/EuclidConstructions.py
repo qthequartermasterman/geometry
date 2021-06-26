@@ -1,8 +1,9 @@
+
+"""This file contains various constructions found in Euclid's Elements"""
 from geometry import Point, Construction, Line
 from geometry.core.Construction import ConstructionMode
 from geometry.cas import Infinity
 
-"""This file contains various constructions found in Euclid's Elements"""
 
 
 def check_if_points_on_same_side(line: Line, point1: Point, point2: Point):
