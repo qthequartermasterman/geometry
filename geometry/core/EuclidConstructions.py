@@ -1,4 +1,4 @@
-from geometry import Point, Construction, Line, Circle
+from geometry import Point, Construction, Line
 from geometry.core.Construction import ConstructionMode
 from geometry.cas import Infinity
 
