@@ -15,7 +15,8 @@ setup(
         'networkx',
         'matplotlib',
         'scikit-image',
-        'symengine'
+        'symengine',
+        'methodtools'
     ],
     extras_require = {
         'gym_environments':  ["gym"]
