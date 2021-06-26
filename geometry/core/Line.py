@@ -40,8 +40,9 @@ class Line(Object):
         self.name = name if name else f'{point1.name}{point2.name}'
         self._simplified = pre_simplified
 
-    @staticmethod
+
     @lru_cache(maxsize=None)
+    @staticmethod
     def calculate_slope(point1: Point, point2: Point) -> Expr:
         """
         Calculate the slope of a given line, as if embedded onto the cartesian plane. This is the $m$ in $y=mx+b$.
@@ -61,8 +62,9 @@ class Line(Object):
         return Infinity
 
     # def calculate_intercept(self, point1: Point, point2: Point, slope: sympy.core.expr.Expr = None):
-    @staticmethod
+
     @lru_cache(maxsize=None)
+    @staticmethod
     def calculate_intercept(point1: Point, point2: Point, slope: Expression = None):
         """
         Calculate the y-intercept of a line. This is the $b$ in $y=mx+b$.
@@ -234,7 +236,7 @@ class FastLine(Line):
         self.point1 = pickle.loads(self.point1)
         self.point2 = pickle.loads(self.point2)
 
-    @lru_cache()
+    @lru_cache(maxsize=None)
     @staticmethod
     def calculate_slope(point1: Point, point2: Point) -> float:
         """
@@ -254,7 +256,8 @@ class FastLine(Line):
                 return Infinity
         return Infinity
 
-    @lru_cache()
+
+    @lru_cache(maxsize=None)
     @staticmethod
     def calculate_intercept(point1: Point, point2: Point, slope: float = None):
         """
