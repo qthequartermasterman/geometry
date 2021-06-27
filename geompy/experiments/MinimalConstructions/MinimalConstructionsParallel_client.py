@@ -1,4 +1,4 @@
-from geometry import Point, Construction
+from geompy import Point, Construction
 from .MinimalConstructionsCore import BaseConstruction, Queue, generate_constructions_breadth_first_search
 from .MinimalConstructionsParallel_server import QueueManager
 

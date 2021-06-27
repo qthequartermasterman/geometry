@@ -1,8 +1,8 @@
 # For fast Line, we need to use numpy constants instead of sympy/symengine
-from geometry.core.Point import FastPoint as Point
-from geometry.core.Point import FastPoint
-from geometry.core.Line import FastLine as Line
-from geometry.core.Line import FastLine
+from geompy.core.Point import FastPoint as Point
+from geompy.core.Point import FastPoint
+from geompy.core.Line import FastLine as Line
+from geompy.core.Line import FastLine
 from .test_constants import evaluate as sympify
 from symengine import Expr, Number
 from numpy import inf as oo

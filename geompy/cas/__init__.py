@@ -1,4 +1,4 @@
-from geometry import USE_EXACT, USE_PURE_SYMPY
+from geompy import USE_EXACT, USE_PURE_SYMPY
 
 use_numpy = not USE_EXACT
 

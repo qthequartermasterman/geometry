@@ -1,6 +1,6 @@
 __all__ = ['Object', 'Point', 'Line', 'Circle', 'Construction', 'EuclidConstructions']
 
-from geometry import USE_EXACT
+from geompy import USE_EXACT
 
 if USE_EXACT:
 

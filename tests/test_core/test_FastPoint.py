@@ -1,5 +1,5 @@
-from geometry.core.Point import FastPoint as Point
-from geometry.core.Point import FastPoint
+from geompy.core.Point import FastPoint as Point
+from geompy.core.Point import FastPoint
 from .test_constants import evaluate as sympify
 
 from .test_Point import TestPoint

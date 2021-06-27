@@ -1,14 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from .Object import Object
-from geometry.cas import Expr
+from geompy.cas import Expr
 
-from geometry.cas import (sqrt,
-                          sympify,
-                          equals,
-                          simplify,
-                          Expression,
-                          is_nan)
+from geompy.cas import (sqrt,
+                        sympify,
+                        equals,
+                        simplify,
+                        Expression,
+                        is_nan)
 
 
 class Point(Object):

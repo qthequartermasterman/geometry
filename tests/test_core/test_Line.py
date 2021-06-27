@@ -1,7 +1,7 @@
 from .test_constants import GeometryTestCase, coordinates
 
-from geometry.core.Line import Line
-from geometry.core.Point import Point
+from geompy.core.Line import Line
+from geompy.core.Point import Point
 
 from symengine import zoo, oo
 

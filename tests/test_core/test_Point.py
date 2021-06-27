@@ -1,5 +1,5 @@
 from .test_constants import GeometryTestCase, coordinates
-from geometry.core import Point
+from geompy.core import Point
 import numpy as np
 from symengine import sympify, nan
 

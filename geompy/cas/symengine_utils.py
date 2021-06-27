@@ -1,6 +1,6 @@
-import geometry
+import geompy
 
-if geometry.USE_PURE_SYMPY:
+if geompy.USE_PURE_SYMPY:
     from symengine import Expr, Eq, sympify, nan
 else:
     from sympy import Expr, Eq, sympify, nan

@@ -8,9 +8,9 @@ import numpy as np
 from skimage import draw
 
 from .Object import Object
-from geometry.core import Circle, Line, Point
-from geometry.cas import alphabet
-from geometry.cas import Expr, sqrt, sympify, Infinity
+from geompy.core import Circle, Line, Point
+from geompy.cas import alphabet
+from geompy.cas import Expr, sqrt, sympify, Infinity
 from enum import Enum
 
 

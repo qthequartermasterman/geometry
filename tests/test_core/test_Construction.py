@@ -1,7 +1,7 @@
 from .test_constants import GeometryTestCase
 
-from geometry.core.Construction import Construction
-from geometry.core.Point import Point
+from geompy.core.Construction import Construction
+from geompy.core.Point import Point
 from copy import deepcopy
 
 

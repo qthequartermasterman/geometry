@@ -1,7 +1,7 @@
 from tests.test_core.test_constants import GeometryTestCase, coordinates
 
-from geometry.core.Circle import Circle
-from geometry.core.Point import Point
+from geompy.core.Circle import Circle
+from geompy.core.Point import Point
 
 from itertools import combinations
 

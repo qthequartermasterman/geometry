@@ -1,11 +1,11 @@
 from typing import Union
 
 from gym import Env, spaces
-from geometry.core.Point import Point
-from geometry.core.Line import Line
-from geometry.core.Circle import Circle
-from geometry.core.Construction import Construction
-from geometry.core.EuclidConstructions import RandomConstruction
+from geompy.core.Point import Point
+from geompy.core.Line import Line
+from geompy.core.Circle import Circle
+from geompy.core.Construction import Construction
+from geompy.core.EuclidConstructions import RandomConstruction
 import numpy as np
 
 

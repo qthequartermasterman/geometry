@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from geometry import Point, Line
-from geometry.core.EuclidConstructions import check_if_points_on_same_side
+from geompy import Point, Line
+from geompy.core.EuclidConstructions import check_if_points_on_same_side
 
 
 class Test(TestCase):

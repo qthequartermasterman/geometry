@@ -1,9 +1,9 @@
 from .Object import Object
 from .Point import Point
-from geometry.cas import (equals as symengine_equality,
-                          simplify as optimized_simplify,
-                          Expression,
-                          sympify)
+from geompy.cas import (equals as symengine_equality,
+                        simplify as optimized_simplify,
+                        Expression,
+                        sympify)
 
 import matplotlib.pyplot as plt
 

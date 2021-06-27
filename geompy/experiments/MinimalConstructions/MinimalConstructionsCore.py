@@ -1,11 +1,11 @@
-import geometry.core
-from geometry.core.Circle import Circle
-from geometry import Construction
-from geometry.core.EuclidConstructions import BaseConstruction
-from geometry import Point
-from geometry.core.Line import Line
-from geometry import Object
-from geometry.core.Construction import ConstructionMode
+import geompy.core
+from geompy.core.Circle import Circle
+from geompy import Construction
+from geompy.core.EuclidConstructions import BaseConstruction
+from geompy import Point
+from geompy.core.Line import Line
+from geompy import Object
+from geompy.core.Construction import ConstructionMode
 
 import copy
 import time

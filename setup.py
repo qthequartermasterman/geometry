@@ -1,14 +1,14 @@
 from setuptools import setup
 
 setup(
-    name='geometry',
+    name='geompy',
     version='0.1.0',
     description='Tools for Euclidean Geometry.',
     url='https://github.com/qthequartermasterman/geometry',
     author='Andrew P. Sansom',
     author_email='AndrewSansom@my.unt.edu',
     license='MIT',
-    packages=['geometry'],
+    packages=['geompy'],
     install_requires=[
         'sympy',
         'numpy',
@@ -18,7 +18,7 @@ setup(
         'symengine',
         'methodtools'
     ],
-    extras_require = {
+    extras_require={
         'gym_environments':  ["gym"]
     },
 

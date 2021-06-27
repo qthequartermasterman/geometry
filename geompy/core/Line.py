@@ -3,12 +3,12 @@ import matplotlib.pyplot as plt
 from .Object import Object
 from .Point import Point
 
-from geometry.cas import (Expr,
-                          sympify,
-                          Infinity,
-                          equals as symengine_equality,
-                          simplify as optimized_simplify,
-                          Expression)
+from geompy.cas import (Expr,
+                        sympify,
+                        Infinity,
+                        equals as symengine_equality,
+                        simplify as optimized_simplify,
+                        Expression)
 
 from methodtools import lru_cache
 import pickle

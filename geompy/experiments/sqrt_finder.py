@@ -1,5 +1,5 @@
-from geometry import Point
-from geometry.core.Construction import Construction
+from geompy import Point
+from geompy.core.Construction import Construction
 import copy
 from decimal import Decimal
 import math
