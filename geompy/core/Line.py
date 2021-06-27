@@ -206,6 +206,8 @@ class Line(Object):
     def get_perpendicular_at_point(self, point: Point):
         if self.slope == 0:
             return Line(point, point + Point(0, 1))
+        if self.slope == Infinity:
+            return Line(point, point + Point(1, 0))
         new_slope = -1 / self.slope
         new_intercept = (self.slope - new_slope) * point.x + self.intercept
         return Line(point, point, slope=new_slope, intercept=new_intercept)
