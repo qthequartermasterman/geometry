@@ -37,7 +37,7 @@ class TestCircle(GeometryTestCase):
 
     def test_repr(self):
         self.assertEqual(repr(self.circle_from_point), 'Circle AB with center Point : (0.0, 0.0) and radius 1.00000')
-        self.assertEqual(repr(self.circle_from_radius), 'Circle cr1 with center Point : (0.0, 0.0) and radius 1')
+        self.assertEqual(repr(self.circle_from_radius), 'Circle cr1 with center Point : (0.0, 0.0) and radius 1.0')
 
     def test_eq_with_radius_from_point2(self):
         for point1, point2 in self.point_combinations:
