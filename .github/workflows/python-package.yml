@@ -43,8 +43,9 @@ jobs:
       run: |
         pytest --cov=./ --cov-report=xml
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1.5.2
+      uses: codecov/codecov-action@v1
       with:
+        token: da96e64a-3acd-4fd0-b5db-c8fd29d11123
         files: ./coverage1.xml,./coverage2.xml
         directory: ./coverage/reports/
         flags: unittests
