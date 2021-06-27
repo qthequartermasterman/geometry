@@ -1,3 +1,5 @@
+import numpy as np
+
 from .Object import Object
 from .Point import Point
 from geompy.cas import (equals as symengine_equality,
@@ -87,7 +89,12 @@ class Circle(Object):
 class FastCircle(Circle):
     def __hash__(self):
         """Circles are equivalent if their centers are equal and their radii are equal"""
-        return hash((self.center, self.radius.data.tobytes()))
+        return hash((self.center, float(self.radius)))
+
+    def __eq__(self, other):
+        """Circles are equivalent if their centers are equal and their radii are equal"""
+        return isinstance(other, FastCircle) and self.center == other.center \
+               and np.allclose(np.array(self.radius, dtype=float), np.array(other.radius, dtype=float))
 
     def __getstate__(self):
         """
@@ -108,3 +115,6 @@ class FastCircle(Circle):
         """
         self.__dict__.update(state)
         # self.radius = sympify(self.radius)
+
+    def __contains__(self, item):
+        return np.allclose(np.array(abs(item - self.center), dtype=float), np.array(self.radius, dtype=float))
