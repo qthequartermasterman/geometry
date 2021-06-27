@@ -25,6 +25,8 @@ class Line(Object):
         :param name: optional string representing the name of the Line
         """
         super().__init__()
+        if point1 == point2:
+            raise ValueError(f'Line cannot be uniquely defined from one point: point1={point1} and point2={point2}')
         if slope is None and intercept is None:
             self.point1 = point1
             self.point2 = point2
@@ -39,7 +41,6 @@ class Line(Object):
         # self.name = name if name else u'\u0305'.join(f'{point1.name}{point2.name} ')
         self.name = name if name else f'{point1.name}{point2.name}'
         self._simplified = pre_simplified
-
 
     @lru_cache(maxsize=None)
     @staticmethod
@@ -257,7 +258,6 @@ class FastLine(Line):
                 # If the line is vertical, its slope is undefined or "infinite"
                 return Infinity
         return Infinity
-
 
     @lru_cache(maxsize=None)
     @staticmethod

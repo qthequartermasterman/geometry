@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 from geompy import Point, Line
-from geompy.core.EuclidConstructions import check_if_points_on_same_side, EquilateralUnitTriangle, BaseConstruction, \
-    EuclidI2
+from geompy.core.EuclidConstructions import (check_if_points_on_same_side, EquilateralUnitTriangle, BaseConstruction,
+                                             EuclidI2, EuclidI3, RandomConstruction)
 
 
 class Test(TestCase):
@@ -37,3 +37,17 @@ class Test(TestCase):
         c = construction.add_point(Point(1, 1))
         new_line = EuclidI2(construction, Line(a, b), c)
         self.assertEqual(abs(Line(a, b)), abs(new_line))
+
+    def test_EuclidI3(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        c = construction.add_point(Point(10, 10))
+        short_line = construction.add_line(a, b)
+        long_line = construction.add_line(a, c)
+        shortened_line = EuclidI3(construction, short_line=short_line, long_line=long_line)
+        self.assertEqual(abs(Line(a, b)), abs(shortened_line))
+
+    def test_RandomConstruction(self):
+        for i in range(5):
+            construction = RandomConstruction(length=i)
+            self.assertEqual(i, len(construction))

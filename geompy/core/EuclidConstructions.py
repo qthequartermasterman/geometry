@@ -102,8 +102,14 @@ def EuclidI1(construction: Construction, line: Line, side: Point, interesting=Tr
 def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesting=True) -> Line:
     if a not in construction.points:
         raise ValueError(f'Cannot copy line segment. Point {a} not in {construction}.')
+    # Choose b,c as the ends of the linesegments.
     b, c = line_segment.point1, line_segment.point2
+    # Occasionally, we can accidentally choose b = a.
+    # Without loss of generality, choose b != a.
+    if a == b:
+        b, c = c, b
     ab = construction.add_line(a, b, interesting=interesting)
+
     d = EuclidI1(construction, ab, pick_point_not_on_line(ab))
     circle_bc = construction.add_circle(b, c, interesting=interesting)
     intersections = construction.find_intersections_line_circle(Line(d, b), circle_bc)
