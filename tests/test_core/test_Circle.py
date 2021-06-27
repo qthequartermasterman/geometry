@@ -1,4 +1,4 @@
-from tests.test_constants import GeometryTestCase, coordinates
+from tests.test_core.test_constants import GeometryTestCase, coordinates
 
 from geometry.core.Circle import Circle
 from geometry.core.Point import Point
