@@ -361,11 +361,9 @@ class Construction:
         # Return our result
         return intersections
 
-    def check_lengths(self, length: Expr) -> str:
+    def check_lengths(self, length: Expr) -> bool:
         """
         Check every length in a construction and compare against the given length
-
-        TODO: Make this have a more sensible return value.
 
         :param length: the desired length to find in a construction.
         :return: string containing the two points and length
@@ -374,8 +372,8 @@ class Construction:
             for point2 in self.points - {point1}:
                 if abs(point2 - point1) == length:
                     print(f'Length {length} found between points: {point1} and {point2}')
-                    return f'Length {length} found between points: {point1} and {point2}'
-        return ''
+                    return True
+        return False
 
     def get_present_lengths(self) -> {Expr: (Point, Point)}:
         """
@@ -400,15 +398,6 @@ class Construction:
         """
         circle = Circle(center=center, point2=point2)
         self.add_step_premade(circle, counts_as_step=counts_as_step, interesting=interesting)
-        '''self.circles.add(circle)
-        if counts_as_step:
-            self.steps.append(circle)
-            self.steps_set.add(circle)
-        if interesting:
-            self.interesting_circles.add(circle)
-        new_points = self.update_intersections_with_object(circle)
-        self.actions.discard(circle)
-        self.actions = self.get_valid_actions(new_points)'''
         return circle
 
     def add_line(self, point1: Point, point2: Point, counts_as_step=True, interesting=False) -> Line:
@@ -422,15 +411,6 @@ class Construction:
         """
         line = Line(point1=point1, point2=point2)
         self.add_step_premade(line, counts_as_step=counts_as_step, interesting=interesting)
-        '''self.lines.add(line)
-        if counts_as_step:
-            self.steps.append(line)
-            self.steps_set.add(line)
-        if interesting:
-            self.interesting_lines.add(line)
-        new_points = self.update_intersections_with_object(line)
-        self.actions.discard(line)
-        self.actions = self.get_valid_actions(new_points)'''
         return line
 
     def add_step_premade(self, step: Object, counts_as_step=True, interesting=False) -> Union[Circle, Line]:
