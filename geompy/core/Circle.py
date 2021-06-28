@@ -9,8 +9,6 @@ from geompy.cas import (equals as symengine_equality,
 
 from symengine import Expr, Number
 
-import matplotlib.pyplot as plt
-
 
 class Circle(Object):
     def __init__(self, center: Point, radius: Expression = None, point2: Point = None, name='', pre_simplified=False):
@@ -50,13 +48,6 @@ class Circle(Object):
         :return: bool. True if point is on the circle
         """
         return isinstance(item, Point) and symengine_equality(abs(item - self.center), self.radius)
-
-    def plt_draw(self) -> plt.Circle:
-        """
-        :return: plt.Circle representing a matplotlib pyplot circle representing our circle.
-        """
-        return plt.Circle((self.center.x.evalf(), self.center.y.evalf()),
-                          radius=self.radius.evalf(), fill=False)
 
     def __getstate__(self):
         """

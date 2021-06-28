@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 from .Object import Object
 from .Point import Point
 
@@ -151,14 +149,6 @@ class Line(Object):
                    or symengine_equality(item.x * self.slope + self.intercept, item.y)
         else:
             return False
-
-    def plt_draw(self) -> plt.Line2D:
-        """
-
-        :return: plt.Line2D representing a matplotlib pyplot line representing our Line.
-        """
-        return plt.Line2D((self.point1.x.evalf(), self.point2.x.evalf()),
-                          (self.point1.y.evalf(), self.point2.y.evalf()))
 
     def __getstate__(self):
         """

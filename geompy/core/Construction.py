@@ -285,58 +285,6 @@ class Construction:
                 return internal_point
         return None
 
-    def make_matplotlib_diagram(self) -> plt:
-        """
-        Create a matplotlib diagram with the construction
-        :return: the pyplot drawing.
-        """
-        plt.axes()
-        ax = plt.gca()
-        for circle in self.circles:
-            ax.add_artist(circle.plt_draw())
-        for line in self.lines:
-            plt_line = line.plt_draw()
-            # plt_line.set_transform(ax.transAxes)
-            ax.add_line(plt_line)
-        x = []
-        y = []
-        for point in self.points:
-            x.append(point.x)
-            y.append(point.y)
-
-            ax.add_artist(point.plt_draw())
-            plt.annotate(point.name, xy=(point.x, point.y))
-        plt.plot(x, y, 'o', color='black')
-        plt.axis('equal')
-        # plt.axis('image')
-        return plt
-
-    def draw_construction(self, filename: str = None) -> None:
-        """
-        Make a matplotlib diagram and display it to the screen and optionally to file.
-        If filename is not None, then it will also save the diagram to file.
-        :param filename: the file name to save the diagram to, or None if no file is desired.
-        :return: None
-        """
-        plot = self.make_matplotlib_diagram()
-        plot.show()
-        if filename:
-            self.save_construction(filename)
-        plot.close()
-
-    def save_construction(self, filename_stem: str, notes: str = '') -> None:
-        """
-        Save a construction to disc. This includes a diagram to filename_stem.png and the steps to filename_step.txt.
-        :param filename_stem: file path to save to (excluding file type)
-        :param notes: Any additional notes to include at the end of the text file.
-        :return:
-        """
-        plot = self.make_matplotlib_diagram()
-        plot.savefig(filename_stem + '.png')
-        with open(f'{filename_stem}.txt', 'a+') as f:
-            f.write(str(self) + f'\n{notes}\n\n')
-        plot.close()
-
     def update_intersections_with_object(self, obj: Object) -> {Point}:
         """
         Calculate the set of intersection points with the given object and all other objects in the construction.

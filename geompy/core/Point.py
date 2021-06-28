@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 from .Object import Object
 from geompy.cas import Expr
@@ -52,9 +51,6 @@ class Point(Object):
 
     def __hash__(self):
         return hash((self.x, self.y))
-
-    def plt_draw(self) -> plt.Circle:
-        return plt.Circle((self.x.evalf(), self.y.evalf()), radius=0.02)
 
     def numpy(self) -> np.array:
         return np.array([self.x, self.y], dtype=np.float32)
@@ -150,9 +146,6 @@ class FastPoint(Object):
         # We cannot hash an ndarray direectly, so instead hash the underlying data as bytes
         array = np.array(self.array, dtype=np.float16)
         return hash(array.data.tobytes())
-
-    def plt_draw(self) -> plt.Circle:
-        return plt.Circle((self.array[0], self.array[1]), radius=0.02)
 
     def numpy(self) -> np.array:
         return self.array
