@@ -104,7 +104,7 @@ class FastCircle(Object):
             if isinstance(radius, Expr) or isinstance(radius, Number):
                 radius = optimized_simplify(radius)
                 radius = radius.evalf()
-            self.radius = np.float(radius)
+            self.radius = np.float64(radius)
             self.name = name if name else f'c{center.name}r{radius}'
 
         if self.center == self.point2 or radius == 0:
