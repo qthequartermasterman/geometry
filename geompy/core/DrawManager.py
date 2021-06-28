@@ -97,7 +97,8 @@ class DrawManagerMatPlotLib(DrawManager):
         :return: None
         """
         plot = self.draw_construction(construction)
-        plot.show()
+        #plot.show()
+        plot.draw()
         if filename:
             self.save_construction(filename_stem=filename, construction_drawing=construction)
         plot.close()
