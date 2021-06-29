@@ -13,24 +13,28 @@ from queue import Queue
 from typing import List
 
 # Declare some constants
-point_minimal_construction_length: {Point: int} = {}  # Contain the minimal construction length of each new point
-maximum_depth = 3  # How many steps deep can our search tree go?
-construction_job_queue = Queue()  # Job queue. Holds the constructions to analyze next
+#point_minimal_construction_length: {Point: int} = {}  # Contain the minimal construction length of each new point
+#maximum_depth = 3  # How many steps deep can our search tree go?
+#construction_job_queue = Queue()  # Job queue. Holds the constructions to analyze next
 
 # Keys are the generated constructions (which are added to queue),
 # values are dummy, since multiprocessing managers only work with dicts
-generated_constructions: {Construction: int} = {}
+#generated_constructions: {Construction: int} = {}
 
 # Directory to store all results
 results_dir = '../../../results/'
 
 
-def count_unique_constructions(constructions_set):
+def count_unique_constructions(constructions_set, simplify=True):
     """
     Counts the number of unique constructions of every length in the given constructions set.
+    :param simplify:
     :param constructions_set: set containing all of the visited constructions
     :return:
     """
+    if simplify:
+        constructions_set = simplify_all_constructions_in_set(constructions_set)
+
     length_num_unique_dict = {}
 
     for construction in constructions_set:
@@ -41,6 +45,10 @@ def count_unique_constructions(constructions_set):
             length_num_unique_dict[length] = 1
 
     return length_num_unique_dict
+
+
+def simplify_all_constructions_in_set(constructions_set: {Construction}):
+    return {construction.simplify() for construction in constructions_set}
 
 
 def check_for_minimal_points(construction: Construction, most_recent_object: Object,
@@ -124,7 +132,7 @@ def construct_helper_dfs(construction: Construction, point_minimal_construction_
                                      current_depth + 1, interesting)
 
 
-def construct_bfs(construction: Construction, max_depth: int, interesting=True):
+'''def construct_bfs(construction: Construction, max_depth: int, interesting=True):
     visited = set()
     queue = []
 
@@ -151,14 +159,14 @@ def construct_bfs(construction: Construction, max_depth: int, interesting=True):
                     if new_construction not in visited:
                         visited.add(new_construction)
                         if new_object not in prebuilt_steps:
-                            queue.append((new_construction, new_object))
+                            queue.append((new_construction, new_object))'''
 
 
 def print_report(point_minimal_length_dict: {Point: int}, unique_constructions_dict: {int: int},
                  generated_constructions: List[Construction]):
     # Perform our final report
     print(f'\033[32mMinimal Construction of Points at {time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.localtime())}')
-    print(f'\tDiscovered {len(point_minimal_construction_length)} constructed points\033[0m')
+    print(f'\tDiscovered {len(point_minimal_length_dict)} constructed points\033[0m')
     # Minimal Construction Length for each point
     print('\033[32mMinimal Construction Length for each point:')
     for point, length in point_minimal_length_dict.items():
@@ -197,7 +205,7 @@ def generate_constructions_breadth_first_search(queue: Queue, generated_construc
     while not queue.empty():
         queue_construction, new_object = queue.get()
         if verbose:
-            print('\033[34m Dequeued:', len(queue_construction), new_object)
+            print('\033[34m Dequeued:', len(queue_construction), new_object, '\033[0m')
         if len(queue_construction) > max_search_depth:
             # If we are too deep, skip this one and move to the next one in queue
             continue
@@ -228,6 +236,8 @@ def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Co
     Runs a breadth-first-search for new points and constructions from the base construction.
     NOTE: This is a serial Breadth-first search. A parallelized version of this search exists in the server file.
 
+    :param construction_mode:
+    :param report:
     :param queue: Queue that holds the constructions that we need to build off of.
     :param previously_generated_constructions_dict: Dictionary whose keys are previously generated constructions and
     values are ints. This should logically be a set, but since multiprocess does not have a shared set, we can make due
@@ -259,20 +269,25 @@ def run_bfs_in_series(queue: Queue, previously_generated_constructions_dict: {Co
         print_report(point_minimal_construction_dict, unique_constructions, generated_construction_list)
 
 
-def find_all_constructions_of_length(max_depth: int, verbose=False, report=True,construction_mode=ConstructionMode.DEFAULT):
+def find_all_constructions_of_length(max_depth: int, verbose=False, report=True,
+                                     construction_mode=ConstructionMode.DEFAULT):
     # Declare some constants
-    point_minimal_construction_length_dict: {Point: int} = {}  # Contain the minimal construction length of each new point
+    # Contain the minimal construction length of each new point
+    point_minimal_construction_length_dict: {Point: int} = {}
     construction_queue = Queue()  # Job queue. Holds the constructions to analyze next
 
     # Keys are the generated constructions (which are added to queue),
     # values are dummy, since multiprocessing managers only work with dicts
     generated_constructions_dict: {Construction: int} = {}
-    run_bfs_in_series(construction_queue, generated_constructions_dict, point_minimal_construction_length_dict, max_depth, verbose, report,construction_mode=construction_mode)
+    run_bfs_in_series(construction_queue, generated_constructions_dict, point_minimal_construction_length_dict,
+                      max_depth, verbose, report, construction_mode=construction_mode)
+    unique_constructions = simplify_all_constructions_in_set(generated_constructions_dict.keys())
+    return unique_constructions
 
 
 if __name__ == '__main__':
-    #run_bfs_in_series(construction_job_queue, generated_constructions, point_minimal_construction_length, maximum_depth)
-    #find_all_constructions_of_length(maximum_depth)
+    # run_bfs_in_series(construction_job_queue, generated_constructions, point_minimal_construction_length, maximum_depth)
+    # find_all_constructions_of_length(maximum_depth)
     find_all_constructions_of_length(3, verbose=True, construction_mode=ConstructionMode.DEFAULT)
     find_all_constructions_of_length(3, verbose=True, construction_mode=ConstructionMode.LINES_ONLY)
     find_all_constructions_of_length(3, verbose=True, construction_mode=ConstructionMode.CIRCLES_ONLY)

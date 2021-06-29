@@ -610,6 +610,8 @@ class Construction:
                 used_points.add(point1)
         # Finally, update the self.actions to include all of our newly generated actions, then return it.
         self.actions.update(legal_lines | legal_circles)
+        # Simplify all the actions so we do not get duplicates
+        self.actions = {action.simplify() for action in self.actions}
         return self.actions
 
     @staticmethod
