@@ -36,3 +36,4 @@ class DrawManagerMatPlotLibTestCase(DrawManagerTestCase):
 
     def test_render(self):
         self.draw_manager.render(self.construction)
+        self.draw_manager(self.construction)
