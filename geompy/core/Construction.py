@@ -404,7 +404,8 @@ class Construction:
         :param interesting: Should the point be marked as interesting?
         :return: the point we added
         """
-        self.points.add(point)
+        if point not in self.points:
+            self.points.add(point)
         if interesting:
             self.interesting_points.add(point)
         self.actions = self.get_valid_actions({point})
