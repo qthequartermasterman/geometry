@@ -7,12 +7,14 @@ if USE_EXACT:
     from geompy.core.Line import Line
     from geompy.core.Circle import Circle
     from geompy.core.Construction import Construction
+    from geompy.core.Angle import Angle
 else:
     from geompy.core.Object import Object
     from geompy.core.Point import FastPoint as Point
     from geompy.core.Line import FastLine as Line
     from geompy.core.Circle import FastCircle as Circle
     from geompy.core.Construction import Construction
+    from geompy.core.Angle import Angle
 
 from geompy.core import *
 

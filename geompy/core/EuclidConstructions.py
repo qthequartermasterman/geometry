@@ -1,5 +1,5 @@
 """This file contains various constructions found in Euclid's Elements"""
-from geompy import Point, Construction, Line
+from geompy import Point, Construction, Line, Angle
 from geompy.core.Construction import ConstructionMode
 from geompy.cas import Infinity
 
@@ -117,7 +117,7 @@ def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesti
     circle_dg = construction.add_circle(d, g, interesting=interesting)
     intersections = construction.find_intersections_line_circle(Line(d, a), circle_dg)
     final_point = pick_point_on_side(ab, d, intersections, same_side=False)
-    return Line(a, final_point)
+    return construction.add_line(a, final_point, interesting=interesting)
 
 
 def EuclidI3(construction: Construction, short_line: Line, long_line: Line, interesting=True) -> Line:
@@ -130,6 +130,20 @@ def EuclidI3(construction: Construction, short_line: Line, long_line: Line, inte
     intersections = construction.find_intersections_line_circle(long_line, circle_def)
     e = pick_point_on_side(Line(a, d), b, intersections)
     return Line(a, e)
+
+
+def EuclidI9(construction: Construction, angle: Angle, interesting=True) -> Line:
+    a = angle.vertex_point
+    line1, line2 = angle.line1, angle.line2
+    d = line1.point1 if line1.point1 != a else line1.point2  # pick an arbitrary point on line1 that is not a.
+    # Cut off point E from line2 with length AD
+    e = EuclidI3(construction, short_line=Line(a, d), long_line=line2, interesting=interesting).point2
+    # We need to pick a point opposite DE from A to show which side to erect the equilateral triangle.
+    # Start at D, and walk in the direction of D-A.
+    side = 2*d-a
+    line_de = construction.add_line(d, e, interesting=interesting)
+    f = EuclidI1(construction, line_de, side, interesting=interesting)
+    return construction.add_line(a, f, interesting=interesting)
 
 
 def RandomConstruction(length, construction_mode=ConstructionMode.DEFAULT):
