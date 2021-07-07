@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, skip
 
 from geompy import Point, Line, Angle
 from geompy.core.EuclidConstructions import (check_if_points_on_same_side, EquilateralUnitTriangle, BaseConstruction,
@@ -49,6 +49,7 @@ class Test(TestCase):
         shortened_line = EuclidI3(construction, short_line=short_line, long_line=long_line)
         self.assertEqual(abs(Line(a, b)), abs(shortened_line))
 
+    @skip
     def test_EuclidI9(self):
         construction = BaseConstruction()
         a, b = construction.points

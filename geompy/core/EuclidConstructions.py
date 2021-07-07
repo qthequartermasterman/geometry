@@ -268,7 +268,7 @@ def EuclidI12(construction, line: Line, point: Point, interesting=True) -> Line:
     :return: the perendicular to line passing through point
     """
     if point in line:
-        raise TypeError(f'Cannot drop a perpendicular. Point {point} is on line {line}.')
+        raise ValueError(f'Cannot drop a perpendicular. Point {point} is on line {line}.')
     # rename point as C
     c = point
     d = pick_point_not_on_line_on_side(line, c, same_side=False)  # Pick a point on the opposite side of line from c
