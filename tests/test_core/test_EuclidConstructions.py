@@ -121,7 +121,7 @@ class Test(TestCase):
         if a.name != 'A':
             # Swap the points if we grabbed them backwards
             a, b = b, a
-        c = construction.add_point(Point(0, 10, name='C'))
+        c = construction.add_point(Point(10, 0, name='C'))
         self.assertRaises(ValueError, lambda: DropPerpendicular(construction, Line(a, b), c))
 
     def test_Perpendicular(self):
