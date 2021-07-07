@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from geompy import Point, Line, Angle
 from geompy.core.EuclidConstructions import (check_if_points_on_same_side, EquilateralUnitTriangle, BaseConstruction,
-                                             EuclidI2, EuclidI3, RandomConstruction, EuclidI9)
+                                             EuclidI2, EuclidI3, RandomConstruction, EuclidI9, EuclidI10)
 
 
 class Test(TestCase):
@@ -60,6 +60,16 @@ class Test(TestCase):
         line_bisecting_angle_abc = EuclidI9(construction, angle_abc)
         # Test if the line is the angle bisector by testing if the two sub angles are equal
         self.assertEqual(Angle(line_bisecting_angle_abc, line_ab), Angle(line_bisecting_angle_abc, line_ab))
+
+    def test_EuclidI10(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        line_ab = construction.add_line(a, b)
+        midpoint = EuclidI10(construction, line_ab)
+        self.assertEqual(Point('1/2', 0), midpoint)
 
     def test_RandomConstruction(self):
         for i in range(5):

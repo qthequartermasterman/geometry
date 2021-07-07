@@ -100,6 +100,14 @@ def EuclidI1(construction: Construction, line: Line, side: Point, interesting=Tr
 
 
 def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesting=True) -> Line:
+    """
+    To copy a segment.
+    :param construction:
+    :param line_segment:
+    :param a:
+    :param interesting:
+    :return:
+    """
     if a not in construction.points:
         raise ValueError(f'Cannot copy line segment. Point {a} not in {construction}.')
     # Choose b,c as the ends of the linesegments.
@@ -121,6 +129,14 @@ def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesti
 
 
 def EuclidI3(construction: Construction, short_line: Line, long_line: Line, interesting=True) -> Line:
+    """
+    To cut off a segment.
+    :param construction:
+    :param short_line:
+    :param long_line:
+    :param interesting:
+    :return:
+    """
     if short_line not in construction.lines or long_line not in construction.lines:
         raise ValueError(f'Cannot cut off line segment. {short_line} or {long_line} not in {construction}')
     a, b = long_line.point1, long_line.point2
@@ -133,6 +149,13 @@ def EuclidI3(construction: Construction, short_line: Line, long_line: Line, inte
 
 
 def EuclidI9(construction: Construction, angle: Angle, interesting=True) -> Line:
+    """
+    To bisect an angle.
+    :param construction:
+    :param angle:
+    :param interesting:
+    :return:
+    """
     a = angle.vertex_point
     line1, line2 = angle.line1, angle.line2
     d = line1.point1 if line1.point1 != a else line1.point2  # pick an arbitrary point on line1 that is not a.
@@ -140,10 +163,31 @@ def EuclidI9(construction: Construction, angle: Angle, interesting=True) -> Line
     e = EuclidI3(construction, short_line=Line(a, d), long_line=line2, interesting=interesting).point2
     # We need to pick a point opposite DE from A to show which side to erect the equilateral triangle.
     # Start at D, and walk in the direction of D-A.
-    side = 2*d-a
+    side = 2 * d - a
     line_de = construction.add_line(d, e, interesting=interesting)
     f = EuclidI1(construction, line_de, side, interesting=interesting)
     return construction.add_line(a, f, interesting=interesting)
+
+
+def EuclidI10(construction: Construction, line: Line, interesting=True) -> Point:
+    """
+    To bisect a given finite straight line.
+
+    NOTE: This construction is included in here as written in Elements for completion sake. Erecting a triangle and
+    then bisecting the angle is effective, but slow when drawing every step. Use the perpendicular bisector instead.
+    This construction is given first to make the proof easier.
+    :param construction:
+    :param line:
+    :param interesting:
+    :return:
+    """
+    a, b = line.point1, line.point2
+    side = pick_point_not_on_line(line)  # We don't care which side to erect the triangle.
+    c = EuclidI1(construction, line, side, interesting=interesting)
+    angle = Angle(Line(c, b), Line(c, a))
+    perp_bisector = EuclidI9(construction, angle, interesting=interesting)
+    (intersections,) = construction.find_intersections_line_line(line, perp_bisector)
+    return intersections
 
 
 def RandomConstruction(length, construction_mode=ConstructionMode.DEFAULT):

@@ -23,7 +23,7 @@ class Line(Object):
         :param name: optional string representing the name of the Line
         """
         super().__init__()
-        if point1 == point2:
+        if point1 == point2 and (slope is None or intercept is None):
             raise ValueError(f'Line cannot be uniquely defined from one point: point1={point1} and point2={point2}')
         if slope is None and intercept is None:
             self.point1 = point1
