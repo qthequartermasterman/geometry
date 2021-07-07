@@ -97,6 +97,7 @@ def EuclidI1(construction: Construction, line: Line, side: Point, interesting=Tr
         return c
     else:
         raise ValueError(f'No intersections were on the same side of {line} as point {side}')
+ErectEquilateralTriangle = EuclidI1
 
 
 def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesting=True) -> Line:
@@ -126,6 +127,7 @@ def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesti
     intersections = construction.find_intersections_line_circle(Line(d, a), circle_dg)
     final_point = pick_point_on_side(ab, d, intersections, same_side=False)
     return construction.add_line(a, final_point, interesting=interesting)
+CopySegment = EuclidI2
 
 
 def EuclidI3(construction: Construction, short_line: Line, long_line: Line, interesting=True) -> Line:
@@ -146,7 +148,7 @@ def EuclidI3(construction: Construction, short_line: Line, long_line: Line, inte
     intersections = construction.find_intersections_line_circle(long_line, circle_def)
     e = pick_point_on_side(Line(a, d), b, intersections)
     return Line(a, e)
-
+CutOffSegment = EuclidI3
 
 def EuclidI9(construction: Construction, angle: Angle, interesting=True) -> Line:
     """
@@ -167,6 +169,7 @@ def EuclidI9(construction: Construction, angle: Angle, interesting=True) -> Line
     line_de = construction.add_line(d, e, interesting=interesting)
     f = EuclidI1(construction, line_de, side, interesting=interesting)
     return construction.add_line(a, f, interesting=interesting)
+AngleBisector = EuclidI9
 
 
 def EuclidI10(construction: Construction, line: Line, interesting=True) -> Point:
@@ -188,6 +191,7 @@ def EuclidI10(construction: Construction, line: Line, interesting=True) -> Point
     perp_bisector = EuclidI9(construction, angle, interesting=interesting)
     (intersections,) = construction.find_intersections_line_line(line, perp_bisector)
     return intersections
+Midpoint = EuclidI10
 
 def PerpendicularBisector(construction: Construction, line: Line, interesting=True) -> Line:
     """
@@ -203,6 +207,35 @@ def PerpendicularBisector(construction: Construction, line: Line, interesting=Tr
     circ2 = construction.add_circle(b, a, interesting=interesting)
     intersections = construction.find_intersections(circ1, circ2)  # Only include circle intersections.
     return construction.add_line(*intersections, interesting=interesting)
+
+def EuclidI11(construction: Construction, line: Line, point: Point, interesting=True)-> Line:
+    """
+    To draw a straight line at right angles to a given straight line from a given point on it.
+    "To erect the perpendicular"
+
+    :param construction:
+    :param line:
+    :param point:
+    :param interesting:
+    :return:
+    """
+    # rename point as c
+    c = point
+    # Pick an arbitrary point D on the line.
+    d = line.point1 if line.point1 != point else line.point2
+    # Make CE equal to CD.
+    cCrCD = construction.add_circle(c, d, interesting=interesting)
+    intersections = list(construction.find_intersections_line_circle(line, cCrCD))
+    e = intersections[0] if intersections[0] != d else intersections[1]
+    # Construct the equilateral triangle FDE on DE
+    f = EuclidI1(construction, Line(d,e), pick_point_not_on_line(line))
+    # join CF
+    return construction.add_line(c, f, interesting=interesting)
+
+ErectPerpendicular = EuclidI11
+
+
+
 
 
 def RandomConstruction(length, construction_mode=ConstructionMode.DEFAULT):
