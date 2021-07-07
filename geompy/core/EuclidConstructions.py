@@ -54,7 +54,7 @@ def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
     a = Point(0, 0, 'A')
     b = Point(1, 0, 'B')
     construction.points = {a, b}
-    construction.actions = construction.get_valid_actions({a, b}, True)
+    construction.add_points_to_actions_update_queue({a, b})
     return construction
 
 
