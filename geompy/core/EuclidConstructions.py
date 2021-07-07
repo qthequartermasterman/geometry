@@ -189,6 +189,21 @@ def EuclidI10(construction: Construction, line: Line, interesting=True) -> Point
     (intersections,) = construction.find_intersections_line_line(line, perp_bisector)
     return intersections
 
+def PerpendicularBisector(construction: Construction, line: Line, interesting=True) -> Line:
+    """
+    Erect the perpendicular bisector of a given line much faster.
+    :param construction:
+    :param line:
+    :param interesting:
+    :return:
+    """
+    a, b = line.point1, line.point2
+    # These are the steps of the constructions
+    circ1 = construction.add_circle(a, b, interesting=interesting)
+    circ2 = construction.add_circle(b, a, interesting=interesting)
+    intersections = construction.find_intersections(circ1, circ2)  # Only include circle intersections.
+    return construction.add_line(*intersections, interesting=interesting)
+
 
 def RandomConstruction(length, construction_mode=ConstructionMode.DEFAULT):
     """Generates a random construction of given length. Not included in Euclid, but sometimes useful, nonetheless."""

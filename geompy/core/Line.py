@@ -34,8 +34,9 @@ class Line(Object):
         else:
             self.slope = slope
             self.intercept = intercept
-            self.point1 = Point(0, intercept)
-            self.point2 = Point(1, slope + intercept)
+            if slope != Infinity:
+                self.point1 = Point(0, intercept)
+                self.point2 = Point(1, slope + intercept)
         # self.name = name if name else u'\u0305'.join(f'{point1.name}{point2.name} ')
         self.name = name if name else f'{point1.name}{point2.name}'
         self._simplified = pre_simplified
