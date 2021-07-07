@@ -3,7 +3,8 @@ from unittest import TestCase
 from geompy import Point, Line, Angle
 from geompy.core.EuclidConstructions import (check_if_points_on_same_side, EquilateralUnitTriangle, BaseConstruction,
                                              EuclidI2, EuclidI3, RandomConstruction, EuclidI9, EuclidI10, Midpoint,
-                                             PerpendicularBisector, EuclidI11, ParallelLine)
+                                             PerpendicularBisector, EuclidI11, ParallelLine, Perpendicular,
+                                             DropPerpendicular, ErectPerpendicular)
 
 
 class Test(TestCase):
@@ -93,6 +94,48 @@ class Test(TestCase):
         line_ab = construction.add_line(a, b)
         bisector = EuclidI11(construction, line_ab, Point('1/2', 0))
         self.assertEqual(Line(Point('1/2', 0), Point('1/2', 1)), bisector)
+
+    def test_ErectPerpendicularPointNotOnLineFails(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        c = construction.add_point(Point(1, 10, name='C'))
+        self.assertRaises(ValueError, lambda: ErectPerpendicular(construction, Line(a,b), c))
+
+
+    def test_DropPerpendicular(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        line_ab = construction.add_line(a, b)
+        bisector = EuclidI12(construction, line_ab, Point('1/2', 1))
+        self.assertEqual(Line(Point('1/2', 0), Point('1/2', 1)), bisector)
+
+    def test_DropPerpendicularPointOnLineFails(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        c = construction.add_point(Point(0, 10, name='C'))
+        self.assertRaises(ValueError, lambda: DropPerpendicular(construction, Line(a, b), c))
+
+    def test_Perpendicular(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        c = construction.add_point(Point(1, 10, name='C'))
+        perpendicular = Perpendicular(construction, Line(a,b), c)
+        self.assertEqual(Line(Point(1,0), Point(1,10)), perpendicular)
+        d = construction.add_point(Point(0, 10, name='D'))
+        perpendicular = Perpendicular(construction, Line(a, b), d)
+        self.assertEqual(Line(Point(0, 0), Point(0, 10)), perpendicular)
 
     def test_RandomConstruction(self):
         for i in range(5):

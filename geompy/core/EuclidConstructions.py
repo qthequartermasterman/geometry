@@ -37,6 +37,14 @@ def pick_point_not_on_line(line: Line):
     """Pick a point not on the line for when we do not care about which side."""
     return line.point1 + line.get_perpendicular_at_point(line.point1).get_direction_vector()
 
+def pick_point_not_on_line_on_side(line: Line, side: Point, same_side=True):
+    """Pick a point that is not on the line, but we do care which side."""
+    point2 = line.point1 + line.get_perpendicular_at_point(line.point1).get_direction_vector()
+    if check_if_points_on_same_side(line, side, point2) == same_side:
+        return point2
+    else:
+        return line.point1 - line.get_perpendicular_at_point(line.point1).get_direction_vector()
+
 
 def BaseConstruction(name='', construction_mode=ConstructionMode.DEFAULT):
     """A construction with two points a unit length apart.
@@ -78,8 +86,6 @@ def EuclidI1(construction: Construction, line: Line, side: Point, interesting=Tr
     """
     if side in line:
         raise ValueError(f'Point {side} is on line {line}, so side is ambiguous when erecting triangle.')
-    if line not in construction.lines:
-        raise ValueError(f'Cannot erect triangle. {line} is not in {construction}')
 
     a, b = line.point1, line.point2
     # These are the steps of the constructions
@@ -228,7 +234,7 @@ def EuclidI11(construction: Construction, line: Line, point: Point, interesting=
 
     :param construction: construction in which to do the work
     :param line: the line of which the perpendicular will be erected
-    :param point: point on line
+    :param point: point on line through which perpendicular should pass
     :param interesting: bool representing whether or not to mark subsequent steps as interesting.
     :return: the perendicular to line passing through point
     """
@@ -249,6 +255,46 @@ def EuclidI11(construction: Construction, line: Line, point: Point, interesting=
 
 
 ErectPerpendicular = EuclidI11
+
+def EuclidI12(construction, line: Line, point: Point, interesting=True) -> Line:
+    """
+    To draw a straight line perpendicular to a given infinite straight line from a given point not on it.
+    "To drop a perpendicular"
+
+    :param construction: construction in which to do the work
+    :param line: the line of which the perpendicular will be erected
+    :param point: point not on line through which perpendicular should pass
+    :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+    :return: the perendicular to line passing through point
+    """
+    if point in line:
+        raise TypeError(f'Cannot drop a perpendicular. Point {point} is on line {line}.')
+    # rename point as C
+    c = point
+    d = pick_point_not_on_line_on_side(line, c, same_side=False)  # Pick a point on the opposite side of line from c
+    cCrCD = construction.add_circle(c, d, interesting=interesting)
+    a, b = construction.find_intersections_line_circle(line, cCrCD)
+    side = d
+    f = ErectEquilateralTriangle(construction, Line(a, b), side=side, interesting=interesting)
+    return construction.add_line(c, f)
+
+DropPerpendicular = EuclidI12
+
+def Perpendicular(construction, line: Line, point: Point, interesting=True) -> Line:
+    """
+    Perpendicular to line through point. Will choose the proper construction depending on if point is on the line or not
+
+    :param construction: construction in which to do the work
+    :param line: the line of which the perpendicular will be erected
+    :param point: point through which perpendicular should pass
+    :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+    :return: the perendicular to line passing through point
+    """
+    if point in line:
+        return ErectPerpendicular(construction, line, point, interesting=interesting)
+    else:
+        return DropPerpendicular(construction, line, point, interesting=interesting)
+
 
 
 def EuclidI31(construction, line: Line, point: Point, interesting=True) -> Line:
