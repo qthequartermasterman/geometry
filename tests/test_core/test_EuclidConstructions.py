@@ -3,7 +3,7 @@ from unittest import TestCase
 from geompy import Point, Line, Angle
 from geompy.core.EuclidConstructions import (check_if_points_on_same_side, EquilateralUnitTriangle, BaseConstruction,
                                              EuclidI2, EuclidI3, RandomConstruction, EuclidI9, EuclidI10,
-                                             PerpendicularBisector, EuclidI11)
+                                             PerpendicularBisector, EuclidI11, ParallelLine)
 
 
 class Test(TestCase):
@@ -96,3 +96,10 @@ class Test(TestCase):
         for i in range(5):
             construction = RandomConstruction(length=i)
             self.assertEqual(i, len(construction))
+
+    def test_Parallel(self):
+        construction = BaseConstruction()
+        a = Point(1,1)
+        parallel = ParallelLine(construction, Line(*construction.points), a)
+        self.assertEqual(0, parallel.slope)
+        self.assertEqual(1, parallel.intercept)

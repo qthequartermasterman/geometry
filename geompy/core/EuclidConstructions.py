@@ -234,6 +234,34 @@ def EuclidI11(construction: Construction, line: Line, point: Point, interesting=
 
 ErectPerpendicular = EuclidI11
 
+def EuclidI31(construction, line: Line, point: Point, interesting=True) -> Line:
+    """
+    To draw a straight line through a given point parallel to a given straight line.
+
+    :param construction:
+    :param line:
+    :param point:
+    :param interesting:
+    :return:
+    """
+    if point in line:
+        # If the point is already on the line, the parallel of the line is the line itself
+        return line
+    # rename point as A, points B,C on line
+    a = point
+    b, c = line.point1, line.point2
+    cBrAB = construction.add_circle(b, a, interesting=interesting)
+    intersections = construction.find_intersections_line_circle(line, cBrAB)
+    d = list(intersections)[0]  # It doesn't matter which one we pick.
+    cDrAD = construction.add_circle(d, a, interesting=interesting)
+    intersections = list(construction.find_intersections_circle_circle(cBrAB, cDrAD))
+    e = intersections[0] if intersections[0] != a else intersections[1]  # Pick the intersection not A
+    de = construction.add_line(d, e, interesting=interesting)
+    intersections = list(construction.find_intersections_line_circle(de, cDrAD))
+    f = intersections[0] if intersections[0] != e else intersections[1]
+    return construction.add_line(a,f, interesting=interesting)
+
+ParallelLine = EuclidI31
 
 
 
