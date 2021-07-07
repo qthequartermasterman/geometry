@@ -82,7 +82,8 @@ class Construction:
         self.interesting_circles: {Circle} = set()
 
         # Set containing all the possible actions at any given moment in time.
-        self.actions = set()
+        self._actions: {Union[Line, Circle]} = set()
+        self.new_points_since_last_actions_update: {Point} = set()
 
         # Enum specifying what type of mode this construction should be.
         self.construction_mode = construction_mode
@@ -393,8 +394,9 @@ class Construction:
             self.steps_set.add(step)
         # Get new points and actions
         new_points = self.update_intersections_with_object(step)
-        self.actions.discard(step)
-        self.actions = self.get_valid_actions(new_points)
+        self.discard_action(step)
+        # self.actions = self.get_valid_actions(new_points)
+        self.add_points_to_actions_update_queue(new_points)
         return step
 
     def add_point(self, point: Point, interesting=False) -> Point:
@@ -407,7 +409,8 @@ class Construction:
         self.points.add(point)
         if interesting:
             self.interesting_points.add(point)
-        self.actions = self.get_valid_actions({point})
+        # self.actions = self.get_valid_actions({point})
+        self.add_points_to_actions_update_queue({point})
         return point
 
     def add_random_construction(self, number_of_steps=1, interesting=True):
@@ -551,7 +554,7 @@ class Construction:
         else:
             self.add_circle(point1, point2)
 
-    def get_valid_actions(self, focus_points: {Point} = None, force_calculate=False) -> [Union[Line, Circle]]:
+    def update_valid_actions(self, force_calculate=False) -> {Union[Line, Circle]}:
         """
         Finds all the valid actions (lines/circles) that can be drawn on a given construction.
         If focus_points is defined then this will find all distinct pairs of points where the first point is in
@@ -564,7 +567,6 @@ class Construction:
 
         TODO: Identify a better algorithm that can determine if an action is valid without generating it first.
 
-        :param: focus_points: {Point} Set of Points representing the most recently added points.
         :param: force_calculate: bool representing whether or not to look at all pairs of points for new actions
         :return: Returns a list of circles and lines corresponding to valid moves from the current construction
         """
@@ -577,13 +579,13 @@ class Construction:
         # construction.
         # If focus_points is not defined, we should determine with force_calculate whether to try all the point
         # combinations or simply skip any calculations and return the previously generated actions.
-        if focus_points is None:
+        if self.new_points_since_last_actions_update is None:
             if force_calculate is True:
                 combinations = itertools.combinations(self.points, 2)
             else:
-                return self.actions
+                return self._actions
         else:
-            combinations = itertools.product(focus_points, self.points)
+            combinations = itertools.product(self.new_points_since_last_actions_update, self.points)
 
         # Iterate over all of the pairs and generate possible appropriate actions with that pair of points.
         # If an action is appropriate, add it to the corresponding legal actions set.
@@ -609,10 +611,31 @@ class Construction:
                         legal_circles.add(circle2)
                 used_points.add(point1)
         # Finally, update the self.actions to include all of our newly generated actions, then return it.
-        self.actions.update(legal_lines | legal_circles)
+        self._actions.update(legal_lines | legal_circles)
         # Simplify all the actions so we do not get duplicates
-        self.actions = {action.simplify() for action in self.actions}
-        return self.actions
+        self._actions = {action.simplify() for action in self._actions}
+        # Clear out the points queue
+        self.new_points_since_last_actions_update = set()
+        return self._actions
+
+    def add_points_to_actions_update_queue(self, focus_points: {Point} = None) -> {Point}:
+        """
+        Add all of the focus_points to self.new_points_since_last_actions_update. Those points will be used to update
+        self.actions the next time self.actions is needed. This gives us the advantage of speed when we do not need
+        self.actions, but also lets us save duplicate computations down the line.
+
+        :param focus_points:
+        :return: the current points in the update actions queue
+        """
+        self.new_points_since_last_actions_update.update(focus_points)
+        return self.new_points_since_last_actions_update
+
+    def discard_action(self, step: Union[Line, Circle]) -> None:
+        self._actions.discard(step)
+
+    @property
+    def actions(self):
+        return self.update_valid_actions()
 
     @staticmethod
     def _boundary_endpoints_image_space_from_line(line: Line, boundary_radius: int, resolution: int) -> (
@@ -837,20 +860,6 @@ class Construction:
             for column in row:
                 line_string += '*' if column > 0 else ' '
             print(line_string)
-
-    def execute_move(self, move_number):
-        """
-
-        :param move_number: index of the correct action in self.actions
-        :return:
-        """
-        move = self.actions[move_number]
-        if type(move) == type(Line):
-            self.add_line(move.point1, move.point2, interesting=True)
-        elif type(move) == type(Circle):
-            self.add_circle(move.point1, point2=move.point2, interesting=True)
-        else:
-            raise NotImplementedError
 
     def simplify(self):
         self.points = {point.simplify() for point in self.points}
