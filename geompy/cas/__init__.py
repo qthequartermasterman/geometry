@@ -31,4 +31,22 @@ else:
                                   is_nan,
                                   full_simplify)
 
-alphabet = list(map(chr, range(97, 123)))
+# alphabet = list(map(chr, range(97, 123)))
+
+
+def alphabet(index: int):
+    if index < 0:
+        raise ValueError(f'Cannot find letter with index {index}. Index is too small.')
+    elif index == 0:
+        return 'a'
+    list_of_remainders = []
+    while index:
+        # Keep dividing by 26. The remainder is the next letter. The index goes to the next round.
+        index, remainder = divmod(index, 26)
+        list_of_remainders.append(remainder)
+    if len(list_of_remainders) > 1:
+        list_of_remainders[-1] -= 1
+    string = ''.join(map(lambda x: chr(97+x), list_of_remainders))[::-1]  # Return reversed string
+    return string
+
+
