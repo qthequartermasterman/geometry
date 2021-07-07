@@ -70,11 +70,11 @@ def EuclidI1(construction: Construction, line: Line, side: Point, interesting=Tr
     An extra point is required to specify which side of the line to construct the triangle. Euclid takes for granted
     that it can be done on either side, and does so on the top, without loss of generality.
 
-    :param construction:
-    :param line:
-    :param side:
+    :param construction: construction in which to do the work
+    :param line: line upon which to construct the triangle. line's point1 and point2 should be vertices of triangle
+    :param side: any point on the same side of line as the desired vertex
     :param interesting: bool representing whether or not to mark subsequent steps as interesting.
-    :return:
+    :return: the point representing the third vertex of the equilateral triangle
     """
     if side in line:
         raise ValueError(f'Point {side} is on line {line}, so side is ambiguous when erecting triangle.')
@@ -97,17 +97,19 @@ def EuclidI1(construction: Construction, line: Line, side: Point, interesting=Tr
         return c
     else:
         raise ValueError(f'No intersections were on the same side of {line} as point {side}')
+
+
 ErectEquilateralTriangle = EuclidI1
 
 
 def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesting=True) -> Line:
     """
     To copy a segment.
-    :param construction:
-    :param line_segment:
-    :param a:
-    :param interesting:
-    :return:
+    :param construction: construction in which to do the work
+    :param line_segment: Line segment to be copied
+    :param a: the first point of the new, copied line segment
+    :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+    :return: a new line whose point1 is a and point2 is the distance of line_segment away from a
     """
     if a not in construction.points:
         raise ValueError(f'Cannot copy line segment. Point {a} not in {construction}.')
@@ -127,17 +129,19 @@ def EuclidI2(construction: Construction, line_segment: Line, a: Point, interesti
     intersections = construction.find_intersections_line_circle(Line(d, a), circle_dg)
     final_point = pick_point_on_side(ab, d, intersections, same_side=False)
     return construction.add_line(a, final_point, interesting=interesting)
+
+
 CopySegment = EuclidI2
 
 
 def EuclidI3(construction: Construction, short_line: Line, long_line: Line, interesting=True) -> Line:
     """
     To cut off a segment.
-    :param construction:
-    :param short_line:
-    :param long_line:
-    :param interesting:
-    :return:
+    :param construction: construction in which to do the work
+    :param short_line: the line whose point1 and point2 are the desired length apart
+    :param long_line: the longer line from which we will cut the distance of short_line off
+    :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+    :return: line equal to long_line, but whose point2 is a cut off to the appropriate length
     """
     if short_line not in construction.lines or long_line not in construction.lines:
         raise ValueError(f'Cannot cut off line segment. {short_line} or {long_line} not in {construction}')
@@ -148,15 +152,18 @@ def EuclidI3(construction: Construction, short_line: Line, long_line: Line, inte
     intersections = construction.find_intersections_line_circle(long_line, circle_def)
     e = pick_point_on_side(Line(a, d), b, intersections)
     return Line(a, e)
+
+
 CutOffSegment = EuclidI3
+
 
 def EuclidI9(construction: Construction, angle: Angle, interesting=True) -> Line:
     """
     To bisect an angle.
-    :param construction:
-    :param angle:
-    :param interesting:
-    :return:
+    :param construction: construction in which to do the work
+    :param angle: angle from which to bisect
+    :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+    :return: the line that bisects angle
     """
     a = angle.vertex_point
     line1, line2 = angle.line1, angle.line2
@@ -169,6 +176,8 @@ def EuclidI9(construction: Construction, angle: Angle, interesting=True) -> Line
     line_de = construction.add_line(d, e, interesting=interesting)
     f = EuclidI1(construction, line_de, side, interesting=interesting)
     return construction.add_line(a, f, interesting=interesting)
+
+
 AngleBisector = EuclidI9
 
 
@@ -179,10 +188,10 @@ def EuclidI10(construction: Construction, line: Line, interesting=True) -> Point
     NOTE: This construction is included in here as written in Elements for completion sake. Erecting a triangle and
     then bisecting the angle is effective, but slow when drawing every step. Use the perpendicular bisector instead.
     This construction is given first to make the proof easier.
-    :param construction:
-    :param line:
-    :param interesting:
-    :return:
+    :param construction: construction in which to do the work
+    :param line: line segment to be bisected
+    :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+    :return: the midpoint of the line
     """
     a, b = line.point1, line.point2
     side = pick_point_not_on_line(line)  # We don't care which side to erect the triangle.
@@ -191,15 +200,18 @@ def EuclidI10(construction: Construction, line: Line, interesting=True) -> Point
     perp_bisector = EuclidI9(construction, angle, interesting=interesting)
     (intersections,) = construction.find_intersections_line_line(line, perp_bisector)
     return intersections
+
+
 Midpoint = EuclidI10
+
 
 def PerpendicularBisector(construction: Construction, line: Line, interesting=True) -> Line:
     """
     Erect the perpendicular bisector of a given line much faster.
-    :param construction:
-    :param line:
-    :param interesting:
-    :return:
+    :param construction: construction in which to do the work
+    :param line: line segment to be bisected
+    :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+    :return: the perpendicular bisector of line
     """
     a, b = line.point1, line.point2
     # These are the steps of the constructions
@@ -208,17 +220,20 @@ def PerpendicularBisector(construction: Construction, line: Line, interesting=Tr
     intersections = construction.find_intersections(circ1, circ2)  # Only include circle intersections.
     return construction.add_line(*intersections, interesting=interesting)
 
-def EuclidI11(construction: Construction, line: Line, point: Point, interesting=True)-> Line:
+
+def EuclidI11(construction: Construction, line: Line, point: Point, interesting=True) -> Line:
     """
     To draw a straight line at right angles to a given straight line from a given point on it.
     "To erect the perpendicular"
 
-    :param construction:
-    :param line:
-    :param point:
-    :param interesting:
-    :return:
+    :param construction: construction in which to do the work
+    :param line: the line of which the perpendicular will be erected
+    :param point: point on line
+    :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+    :return: the perendicular to line passing through point
     """
+    if point not in line:
+        raise ValueError(f'Cannot erect a perpendicular. Point {point} is not on line {line}.')
     # rename point as c
     c = point
     # Pick an arbitrary point D on the line.
@@ -228,21 +243,23 @@ def EuclidI11(construction: Construction, line: Line, point: Point, interesting=
     intersections = list(construction.find_intersections_line_circle(line, cCrCD))
     e = intersections[0] if intersections[0] != d else intersections[1]
     # Construct the equilateral triangle FDE on DE
-    f = EuclidI1(construction, Line(d,e), pick_point_not_on_line(line))
+    f = EuclidI1(construction, Line(d, e), pick_point_not_on_line(line))
     # join CF
     return construction.add_line(c, f, interesting=interesting)
 
+
 ErectPerpendicular = EuclidI11
+
 
 def EuclidI31(construction, line: Line, point: Point, interesting=True) -> Line:
     """
     To draw a straight line through a given point parallel to a given straight line.
 
-    :param construction:
-    :param line:
-    :param point:
-    :param interesting:
-    :return:
+    :param construction: construction in which to do the work
+    :param line: the original line, whose parallel we will find
+    :param point: point through which the parallel should pass
+    :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+    :return: the parallel to line passing through point
     """
     if point in line:
         # If the point is already on the line, the parallel of the line is the line itself
@@ -259,11 +276,10 @@ def EuclidI31(construction, line: Line, point: Point, interesting=True) -> Line:
     de = construction.add_line(d, e, interesting=interesting)
     intersections = list(construction.find_intersections_line_circle(de, cDrAD))
     f = intersections[0] if intersections[0] != e else intersections[1]
-    return construction.add_line(a,f, interesting=interesting)
+    return construction.add_line(a, f, interesting=interesting)
+
 
 ParallelLine = EuclidI31
-
-
 
 
 def RandomConstruction(length, construction_mode=ConstructionMode.DEFAULT):
