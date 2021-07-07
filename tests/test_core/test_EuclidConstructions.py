@@ -3,7 +3,7 @@ from unittest import TestCase
 from geompy import Point, Line, Angle
 from geompy.core.EuclidConstructions import (check_if_points_on_same_side, EquilateralUnitTriangle, BaseConstruction,
                                              EuclidI2, EuclidI3, RandomConstruction, EuclidI9, EuclidI10, Midpoint,
-                                             PerpendicularBisector, EuclidI11, ParallelLine, Perpendicular,
+                                             PerpendicularBisector, EuclidI11, EuclidI12, ParallelLine, Perpendicular,
                                              DropPerpendicular, ErectPerpendicular)
 
 
