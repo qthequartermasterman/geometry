@@ -107,7 +107,7 @@ class Construction:
                 intersect.dependencies.update({object1, object2})
                 if not intersect.name:
                     # intersect.name = f'"{i}"'
-                    intersect.name = alphabet[i]
+                    intersect.name = alphabet(i)
                 i += 1
             self.points.update(intersections)
             if interesting:
@@ -404,9 +404,12 @@ class Construction:
         :param interesting: Should the point be marked as interesting?
         :return: the point we added
         """
-        self.points.add(point)
-        if interesting:
-            self.interesting_points.add(point)
+        if point not in self.points:
+            if not point.name:
+                point.name = alphabet(len(self.points))
+            self.points.add(point)
+            if interesting:
+                self.interesting_points.add(point)
         self.actions = self.get_valid_actions({point})
         return point
 
