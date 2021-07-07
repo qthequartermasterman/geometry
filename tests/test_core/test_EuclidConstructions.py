@@ -49,7 +49,6 @@ class Test(TestCase):
         shortened_line = EuclidI3(construction, short_line=short_line, long_line=long_line)
         self.assertEqual(abs(Line(a, b)), abs(shortened_line))
 
-    @skip
     def test_EuclidI9(self):
         construction = BaseConstruction()
         a, b = construction.points
