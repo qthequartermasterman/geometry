@@ -1,5 +1,5 @@
 from geompy.core.Object import Object
-from geompy.core.EuclidConstructions import RandomConstruction
+from geompy.core.PrebuiltConstructions import RandomConstruction
 
 from sympy.combinatorics import Permutation
 from sympy.combinatorics.perm_groups import PermutationGroup

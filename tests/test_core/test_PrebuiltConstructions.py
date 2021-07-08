@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from geompy import Point
-from geompy.core.EuclidConstructions import (EquilateralUnitTriangle, BaseConstruction, RandomConstruction)
+from geompy.core.PrebuiltConstructions import (EquilateralUnitTriangle, BaseConstruction, RandomConstruction)
 
 
 class Test(TestCase):

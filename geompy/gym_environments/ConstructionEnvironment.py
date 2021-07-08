@@ -5,7 +5,7 @@ from geompy.core.Point import Point
 from geompy.core.Line import Line
 from geompy.core.Circle import Circle
 from geompy.core.Construction import Construction
-from geompy.core.EuclidConstructions import RandomConstruction
+from geompy.core.PrebuiltConstructions import RandomConstruction
 import numpy as np
 
 

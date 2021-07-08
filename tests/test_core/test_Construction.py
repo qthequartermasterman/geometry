@@ -3,7 +3,7 @@ from .test_constants import GeometryTestCase
 from geompy.core.Construction import Construction
 from geompy.core.Point import Point
 from geompy.core.Line import Line
-from geompy.core.EuclidConstructions import BaseConstruction
+from geompy.core.PrebuiltConstructions import BaseConstruction
 from geompy.core.Angle import Angle
 from copy import deepcopy
 
