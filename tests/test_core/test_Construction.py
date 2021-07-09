@@ -2,6 +2,9 @@ from .test_constants import GeometryTestCase
 
 from geompy.core.Construction import Construction
 from geompy.core.Point import Point
+from geompy.core.Line import Line
+from geompy.core.PrebuiltConstructions import BaseConstruction
+from geompy.core.Angle import Angle
 from copy import deepcopy
 
 
@@ -153,5 +156,134 @@ class TestConstruction(GeometryTestCase):
         point_d = Point(1, 0)
         line = construction.add_line(point_c, point_d)
 
-        self.assertEqual(construction.update_intersections_with_object(line), {Point(1, 0), Point(0,1)})
-        self.assertEqual(construction.update_intersections_with_object(circle), {Point(1, 0), Point(0,1)})
+        self.assertEqual(construction.update_intersections_with_object(line), {Point(1, 0), Point(0, 1)})
+        self.assertEqual(construction.update_intersections_with_object(circle), {Point(1, 0), Point(0, 1)})
+
+    def test_check_if_points_on_same_side(self):
+        a = Point(0, 0)
+        b = Point(1, 0)
+        c = Point(1, 1)
+        d = Point(2, 2)
+        e = Point(-1, -2)
+        line1 = Line(a, b)
+        self.assertTrue(Construction.check_if_points_on_same_side(line1, c, d))
+        self.assertFalse(Construction.check_if_points_on_same_side(line1, c, e))
+
+        line2 = Line(a, c)
+        self.assertTrue(Construction.check_if_points_on_same_side(line2, b, e))
+
+        self.assertRaises(ValueError, lambda: Construction.check_if_points_on_same_side(line1, a, c))
+
+        line3 = Line(b, c)  # Vertical Line
+        self.assertFalse(Construction.check_if_points_on_same_side(line3, d, e))
+        self.assertTrue(Construction.check_if_points_on_same_side(line3, Point(10, 100), Point(10, 0)))
+
+    def test_EuclidI2(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        c = construction.add_point(Point(1, 1))
+        new_line = construction.EuclidI2(Line(a, b), c)
+        self.assertEqual(abs(Line(a, b)), abs(new_line))
+
+    def test_EuclidI3(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        c = construction.add_point(Point(10, 10, name='C'))
+        short_line = construction.add_line(a, b)
+        long_line = construction.add_line(a, c)
+        shortened_line = construction.EuclidI3(short_line=short_line, long_line=long_line)
+        self.assertEqual(abs(Line(a, b)), abs(shortened_line))
+
+    def test_EuclidI10(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        line_ab = construction.add_line(a, b)
+        midpoint = construction.EuclidI10(line_ab)
+        self.assertEqual(Point('1/2', 0), midpoint)
+        midpoint = construction.Midpoint(line_ab)
+        self.assertEqual(Point('1/2', 0), midpoint)
+
+    def test_PerpendicularBisector(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        line_ab = construction.add_line(a, b)
+        bisector = construction.PerpendicularBisector(line_ab)
+        self.assertEqual(Line(Point('1/2', 0), Point('1/2', 1)), bisector)
+
+    def test_ErectPerpendicular(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        line_ab = construction.add_line(a, b)
+        bisector = construction.EuclidI11(line_ab, Point('1/2', 0))
+        self.assertEqual(Line(Point('1/2', 0), Point('1/2', 1)), bisector)
+
+    def test_ErectPerpendicularPointNotOnLineFails(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        c = construction.add_point(Point(1, 10, name='C'))
+        self.assertRaises(ValueError, lambda: construction.ErectPerpendicular(Line(a, b), c))
+
+    def test_DropPerpendicular(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        line_ab = construction.add_line(a, b)
+        bisector = construction.EuclidI12(line_ab, Point('1/2', 1))
+        self.assertEqual(Line(Point('1/2', 0), Point('1/2', 1)), bisector)
+
+    def test_DropPerpendicularPointOnLineFails(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        c = construction.add_point(Point(10, 0, name='C'))
+        self.assertRaises(ValueError, lambda: construction.DropPerpendicular(Line(a, b), c))
+
+    def test_Perpendicular(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        c = construction.add_point(Point(1, 10, name='C'))
+        perpendicular = construction.Perpendicular(Line(a, b), c)
+        self.assertEqual(Line(Point(1, 0), Point(1, 10)), perpendicular)
+        d = construction.add_point(Point(0, 10, name='D'))
+        perpendicular = construction.Perpendicular(Line(a, b), d)
+        self.assertEqual(Line(Point(0, 0), Point(0, 10)), perpendicular)
+
+    def test_Parallel(self):
+        construction = BaseConstruction()
+        a = Point(1, 1)
+        parallel = construction.ParallelLine(Line(*construction.points), a)
+        self.assertEqual(0, parallel.slope)
+        self.assertEqual(1, parallel.intercept)
+
+    def test_EuclidI9(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        c = construction.add_point(Point(1, 1, name='C'))
+        line_ab = construction.add_line(a, b)
+        line_ac = construction.add_line(a, c)
+        angle_abc = Angle(line_ab, line_ac, a)
+        line_bisecting_angle_abc = construction.EuclidI9(angle_abc)
+        # Test if the line is the angle bisector by testing if the two sub angles are equal
+        self.assertEqual(Angle(line_bisecting_angle_abc, line_ab, a), Angle(line_bisecting_angle_abc, line_ab, a))

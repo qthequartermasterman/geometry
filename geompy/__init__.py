@@ -20,5 +20,5 @@ from geompy.core import *
 
 __all__ = [
     # core
-    'Object', 'Point', 'Line', 'Circle', 'Construction', 'EuclidConstructions'
+    'Object', 'Point', 'Line', 'Circle', 'Construction', 'PrebuiltConstructions.py', 'Angle'
 ]

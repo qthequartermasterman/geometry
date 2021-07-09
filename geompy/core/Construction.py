@@ -1,22 +1,22 @@
 import random
 from typing import Union
 import itertools
+from enum import Enum
 
-import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from skimage import draw
 
 from .Object import Object
+from .Angle import Angle
 from geompy.core import Circle, Line, Point
 from geompy.cas import alphabet
 from geompy.cas import Expr, sqrt, sympify, Infinity
-from enum import Enum
 
 
 class ConstructionMode(Enum):
     """
-    Enum containing the different modes for a construction.
+    Enum containing the different modes for a self.
     This allows you to limit the tools (compass/circles or lines/straightedge) you can use to build constructions.
     DEFAULT: Both compass and straightedge are considered valid tools.
     LINES_ONLY: Only straightedges are considered valid tools. Compasses are forbidden
@@ -36,7 +36,7 @@ class Construction:
     aforementioned set of points. Additionally, lines, circles, and points must be "iteratively generated" from an
     initial set of points.
 
-    In a Euclidean construction, the only valid actions are:
+    In a Euclidean self, the only valid actions are:
     1. Pick 2 points from the set of constructed points, and draw a line through them.
     2. Pick 2 points from the set of constructed points, and draw a circle with the first as the center and the second
     as a radius, or
@@ -47,16 +47,16 @@ class Construction:
     set of points.
 
     Euclid's elements show that these three actions are sufficient to "construct" a significant number of points and
-    shapes. For example, Euclid's Book I construction 1 creates an equilateral triangle from 2 points using 3 lines and
+    shapes. For example, Euclid's Book I self 1 creates an equilateral triangle from 2 points using 3 lines and
     2 circles.
 
     For convenience sake, the Construction class also maintains a list and set of steps. The list is ordered, so that
-    we can know exactly what order to draw the steps to recreate the construction. The set is (obviously) unordered,
+    we can know exactly what order to draw the steps to recreate the self. The set is (obviously) unordered,
     so that two constructions with the same sets but in different orders (which thus create the same points) can be
     considered equivalent.
 
     Additionally, for convenience, we also maintain a set of "interesting" points, lines, and circles, since a given
-    construction can have _many_ intermediate steps, that although necessary for the construction, do little else other
+    self can have _many_ intermediate steps, that although necessary for the self, do little else other
     than clutter and confuse.
 
     Finally, also for convenience, we maintain a set of "actions" representing the valid actions at any given time, so
@@ -76,7 +76,7 @@ class Construction:
         self.steps: [Line, Circle] = []
         self.steps_set: {Line, Circle} = set()
 
-        # Member variables for our automated construction hunting
+        # Member variables for our automated self hunting
         self.interesting_points: {Point} = set()
         self.interesting_lines: {Line} = set()
         self.interesting_circles: {Circle} = set()
@@ -85,7 +85,7 @@ class Construction:
         self._actions: {Union[Line, Circle]} = set()
         self.new_points_since_last_actions_update: {Point} = set()
 
-        # Enum specifying what type of mode this construction should be.
+        # Enum specifying what type of mode this self should be.
         self.construction_mode = construction_mode
 
     # @lru_cache()
@@ -275,10 +275,10 @@ class Construction:
 
     def find_point(self, point: Point):
         """
-        Find a given point in the given construction. Although two points are considered equal if they have the same
+        Find a given point in the given self. Although two points are considered equal if they have the same
         coordinates, their names and dependencies may differ. This information can sometimes be useful. So we can return
-        the equivalent point within a construction.
-        :param point: a point to find in the construction.
+        the equivalent point within a self.
+        :param point: a point to find in the self.
         :return: the point within the set equal to the given one.
         """
         for internal_point in self.points:
@@ -288,7 +288,7 @@ class Construction:
 
     def update_intersections_with_object(self, obj: Object) -> {Point}:
         """
-        Calculate the set of intersection points with the given object and all other objects in the construction.
+        Calculate the set of intersection points with the given object and all other objects in the self.
 
         TODO: Find a way to do this in less than O(n) time, where n is the number of shapes
 
@@ -312,9 +312,9 @@ class Construction:
 
     def check_lengths(self, length: Expr) -> bool:
         """
-        Check every length in a construction and compare against the given length
+        Check every length in a self and compare against the given length
 
-        :param length: the desired length to find in a construction.
+        :param length: the desired length to find in a self.
         :return: string containing the two points and length
         """
         for point1 in self.points:
@@ -338,7 +338,7 @@ class Construction:
     def add_circle(self, center: Point, point2: Point,
                    counts_as_step: bool = True, interesting: bool = False) -> Circle:
         """
-        Add a circle to the construction with a given center and radius point.
+        Add a circle to the self with a given center and radius point.
         :param center: center point of the the circle
         :param point2: radius point of the circle
         :param counts_as_step: if true, the step will be added to the steps list/set. If false, not.
@@ -351,7 +351,7 @@ class Construction:
 
     def add_line(self, point1: Point, point2: Point, counts_as_step=True, interesting=False) -> Line:
         """
-        Add a line to the construction with the given generating points.
+        Add a line to the self with the given generating points.
         :param point1: first generating point of line
         :param point2: second generating point of line
         :param counts_as_step: if true, the step will be added to the steps list/set. If false, not.
@@ -387,7 +387,7 @@ class Construction:
             if interesting:
                 self.interesting_circles.add(step)
         else:
-            raise TypeError(f'Cannot add step {step} of type {type(step)} to a construction.')
+            raise TypeError(f'Cannot add step {step} of type {type(step)} to a self.')
         # If the step should count as a step, add it to those sets.
         if counts_as_step:
             self.steps.append(step)
@@ -401,7 +401,7 @@ class Construction:
 
     def add_point(self, point: Point, interesting=False) -> Point:
         """
-        Add a point to a construction.
+        Add a point to a self.
         :param point: the given point
         :param interesting: Should the point be marked as interesting?
         :return: the point we added
@@ -417,10 +417,10 @@ class Construction:
 
     def add_random_construction(self, number_of_steps=1, interesting=True):
         """
-        Add a number of random steps to the construction.
+        Add a number of random steps to the self.
         :param interesting: bool representing whether new intersection points should be considered "interesting"
         :param number_of_steps: number of random steps to add
-        :return: the last construction added to the diagram
+        :return: the last self added to the diagram
         """
         construction = None
         for _ in range(number_of_steps):
@@ -528,7 +528,7 @@ class Construction:
 
     def perform_action(self, action, boundary_radius: int, resolution: int):
         """
-        Interpret the integer id of the action and perform it in the construction
+        Interpret the integer id of the action and perform it in the self
         :param action: A number or gym discrete action
         :param boundary_radius: 
         :param resolution: int representing how many pixels are in the image space lengthwise
@@ -543,7 +543,7 @@ class Construction:
 
     def perform_action_continuous(self, action: np.array, boundary_radius: int) -> None:
         """
-        Interpret the action and perform it in the construction
+        Interpret the action and perform it in the self
         :param action: np.array with shape (5,) where the first two floats are the coordinates
             of the first point, and last two are the last point.
         :param boundary_radius: how far away from the origin is "1 unit"
@@ -558,19 +558,19 @@ class Construction:
 
     def update_valid_actions(self, force_calculate=False) -> {Union[Line, Circle]}:
         """
-        Finds all the valid actions (lines/circles) that can be drawn on a given construction.
+        Finds all the valid actions (lines/circles) that can be drawn on a given self.
         If focus_points is defined then this will find all distinct pairs of points where the first point is in
         focus_points, and the second point is in self.points. No pair can have the same point twice. Otherwise, it
         iterates over all pairs of distinct points.
 
         Once the pairs of points are chosen, it adds all of the appropriate actions to the self.valid_moves set. An
-        action is appropriate if and only if it is permitted in the current construction mode
-        (DEFAULT/CIRCLES_ONLY/LINES_ONLY) and that object does not already exist in the construction.
+        action is appropriate if and only if it is permitted in the current self mode
+        (DEFAULT/CIRCLES_ONLY/LINES_ONLY) and that object does not already exist in the self.
 
         TODO: Identify a better algorithm that can determine if an action is valid without generating it first.
 
         :param: force_calculate: bool representing whether or not to look at all pairs of points for new actions
-        :return: Returns a list of circles and lines corresponding to valid moves from the current construction
+        :return: Returns a list of circles and lines corresponding to valid moves from the current self
         """
         legal_lines: {Line} = set()  # Set of lines showing legal lines
         legal_circles: {Circle} = set()  # Set of circles showing legal circles
@@ -578,7 +578,7 @@ class Construction:
         # Determine the combinations of points to focus on.
         # Since self.valid_actions contains all actions generated by previous points, we can save compute by simply
         # checking all of the new points (defined in focus_points) and pairing them with all of the other points in the
-        # construction.
+        # self.
         # If focus_points is not defined, we should determine with force_calculate whether to try all the point
         # combinations or simply skip any calculations and return the previously generated actions.
         if self.new_points_since_last_actions_update is None:
@@ -598,8 +598,8 @@ class Construction:
         used_points: {Point} = set()
         for point1, point2 in combinations:
             if point1 != point2 and point1 not in used_points:
-                # An action is appropriate if and only if it is permitted in the current construction mode
-                # (DEFAULT/CIRCLES_ONLY/LINES_ONLY) and that object does not already exist in the construction.
+                # An action is appropriate if and only if it is permitted in the current self mode
+                # (DEFAULT/CIRCLES_ONLY/LINES_ONLY) and that object does not already exist in the self.
                 if self.construction_mode in (ConstructionMode.DEFAULT, ConstructionMode.LINES_ONLY):
                     line = Line(point1, point2)
                     if line not in self.lines | legal_lines:
@@ -684,11 +684,11 @@ class Construction:
 
     def numpy(self, boundary_radius: int, resolution: int, interesting=False) -> np.array:
         """
-        Generate a numpy array that encodes the diagram of this construction.
+        Generate a numpy array that encodes the diagram of this self.
         :param boundary_radius: int representing how far from the origin we should generate in both x and y directions
         :param resolution: int representing how many pixels we can use in both the x and y directions
         :param interesting: bool specifying if we only include interesting features in the numpy representation
-        :return: np.array encoding the construction as multiple images. The layers represent the points, lines, circles
+        :return: np.array encoding the self as multiple images. The layers represent the points, lines, circles
         """
 
         # Indicate interesting if specified, otherwise we will look at all the features
@@ -775,14 +775,14 @@ class Construction:
 
     def __len__(self) -> int:
         """
-        :return: the length of the steps list (the number of steps in the construction)
+        :return: the length of the steps list (the number of steps in the self)
         """
         return len(self.steps)
 
     def __hash__(self) -> int:
         """
         Constructions are considered equivalent if they have the same points and steps (regardless of order)
-        :return: a unique hash that represents the the construction.
+        :return: a unique hash that represents the the self.
         """
         # Turn the steps into a set first, so that permuting the steps doesn't change the equality.
         self.simplify()
@@ -793,7 +793,7 @@ class Construction:
         Constructions are considered equivalent if they have the same points and steps (regardless of order)
         :return: true if the two constructions have the same points and steps.
         """
-        # If the other is a construction, and points and steps match (not necessarily in same order), then equal
+        # If the other is a self, and points and steps match (not necessarily in same order), then equal
         return isinstance(other, Construction) and self.steps_set == other.steps_set
 
     def __repr__(self) -> str:
@@ -814,11 +814,11 @@ class Construction:
         Get a networkx graph that encodes the dependency information of each object.
 
         :param zero_index: Specifies whether or not the graph elements have labels that start at zero or one.
-        :return: object_labels is a dictionary {Object: int} where the keys are objects in the construction and the
+        :return: object_labels is a dictionary {Object: int} where the keys are objects in the self and the
         values are assigned indices. Note: If zero_index is not specified, these indices start at 1, not 0,
         since that is the tradition in group theory.
-        :return: nx.DiGraph represented directed acyclic graph generated by the lines and circles in a construction.
-        There is a directed edge from an object to all other objects that directly depend on it in their construction.
+        :return: nx.DiGraph represented directed acyclic graph generated by the lines and circles in a self.
+        There is a directed edge from an object to all other objects that directly depend on it in their self.
         """
         directed_graph = nx.DiGraph()
         construction_objects = self.steps
@@ -837,13 +837,13 @@ class Construction:
 
     def get_conjugate_constructions(self, zero_index=False):
         """
-        I define conjugate constructions as an equivalent construction that generates the exact same diagram.
-        This is often possible since not every step in a construction depends on every step before it. In that case, we
+        I define conjugate constructions as an equivalent self that generates the exact same diagram.
+        This is often possible since not every step in a self depends on every step before it. In that case, we
         can permute those independent steps. A careful analysis shows, however, that this is equivalent to getting all
-        the topological sorts of the directed acyclic graph generated by the lines and circles in a construction. There
-        is a directed edge from an object to all other objects that directly depend on it in their construction.
+        the topological sorts of the directed acyclic graph generated by the lines and circles in a self. There
+        is a directed edge from an object to all other objects that directly depend on it in their self.
 
-        :return: object_labels is a dictionary {Object: int} where the keys are objects in the construction and the
+        :return: object_labels is a dictionary {Object: int} where the keys are objects in the self and the
         values are assigned indices. Note: If zero_index is not specified, these indices start at 1, not 0, since that
         is the tradition in group theory.
         :return: sorts_list is a list of lists that each represent a different topological sort of indices
@@ -870,3 +870,287 @@ class Construction:
         self.steps = [step.simplify() for step in self.steps]
         self.steps_set = set(self.steps)
         return self
+
+    @staticmethod
+    def check_if_points_on_same_side(line: Line, point1: Point, point2: Point):
+        if point1 in line or point2 in line:
+            raise ValueError(f'At least one point {point1}, {point2} is on {line}')
+
+        if line.slope == Infinity:
+            point1_diff = point1.x - line.point1.x
+            point2_diff = point2.x - line.point1.x
+            # return (point1_diff > 0 and point2_diff > 0) or (point1_diff < 0 and point2_diff < 0)
+            # Check if point1_diff and point2_diff have the same sign.
+            return point1_diff * point2_diff > 0
+        f_point1 = point1.y - line(point1.x)
+        f_point2 = point2.y - line(point2.x)
+
+        # Check if f_point1 and f_point2 have the same sign.
+        return f_point1 * f_point2 > 0
+
+    @staticmethod
+    def pick_point_on_side(line: Line, side: Point, points: {Point}, same_side=True):
+        for intersect in points:
+            if same_side:
+                if Construction.check_if_points_on_same_side(line, side, intersect):
+                    return intersect
+            else:
+                if not Construction.check_if_points_on_same_side(line, side, intersect):
+                    return intersect
+        else:
+            raise ValueError(f'No points were on the same side of {line} as point {side}')
+
+    @staticmethod
+    def pick_point_not_on_line(line: Line):
+        """Pick a point not on the line for when we do not care about which side."""
+        return line.point1 + line.get_perpendicular_at_point(line.point1).get_direction_vector()
+
+    @staticmethod
+    def pick_point_not_on_line_on_side(line: Line, side: Point, same_side=True):
+        """Pick a point that is not on the line, but we do care which side."""
+        point2 = line.point1 + line.get_perpendicular_at_point(line.point1).get_direction_vector()
+        if Construction.check_if_points_on_same_side(line, side, point2) == same_side:
+            return point2
+        else:
+            return line.point1 - line.get_perpendicular_at_point(line.point1).get_direction_vector()
+
+    def EuclidI1(self, line: Line, side: Point, interesting=True) -> Point:
+        """
+        "To construct an equilateral triangle on a given finite straight line."
+        Follows Euclid self of an equilateral triangle on a line segment. Returns the third point of the triangle.
+
+        An extra point is required to specify which side of the line to construct the triangle. Euclid takes for granted
+        that it can be done on either side, and does so on the top, without loss of generality.
+
+        :param self: self in which to do the work
+        :param line: line upon which to construct the triangle. line's point1 and point2 should be vertices of triangle
+        :param side: any point on the same side of line as the desired vertex
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: the point representing the third vertex of the equilateral triangle
+        """
+        if side in line:
+            raise ValueError(f'Point {side} is on line {line}, so side is ambiguous when erecting triangle.')
+
+        a, b = line.point1, line.point2
+        # These are the steps of the constructions
+        circ1 = self.add_circle(a, b, interesting=interesting)
+        circ2 = self.add_circle(b, a, interesting=interesting)
+        intersections = self.find_intersections(circ1, circ2)  # Only include circle intersections.
+        c = None
+        for intersect in intersections:
+            if self.check_if_points_on_same_side(line, side, intersect):
+                c = intersect
+                ac = self.add_line(a, intersect, interesting=interesting)
+                bc = self.add_line(b, intersect, interesting=interesting)
+                break  # Only do it for one intersection point
+        if c:
+            return c
+        else:
+            raise ValueError(f'No intersections were on the same side of {line} as point {side}')
+
+    ErectEquilateralTriangle = EuclidI1
+
+    def EuclidI2(self, line_segment: Line, a: Point, interesting=True) -> Line:
+        """
+        To copy a segment.
+        :param self: self in which to do the work
+        :param line_segment: Line segment to be copied
+        :param a: the first point of the new, copied line segment
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: a new line whose point1 is a and point2 is the distance of line_segment away from a
+        """
+        # Choose b,c as the ends of the line segments.
+        b, c = line_segment.point1, line_segment.point2
+        # Occasionally, we can accidentally choose b = a.
+        # Without loss of generality, choose b != a.
+        if a == b:
+            b, c = c, b
+        ab = self.add_line(a, b, interesting=interesting)
+
+        d = self.EuclidI1(ab, self.pick_point_not_on_line(ab))
+        circle_bc = self.add_circle(b, c, interesting=interesting)
+        intersections = self.find_intersections_line_circle(Line(d, b), circle_bc)
+        g = self.pick_point_on_side(line_segment, d, intersections, same_side=False)
+        circle_dg = self.add_circle(d, g, interesting=interesting)
+        intersections = self.find_intersections_line_circle(Line(d, a), circle_dg)
+        final_point = self.pick_point_on_side(ab, d, intersections, same_side=False)
+        return self.add_line(a, final_point, interesting=interesting)
+
+    CopySegment = EuclidI2
+
+    def EuclidI3(self, short_line: Line, long_line: Line, interesting=True) -> Line:
+        """
+        To cut off a segment.
+        :param self: self in which to do the work
+        :param short_line: the line whose point1 and point2 are the desired length apart
+        :param long_line: the longer line from which we will cut the distance of short_line off
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: line equal to long_line, but whose point2 is a cut off to the appropriate length
+        """
+        if short_line not in self.lines or long_line not in self.lines:
+            raise ValueError(f'Cannot cut off line segment. {short_line} or {long_line} not in {self}')
+        a, b = long_line.point1, long_line.point2
+        line_ad = self.EuclidI2(short_line, a, interesting=interesting)
+        d = line_ad.point2
+        circle_def = self.add_circle(center=a, point2=d, interesting=interesting)
+        intersections = self.find_intersections_line_circle(long_line, circle_def)
+        e = self.pick_point_on_side(Line(a, d), b, intersections)
+        return Line(a, e)
+
+    CutOffSegment = EuclidI3
+
+    def EuclidI9(self, angle: Angle, interesting=True) -> Line:
+        """
+        To bisect an angle.
+        :param self: self in which to do the work
+        :param angle: angle from which to bisect
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: the line that bisects angle
+        """
+        a = angle.vertex_point
+        line1, line2 = angle.line1, angle.line2
+        d = line1.point1 if line1.point1 != a else line1.point2  # pick an arbitrary point on line1 that is not a.
+        # Cut off point E from line2 with length AD
+        e = self.EuclidI3(short_line=Line(a, d), long_line=line2, interesting=interesting).point2
+        # We need to pick a point opposite DE from A to show which side to erect the equilateral triangle.
+        # Start at D, and walk in the direction of D-A.
+        side = 2 * d - a
+        line_de = self.add_line(d, e, interesting=interesting)
+        f = self.EuclidI1(line_de, side, interesting=interesting)
+        return self.add_line(a, f, interesting=interesting)
+
+    AngleBisector = EuclidI9
+
+    def EuclidI10(self, line: Line, interesting=True) -> Point:
+        """
+        To bisect a given finite straight line.
+
+        NOTE: This self is included in here as written in Elements for completion sake. Erecting a triangle and
+        then bisecting the angle is effective, but slow when drawing every step. Use the perpendicular bisector instead.
+        This self is given first to make the proof easier.
+        :param self: self in which to do the work
+        :param line: line segment to be bisected
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: the midpoint of the line
+        """
+        a, b = line.point1, line.point2
+        side = self.pick_point_not_on_line(line)  # We don't care which side to erect the triangle.
+        c = self.EuclidI1(line, side, interesting=interesting)
+        line_cb, line_ca = Line(c, b), Line(c, a)
+        angle = Angle(line_cb, line_ca, c)
+        perp_bisector = self.EuclidI9(angle, interesting=interesting)
+        (intersections,) = self.find_intersections_line_line(line, perp_bisector)
+        return intersections
+
+    Midpoint = EuclidI10
+
+    def PerpendicularBisector(self, line: Line, interesting=True) -> Line:
+        """
+        Erect the perpendicular bisector of a given line much faster.
+        :param self: self in which to do the work
+        :param line: line segment to be bisected
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: the perpendicular bisector of line
+        """
+        a, b = line.point1, line.point2
+        # These are the steps of the constructions
+        circ1 = self.add_circle(a, b, interesting=interesting)
+        circ2 = self.add_circle(b, a, interesting=interesting)
+        intersections = self.find_intersections(circ1, circ2)  # Only include circle intersections.
+        return self.add_line(*intersections, interesting=interesting)
+
+    def EuclidI11(self, line: Line, point: Point, interesting=True) -> Line:
+        """
+        To draw a straight line at right angles to a given straight line from a given point on it.
+        "To erect the perpendicular"
+
+        :param self: self in which to do the work
+        :param line: the line of which the perpendicular will be erected
+        :param point: point on line through which perpendicular should pass
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: the perendicular to line passing through point
+        """
+        if point not in line:
+            raise ValueError(f'Cannot erect a perpendicular. Point {point} is not on line {line}.')
+        # rename point as c
+        c = point
+        # Pick an arbitrary point D on the line.
+        d = line.point1 if line.point1 != point else line.point2
+        # Make CE equal to CD.
+        cCrCD = self.add_circle(c, d, interesting=interesting)
+        intersections = list(self.find_intersections_line_circle(line, cCrCD))
+        e = intersections[0] if intersections[0] != d else intersections[1]
+        # Construct the equilateral triangle FDE on DE
+        f = self.EuclidI1(Line(d, e), self.pick_point_not_on_line(line))
+        # join CF
+        return self.add_line(c, f, interesting=interesting)
+
+    ErectPerpendicular = EuclidI11
+
+    def EuclidI12(self, line: Line, point: Point, interesting=True) -> Line:
+        """
+        To draw a straight line perpendicular to a given infinite straight line from a given point not on it.
+        "To drop a perpendicular"
+
+        :param self: self in which to do the work
+        :param line: the line of which the perpendicular will be erected
+        :param point: point not on line through which perpendicular should pass
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: the perendicular to line passing through point
+        """
+        if point in line:
+            raise ValueError(f'Cannot drop a perpendicular. Point {point} is on line {line}.')
+        # rename point as C
+        c = point
+        d = self.pick_point_not_on_line_on_side(line, c, same_side=False)  # Pick a point on the opposite side of line from c
+        cCrCD = self.add_circle(c, d, interesting=interesting)
+        a, b = self.find_intersections_line_circle(line, cCrCD)
+        side = d
+        f = self.ErectEquilateralTriangle(Line(a, b), side=side, interesting=interesting)
+        return self.add_line(c, f)
+
+    DropPerpendicular = EuclidI12
+
+    def Perpendicular(self, line: Line, point: Point, interesting=True) -> Line:
+        """
+        Perpendicular to line through point. Will choose the proper self depending on if point is on the line or not
+
+        :param construction: self in which to do the work
+        :param line: the line of which the perpendicular will be erected
+        :param point: point through which perpendicular should pass
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: the perpendicular to line passing through point
+        """
+        if point in line:
+            return self.ErectPerpendicular(line, point, interesting=interesting)
+        else:
+            return self.DropPerpendicular(line, point, interesting=interesting)
+
+    def EuclidI31(self, line: Line, point: Point, interesting=True) -> Line:
+        """
+        To draw a straight line through a given point parallel to a given straight line.
+
+        :param self: self in which to do the work
+        :param line: the original line, whose parallel we will find
+        :param point: point through which the parallel should pass
+        :param interesting: bool representing whether or not to mark subsequent steps as interesting.
+        :return: the parallel to line passing through point
+        """
+        if point in line:
+            # If the point is already on the line, the parallel of the line is the line itself
+            return line
+        # rename point as A, points B,C on line
+        a = point
+        b, c = line.point1, line.point2
+        cBrAB = self.add_circle(b, a, interesting=interesting)
+        intersections = self.find_intersections_line_circle(line, cBrAB)
+        d = list(intersections)[0]  # It doesn't matter which one we pick.
+        cDrAD = self.add_circle(d, a, interesting=interesting)
+        intersections = list(self.find_intersections_circle_circle(cBrAB, cDrAD))
+        e = intersections[0] if intersections[0] != a else intersections[1]  # Pick the intersection not A
+        de = self.add_line(d, e, interesting=interesting)
+        intersections = list(self.find_intersections_line_circle(de, cDrAD))
+        f = intersections[0] if intersections[0] != e else intersections[1]
+        return self.add_line(a, f, interesting=interesting)
+
+    ParallelLine = EuclidI31

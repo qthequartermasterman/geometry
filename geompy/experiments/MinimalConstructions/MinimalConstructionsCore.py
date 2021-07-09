@@ -1,7 +1,7 @@
 import geompy.core
 from geompy.core.Circle import Circle
 from geompy import Construction
-from geompy.core.EuclidConstructions import BaseConstruction
+from geompy.core.PrebuiltConstructions import BaseConstruction
 from geompy import Point
 from geompy.core.Line import Line
 from geompy import Object

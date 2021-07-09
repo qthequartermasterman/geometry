@@ -1,6 +1,6 @@
 from unittest import TestCase
 from geompy.core.DrawManager import DrawManagerMatPlotLib
-from geompy.core.EuclidConstructions import BaseConstruction, EquilateralUnitTriangle
+from geompy.core.PrebuiltConstructions import BaseConstruction, EquilateralUnitTriangle
 
 
 class DrawManagerTestCase(TestCase):

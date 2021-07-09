@@ -1,13 +1,12 @@
 from .Object import Object
 from .Line import Line
-from .Construction import Construction
 from .Point import Point
 from geompy.cas import equals
 from math import acos
 
 
 class Angle(Object):
-    def __init__(self, line1: Line, line2: Line):
+    def __init__(self, line1: Line, line2: Line, vertex_point: Point):
         """
         Create a new angle. Note, the "interior" of the angle is oriented between the two rays pointing in the
         directions of line1's and line2's direction vectors.
@@ -17,7 +16,7 @@ class Angle(Object):
         super().__init__()
         self.line1 = line1
         self.line2 = line2
-        (self.vertex_point,) = Construction.find_intersections_line_line(line1, line2)
+        self.vertex_point = vertex_point
         self.dependencies = {line1, line2}
 
     @property
