@@ -176,26 +176,26 @@ class Construction:
         diff = b - y0  # This subtraction shows up frequently. This is just so we do not need to repeat it.
 
         # Coefficients of the substituted equation in terms of x. When expanded, it forms a quadratic equation on x.
-        A = 1 + m ** 2
+        coefficient_a = 1 + m ** 2
         # Technically, the B coefficient is twice this quantity, but we will be factoring out a 2 of everything else
         # later on.
-        B = -x0 + m * diff
+        coefficient_b = -x0 + m * diff
         # Technically, the C coefficient is twice this quantity, but we will be factoring out a 2 of everything else
         # later on.
-        C = x0 ** 2 + diff ** 2 - r ** 2
+        coefficient_c = x0 ** 2 + diff ** 2 - r ** 2
 
         # Again, the discriminant should be $b^2-4ac$, but we can simplify the quadratic equation in this case by
         # factoring out the aforementioned 2
-        discriminant = B ** 2 - A * C
+        discriminant = coefficient_b ** 2 - coefficient_a * coefficient_c
         if discriminant < 0:  # There are no real solutions, so the line and circle do not intersect on the plane
             return {}
         elif discriminant == 0:  # The line is tangent and there is one real solution
-            x = -B / A
+            x = -coefficient_b / coefficient_a
             y = line(x)
             return {Point(x, y)}
         else:  # The discriminant is positive, so there are two real solutions and the line is secant
-            x1 = (-B + sqrt(discriminant)) / A
-            x2 = (-B - sqrt(discriminant)) / A
+            x1 = (-coefficient_b + sqrt(discriminant)) / coefficient_a
+            x2 = (-coefficient_b - sqrt(discriminant)) / coefficient_a
             y1 = line(x1)
             y2 = line(x2)
             return {Point(x1, y1), Point(x2, y2)}
@@ -939,8 +939,8 @@ class Construction:
         for intersect in intersections:
             if self.check_if_points_on_same_side(line, side, intersect):
                 c = intersect
-                ac = self.add_line(a, intersect, interesting=interesting)
-                bc = self.add_line(b, intersect, interesting=interesting)
+                self.add_line(a, intersect, interesting=interesting)
+                self.add_line(b, intersect, interesting=interesting)
                 break  # Only do it for one intersection point
         if c:
             return c
@@ -1005,7 +1005,8 @@ class Construction:
         """
         a = angle.vertex_point
         line1, line2 = angle.line1, angle.line2
-        d = line1.point1 if line1.point1 != a else line1.point2  # pick an arbitrary point on line1 that is not a.
+        # pick an arbitrary point on line1 that is not a.
+        d: Point = line1.point1 if line1.point1 != a else line1.point2
         # Cut off point E from line2 with length AD
         e = self.EuclidI3(short_line=Line(a, d), long_line=line2, interesting=interesting).point2
         # We need to pick a point opposite DE from A to show which side to erect the equilateral triangle.
@@ -1070,8 +1071,8 @@ class Construction:
         # Pick an arbitrary point D on the line.
         d = line.point1 if line.point1 != point else line.point2
         # Make CE equal to CD.
-        cCrCD = self.add_circle(c, d, interesting=interesting)
-        intersections = list(self.find_intersections_line_circle(line, cCrCD))
+        circle_center_c_radius_cd = self.add_circle(c, d, interesting=interesting)
+        intersections = list(self.find_intersections_line_circle(line, circle_center_c_radius_cd))
         e = intersections[0] if intersections[0] != d else intersections[1]
         # Construct the equilateral triangle FDE on DE
         f = self.EuclidI1(Line(d, e), self.pick_point_not_on_line(line))
@@ -1094,9 +1095,10 @@ class Construction:
             raise ValueError(f'Cannot drop a perpendicular. Point {point} is on line {line}.')
         # rename point as C
         c = point
-        d = self.pick_point_not_on_line_on_side(line, c, same_side=False)  # Pick a point on the opposite side of line from c
-        cCrCD = self.add_circle(c, d, interesting=interesting)
-        a, b = self.find_intersections_line_circle(line, cCrCD)
+        # Pick a point on the opposite side of line from c
+        d = self.pick_point_not_on_line_on_side(line, c, same_side=False)
+        circle_center_c_radius_cd = self.add_circle(c, d, interesting=interesting)
+        a, b = self.find_intersections_line_circle(line, circle_center_c_radius_cd)
         side = d
         f = self.ErectEquilateralTriangle(Line(a, b), side=side, interesting=interesting)
         return self.add_line(c, f)
@@ -1133,14 +1135,15 @@ class Construction:
         # rename point as A, points B,C on line
         a = point
         b, c = line.point1, line.point2
-        cBrAB = self.add_circle(b, a, interesting=interesting)
-        intersections = self.find_intersections_line_circle(line, cBrAB)
+        circle_center_b_radius_ba = self.add_circle(b, a, interesting=interesting)
+        intersections = self.find_intersections_line_circle(line, circle_center_b_radius_ba)
         d = list(intersections)[0]  # It doesn't matter which one we pick.
-        cDrAD = self.add_circle(d, a, interesting=interesting)
-        intersections = list(self.find_intersections_circle_circle(cBrAB, cDrAD))
+        circle_center_d_radius_da = self.add_circle(d, a, interesting=interesting)
+        intersections = list(self.find_intersections_circle_circle(circle_center_b_radius_ba,
+                                                                   circle_center_d_radius_da))
         e = intersections[0] if intersections[0] != a else intersections[1]  # Pick the intersection not A
         de = self.add_line(d, e, interesting=interesting)
-        intersections = list(self.find_intersections_line_circle(de, cDrAD))
+        intersections = list(self.find_intersections_line_circle(de, circle_center_d_radius_da))
         f = intersections[0] if intersections[0] != e else intersections[1]
         return self.add_line(a, f, interesting=interesting)
 

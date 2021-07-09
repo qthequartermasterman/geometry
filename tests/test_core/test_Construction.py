@@ -140,7 +140,7 @@ class TestConstruction(GeometryTestCase):
 
     def test_intersection_circle_line_tangent2(self):
         construction = self.construction1
-        # Circle with radius=2, so we can avoid using sqrts in this test
+        # Circle with radius=2, so we can avoid using sqrt in this test
         circle = construction.add_circle(self.pointA, Point(1, 1))
 
         point_c = Point(0, 2)
@@ -153,7 +153,7 @@ class TestConstruction(GeometryTestCase):
 
     def test_intersection_circle_line_secant(self):
         construction = self.construction1
-        # Circle with radius=2, so we can avoid using sqrts in this test
+        # Circle with radius=2, so we can avoid using sqrt in this test
         circle = construction.add_circle(self.pointA, self.pointB)
 
         point_c = Point(0, 1)
@@ -365,7 +365,6 @@ class TestConstruction(GeometryTestCase):
         construction2.add_circle(center=a, point2=b)
         self.assertEqual(4, len(construction.actions))
         self.assertEqual(4, len(construction2.actions))
-
 
     def test_update_valid_actions_with_force(self):
         construction = BaseConstruction()
