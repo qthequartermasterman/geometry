@@ -1,3 +1,5 @@
+import copy
+
 from .test_constants import GeometryTestCase
 
 from geompy.core.Construction import Construction
@@ -5,6 +7,8 @@ from geompy.core.Point import Point
 from geompy.core.Line import Line
 from geompy.core.PrebuiltConstructions import BaseConstruction
 from geompy.core.Angle import Angle
+from geompy.cas import sympify
+
 from copy import deepcopy
 
 
@@ -287,3 +291,100 @@ class TestConstruction(GeometryTestCase):
         line_bisecting_angle_abc = construction.EuclidI9(angle_abc)
         # Test if the line is the angle bisector by testing if the two sub angles are equal
         self.assertEqual(Angle(line_bisecting_angle_abc, line_ab, a), Angle(line_bisecting_angle_abc, line_ab, a))
+
+    def test_Intersections_WeirdTypes_Fails(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        line_ab = Line(a, b)
+        self.assertRaises(NotImplementedError, lambda: construction.find_intersections(a, b))  # Two Points
+        self.assertRaises(NotImplementedError, lambda: construction.find_intersections(2, 3))  # Two ints
+        self.assertRaises(NotImplementedError, lambda: construction.find_intersections(a, 2))  # int and point
+        self.assertRaises(NotImplementedError, lambda: construction.find_intersections(a, line_ab))  # line and point
+
+    def test_intersect_circles_that_do_not_intersect(self):
+        """Generate two circles that do NOT intersect. Should give an empty set as the intersections"""
+        construction = Construction()
+        a = construction.add_point(Point(0, 0))
+        b = construction.add_point(Point(1, 0))
+        c = construction.add_point(Point(5, 0))
+        d = construction.add_point(Point(6, 0))
+        circle_ab = construction.add_circle(center=a, point2=b)
+        circle_cd = construction.add_circle(center=c, point2=d)
+        intersections = construction.find_intersections_circle_circle(circle_ab, circle_cd)
+        self.assertEqual(set(), intersections)
+
+    def test_find_point(self):
+        construction = BaseConstruction()
+        # Point is in construction
+        a = Point(0, 0)
+        self.assertEqual(a, construction.find_point(a))
+        # Point is not in construction
+        c = Point(10, 10)
+        self.assertEqual(None, construction.find_point(c))
+
+    def test_check_lengths(self):
+        construction = BaseConstruction()
+        construction.add_point(Point(0, 1))
+        construction.add_point(Point(1, 1))
+        # Present lengths are 1 and sqrt(2).
+        self.assertTrue(construction.check_lengths(1))
+        self.assertTrue(construction.check_lengths(sympify('sqrt(2)')))
+        # All other lengths should not be present
+        self.assertFalse(construction.check_lengths(2))
+
+    def test_get_present_lengths(self):
+        construction = BaseConstruction()
+        construction.add_point(Point(0, 1))
+        construction.add_point(Point(1, 1))
+        # There are only two present lengths, so the length of the dictionary should be 2
+        self.assertEqual(2, len(construction.get_present_lengths()))
+
+    def test_add_random_construction(self):
+        for i in range(5):
+            construction = BaseConstruction()
+            construction.add_random_construction(i)
+            self.assertEqual(i, len(construction))
+
+    def test_update_valid_actions_no_force(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        # At first, we have only 3 valid actions.
+        self.assertEqual(3, len(construction.actions))
+
+        # Now we check if checking the actions at each step gives us the same as checking just at the end (Just in time)
+        construction2 = copy.deepcopy(construction)
+        # Add the line AB
+        construction.add_line(*construction.points)
+        construction2.add_line(*construction2.points)
+        self.assertEqual(2, len(construction.actions))  # Only check the first construction
+        # Circle A rAB
+        construction.add_circle(center=a, point2=b)
+        construction2.add_circle(center=a, point2=b)
+        self.assertEqual(4, len(construction.actions))
+        self.assertEqual(4, len(construction2.actions))
+
+
+    def test_update_valid_actions_with_force(self):
+        construction = BaseConstruction()
+        a, b = construction.points
+        if a.name != 'A':
+            # Swap the points if we grabbed them backwards
+            a, b = b, a
+        # At first, we have only 3 valid actions.
+        self.assertEqual(3, len(construction.update_valid_actions(force_calculate=True)))
+
+        # Now we check if checking the actions at each step gives us the same as checking just at the end (Just in time)
+        construction2 = copy.deepcopy(construction)
+        # Add the line AB
+        construction.add_line(*construction.points)
+        construction2.add_line(*construction2.points)
+        # Only check the first construction
+        self.assertEqual(2, len(construction.update_valid_actions(force_calculate=True)))
+        # Circle A rAB
+        construction.add_circle(center=a, point2=b)
+        construction2.add_circle(center=a, point2=b)
+        self.assertEqual(4, len(construction.update_valid_actions(force_calculate=True)))
+        self.assertEqual(4, len(construction2.update_valid_actions(force_calculate=True)))

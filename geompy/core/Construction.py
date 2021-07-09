@@ -1,17 +1,17 @@
-import random
-from typing import Union
 import itertools
+import random
 from enum import Enum
+from typing import Union
 
 import networkx as nx
 import numpy as np
 from skimage import draw
 
-from .Object import Object
-from .Angle import Angle
-from geompy.core import Circle, Line, Point
+from geompy.cas import Expr, sqrt, Infinity
 from geompy.cas import alphabet
-from geompy.cas import Expr, sqrt, sympify, Infinity
+from geompy.core import Circle, Line, Point
+from .Angle import Angle
+from .Object import Object
 
 
 class ConstructionMode(Enum):
@@ -236,13 +236,13 @@ class Construction:
         # them here for computational speed.
         if distance_between_centers == 0:
             # Circles that have same center are either coincident or one is contained within the other
-            return {}
+            return set()
         elif distance_between_centers_float > float((r1 + r2).evalf()):
             # Circles are too far apart to intersect
-            return {}
+            return set()
         elif distance_between_centers_float < float(abs(r1 - r2).evalf()):
             # One circle contained in other
-            return {}
+            return set()
         else:
             # For certain, our circles intercept.
             # Calculate the distance to the intersection area center.
@@ -387,7 +387,7 @@ class Construction:
             if interesting:
                 self.interesting_circles.add(step)
         else:
-            raise TypeError(f'Cannot add step {step} of type {type(step)} to a self.')
+            raise TypeError(f'Cannot add step {step} of type {type(step)} to a construction.')
         # If the step should count as a step, add it to those sets.
         if counts_as_step:
             self.steps.append(step)
@@ -758,7 +758,7 @@ class Construction:
 
     def _numpy_circles(self, boundary_radius: int, resolution: int, circle_set: {Circle}) -> np.array:
         """
-        Generate a numpy array that has only the circless in image space.
+        Generate a numpy array that has only the circles in image space.
         :param boundary_radius: int representing how far from the origin we should generate in both x and y directions
         :param resolution: int representing how many pixels we can use in both the x and y directions
         :param circle_set: the set of circles to encode in our image
@@ -922,7 +922,6 @@ class Construction:
         An extra point is required to specify which side of the line to construct the triangle. Euclid takes for granted
         that it can be done on either side, and does so on the top, without loss of generality.
 
-        :param self: self in which to do the work
         :param line: line upon which to construct the triangle. line's point1 and point2 should be vertices of triangle
         :param side: any point on the same side of line as the desired vertex
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
@@ -953,7 +952,6 @@ class Construction:
     def EuclidI2(self, line_segment: Line, a: Point, interesting=True) -> Line:
         """
         To copy a segment.
-        :param self: self in which to do the work
         :param line_segment: Line segment to be copied
         :param a: the first point of the new, copied line segment
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
@@ -981,7 +979,6 @@ class Construction:
     def EuclidI3(self, short_line: Line, long_line: Line, interesting=True) -> Line:
         """
         To cut off a segment.
-        :param self: self in which to do the work
         :param short_line: the line whose point1 and point2 are the desired length apart
         :param long_line: the longer line from which we will cut the distance of short_line off
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
@@ -1002,7 +999,6 @@ class Construction:
     def EuclidI9(self, angle: Angle, interesting=True) -> Line:
         """
         To bisect an angle.
-        :param self: self in which to do the work
         :param angle: angle from which to bisect
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
         :return: the line that bisects angle
@@ -1014,7 +1010,7 @@ class Construction:
         e = self.EuclidI3(short_line=Line(a, d), long_line=line2, interesting=interesting).point2
         # We need to pick a point opposite DE from A to show which side to erect the equilateral triangle.
         # Start at D, and walk in the direction of D-A.
-        side = 2 * d - a
+        side: Point = 2 * d - a
         line_de = self.add_line(d, e, interesting=interesting)
         f = self.EuclidI1(line_de, side, interesting=interesting)
         return self.add_line(a, f, interesting=interesting)
@@ -1028,7 +1024,6 @@ class Construction:
         NOTE: This self is included in here as written in Elements for completion sake. Erecting a triangle and
         then bisecting the angle is effective, but slow when drawing every step. Use the perpendicular bisector instead.
         This self is given first to make the proof easier.
-        :param self: self in which to do the work
         :param line: line segment to be bisected
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
         :return: the midpoint of the line
@@ -1047,7 +1042,6 @@ class Construction:
     def PerpendicularBisector(self, line: Line, interesting=True) -> Line:
         """
         Erect the perpendicular bisector of a given line much faster.
-        :param self: self in which to do the work
         :param line: line segment to be bisected
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
         :return: the perpendicular bisector of line
@@ -1064,11 +1058,10 @@ class Construction:
         To draw a straight line at right angles to a given straight line from a given point on it.
         "To erect the perpendicular"
 
-        :param self: self in which to do the work
         :param line: the line of which the perpendicular will be erected
         :param point: point on line through which perpendicular should pass
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
-        :return: the perendicular to line passing through point
+        :return: the perpendicular to line passing through point
         """
         if point not in line:
             raise ValueError(f'Cannot erect a perpendicular. Point {point} is not on line {line}.')
@@ -1092,11 +1085,10 @@ class Construction:
         To draw a straight line perpendicular to a given infinite straight line from a given point not on it.
         "To drop a perpendicular"
 
-        :param self: self in which to do the work
         :param line: the line of which the perpendicular will be erected
         :param point: point not on line through which perpendicular should pass
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
-        :return: the perendicular to line passing through point
+        :return: the perpendicular to line passing through point
         """
         if point in line:
             raise ValueError(f'Cannot drop a perpendicular. Point {point} is on line {line}.')
@@ -1115,7 +1107,6 @@ class Construction:
         """
         Perpendicular to line through point. Will choose the proper self depending on if point is on the line or not
 
-        :param construction: self in which to do the work
         :param line: the line of which the perpendicular will be erected
         :param point: point through which perpendicular should pass
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
@@ -1130,7 +1121,7 @@ class Construction:
         """
         To draw a straight line through a given point parallel to a given straight line.
 
-        :param self: self in which to do the work
+
         :param line: the original line, whose parallel we will find
         :param point: point through which the parallel should pass
         :param interesting: bool representing whether or not to mark subsequent steps as interesting.
