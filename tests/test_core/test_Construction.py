@@ -363,7 +363,7 @@ class TestConstruction(GeometryTestCase):
         # Circle A rAB
         construction.add_circle(center=a, point2=b)
         construction2.add_circle(center=a, point2=b)
-        self.assertEqual(4, len(construction.actions))
+        self.assertEqual(4, len(construction.actions), msg=f'These are the actions: {construction.actions}')
         self.assertEqual(4, len(construction2.actions))
 
     def test_update_valid_actions_with_force(self):
