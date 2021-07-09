@@ -1,4 +1,4 @@
-__all__ = ['Object', 'Point', 'Line', 'Circle', 'Construction', 'PrebuiltConstructions.py']
+__all__ = ['Object', 'Point', 'Line', 'Circle', 'Construction', 'PrebuiltConstructions']
 
 from geompy import USE_EXACT
 
